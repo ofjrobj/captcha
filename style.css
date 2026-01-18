@@ -1,0 +1,419 @@
+/* style.css */
+
+/* =========================
+   Global vars
+   ========================= */
+:root {
+    --max: 760px;
+    --pad: 18px;
+    --gap: 10px;
+    --border: rgba(0, 0, 0, 0.12);
+    --ink: #111;
+    --blue: #4a90e2;
+
+    --p04-blue: #4a90e2;
+    --p04-yellow: #d4ce25;
+    --p04-pink: #d53974;
+    --p04-black: #111111;
+    --p04-dot-r: 6px;
+    --p04-stroke: 6px;
+    --p04-next-stroke: 6px;
+    --p04-border: rgba(74, 144, 226, 0.30);
+    --p04-pill-border: rgba(74, 144, 226, 0.35);
+    --p04-pill-bg: rgba(74, 144, 226, 0.06);
+    --p04-text: rgba(74, 144, 226, 0.95);
+
+    --p04-wrong: #000000;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* =========================
+   p01 index captcha layout
+   ========================= */
+body {
+    margin: 0;
+    background: #fff;
+    color: var(--ink);
+    font-family: "MyFont", system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
+.page {
+    max-width: var(--max);
+    margin: 46px auto 64px;
+    padding: 0 var(--pad);
+}
+
+.top-spacer {
+    height: 0;
+}
+
+.hero {
+    border: 1px solid var(--border);
+    border-bottom: 0;
+    background: #fff;
+}
+
+.hero img {
+    width: 100%;
+    height: auto;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--gap);
+    padding: var(--gap);
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    background: #fff;
+}
+
+.tile {
+    position: relative;
+    display: block;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+}
+
+.tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tile.is-visited {
+    outline: 3px solid rgba(74, 144, 226, 0.80);
+    outline-offset: -3px;
+}
+
+.footer-ui {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-top: 0;
+    background: #fff;
+}
+
+.footer-left {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.icon-btn {
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(0, 0, 0, 0.16);
+    background: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.icon-btn .icon {
+    font-size: 18px;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.60);
+}
+
+.verify-btn {
+    height: 38px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--blue);
+    color: #fff;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+}
+
+.verify-btn:active {
+    transform: translateY(1px);
+}
+
+@keyframes p01-shake {
+    0% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-6px);
+    }
+
+    40% {
+        transform: translateX(6px);
+    }
+
+    60% {
+        transform: translateX(-4px);
+    }
+
+    80% {
+        transform: translateX(4px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.verify-btn.is-shake {
+    animation: p01-shake 260ms ease;
+}
+
+@media (max-width: 520px) {
+    :root {
+        --gap: 8px;
+    }
+
+    .page {
+        margin: 20px auto 40px;
+    }
+
+    .footer-ui {
+        padding: 10px;
+    }
+}
+/* style.css  (p01-04 관련 섹션만 교체해도 됨) */
+
+/* =========================
+   p01-04 dots
+   ========================= */
+:root{
+  --p04-blue:#4a90e2;
+  --p04-pink:#d53974;
+  --p04-border: rgba(74,144,226,0.30);
+  --p04-pill-border: rgba(74,144,226,0.35);
+  --p04-pill-bg: rgba(74,144,226,0.06);
+  --p04-text: rgba(74,144,226,0.95);
+}
+
+body.p04-body{
+  margin:0;
+  background:#fff;
+  color:var(--p04-blue);
+  font-family: "MyFont", system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR",
+    Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+.p04-page{
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 72px 18px 72px;
+}
+
+.p04-top{
+  display:flex;
+  align-items:center;
+  gap:22px;
+  flex-wrap:wrap;
+  margin: 14px 0 18px;
+}
+
+.p04-meta{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.p04-pill{
+  padding: 6px 10px;
+  border: 1px solid var(--p04-pill-border);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: var(--p04-text);
+  background: var(--p04-pill-bg);
+}
+
+.p04-actions{
+  margin-left:auto;
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.p04-btn{
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(74,144,226,0.40);
+  background: #fff;
+  color: rgba(74,144,226,0.95);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor:pointer;
+}
+
+.p04-btn:hover{ background: rgba(74,144,226,0.06); }
+.p04-btn:disabled{ opacity:0.35; cursor:not-allowed; }
+
+.p04-primary{
+  background: var(--p04-blue);
+  border-color: transparent;
+  color:#fff;
+}
+.p04-primary:hover{ background: rgba(74,144,226,0.92); }
+
+.p04-text{ margin-bottom: 10px; }
+
+.p04-title{
+  margin: 0 0 10px;
+  font-size: 44px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--p04-blue);
+}
+
+.p04-instruction{
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: rgba(74,144,226,0.92);
+}
+
+.p04-quote[hidden]{ display:none; }
+.p04-quote{
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  border-left: 3px solid var(--p04-blue);
+  background: rgba(74,144,226,0.06);
+  border-radius: 12px;
+}
+.p04-quote p{
+  margin:0 0 10px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: rgba(74,144,226,0.98);
+}
+.p04-quote footer{
+  font-size: 13px;
+  color: rgba(74,144,226,0.72);
+}
+
+.p04-stage{
+  border: 1px solid var(--p04-border);
+  border-radius: 14px;
+  background:#fff;
+  overflow:hidden;
+}
+
+.p04-canvas{
+  position: relative;
+}
+
+.p04-stage svg{
+  width:100%;
+  height:auto;
+  display:block;
+  touch-action:none;
+}
+
+.p04-hint{
+  position:absolute;
+  left:12px;
+  bottom:12px;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:0.01em;
+  color: rgba(74,144,226,0.92);
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(74,144,226,0.22);
+  padding: 6px 10px;
+  border-radius: 999px;
+  pointer-events:none;
+}
+
+/* 점: 테두리(하얀 링) 없음 */
+.p04-dot circle{
+  fill:#000;
+  stroke:none;
+}
+
+.p04-dot.is-used circle{
+  opacity: 0.28;
+}
+
+.p04-dot.is-next circle{
+  fill: var(--p04-pink);
+  opacity: 1;
+}
+
+/* 숫자: 2배 정도 크게, 연결되면 JS에서 숨김 */
+.p04-dot text{
+  font-size: 18px;
+  font-weight: 900;
+  fill: #000;
+  paint-order: stroke;
+  stroke: rgba(255,255,255,0.90);
+  stroke-width: 3px;
+  pointer-events:none;
+}
+
+/* 선: 진행 중 핑크, 완료 후 스테이지 클래스에서 검정으로 바뀜 */
+.p04-path{
+  stroke: var(--p04-pink);
+  stroke-width: 6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.p04-stage.is-complete .p04-path{
+  stroke:#000;
+}
+
+/* ===== 글자 영역: 같은 박스 안, 별도 박스 테두리 없음 ===== */
+.p04-letters{
+  border-top: 1px solid rgba(74,144,226,0.18);
+  padding: 16px 16px 18px;
+  background:#fff;
+}
+
+.p04-built{
+  color: rgba(74,144,226,0.82);
+  font-size: clamp(14px, 2.1vw, 22px);
+  font-weight: 600;          /* 너무 굵던 문제 해결 */
+  line-height: 1.55;
+  min-height: 92px;          /* 세로 늘림 */
+  white-space: normal;       /* 두 줄 이상 허용 */
+  word-break: break-word;
+}
+
+.p04-built .ch{
+  display:inline-block;
+  min-width: 0.62em;         /* 자리 유지 */
+}
+
+.p04-built .ch.is-hidden{
+  color: transparent;        /* 점(•) 출력 자체 없음 */
+}
+
+.p04-pool{
+  margin-top: 12px;
+  color: rgba(74,144,226,0.42);
+  font-size: clamp(13px, 2.0vw, 20px);
+  font-weight: 600;
+  line-height: 1.55;
+  min-height: 64px;
+  white-space: normal;
+  word-break: break-all;     /* 공백 없이도 줄바꿈 */
+}

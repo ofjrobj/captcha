@@ -1,0 +1,560 @@
+/* p05.css */
+
+/* Safari에서 검은 타일처럼 뚫리는 현상 방지용 배경 고정 */
+html { background: #ffffff; }
+body { background: #ffffff; }
+
+/* p05 변수는 p05에서만 쓰이도록 범위 제한 */
+body.p05-body{
+  --p05-theme:#4a90e2;
+  --p05-pink:#d53974;
+  --p05-pink2:#b92f62;
+  --p05-yellow:#d4ce25;
+  --p05-red:#c3452e;
+  --p05-green:#4aa058;
+
+  --p05-panelH:820px;
+
+  margin:0;
+  background:#ffffff;
+  color:var(--p05-theme);
+  font-family:"MyFont",system-ui,-apple-system,"Noto Sans KR",sans-serif;
+}
+
+.p05-sheet{
+  max-width:980px;
+  margin:22px auto 40px;
+  padding:18px 18px 26px;
+  border:2px solid var(--p05-theme);
+  border-radius:12px;
+  background:#ffffff;
+}
+
+.p05-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-end;
+  gap:16px;
+  padding:8px 8px 10px;
+}
+
+.p05-meta{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.p05-meta-item{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border:1px solid rgba(74,144,226,0.45);
+  border-radius:999px;
+  background:rgba(74,144,226,0.06);
+}
+
+.p05-ico{
+  font-size:14px;
+  line-height:1;
+  color:var(--p05-theme);
+}
+
+.p05-meta-text{
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:0.03em;
+  color:rgba(74,144,226,0.90);
+}
+
+.p05-title{
+  margin:8px 8px 14px;
+  font-size:34px;
+  font-weight:900;
+  letter-spacing:-0.02em;
+  line-height:1.1;
+  color:var(--p05-theme);
+}
+
+.p05-stage{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:16px;
+  padding:8px;
+  align-items:stretch;
+}
+
+@media (max-width:860px){
+  .p05-stage{ grid-template-columns:1fr; }
+  .p05-board{ height:520px; }
+  .p05-tray{ height:auto; }
+}
+
+/* LEFT */
+.p05-tray{
+  height:var(--p05-panelH);
+  border:1px solid rgba(74,144,226,0.55);
+  border-radius:10px;
+  padding:12px;
+  background:rgba(74,144,226,0.03);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.p05-tray-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.p05-tray-title{
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:-0.01em;
+  color:var(--p05-theme);
+  display:inline-flex;
+  align-items:baseline;
+  gap:10px;
+}
+
+.p05-hoverLabel{
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:0.02em;
+  color:rgba(74,144,226,0.40);
+  min-width:70px;
+  min-height:1em;
+}
+
+.p05-btn{
+  height:32px;
+  padding:0 12px;
+  border:1px solid rgba(74,144,226,0.70);
+  background:#ffffff;
+  color:var(--p05-theme);
+  border-radius:6px;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.p05-btn:hover{ background:rgba(74,144,226,0.06); }
+
+/* Sticker field */
+.p05-stickerfield{
+  position:relative;
+  flex:1 1 auto;
+  min-height:0;
+  border:1px solid rgba(74,144,226,0.18);
+  border-radius:10px;
+  background:rgba(255,255,255,0.90);
+  overflow:hidden;
+}
+
+.p05-sticker{
+  position:absolute;
+  left:calc(var(--x) * 1%);
+  top:calc(var(--y) * 1%);
+  width:calc(var(--s) * 1px);
+  height:calc(var(--s) * 1px);
+  transform:translate(-50%,-50%) rotate(calc(var(--r) * 1deg));
+  transform-origin:center;
+  border:0;
+  background:transparent;
+  padding:0;
+  margin:0;
+  cursor:grab;
+  appearance:none;
+  -webkit-appearance:none;
+  display:grid;
+  place-items:center;
+  opacity:0.78;
+
+  /* 모바일/사파리 드래그 안정화 */
+  touch-action:none;
+}
+
+.p05-sticker:active{ cursor:grabbing; }
+.p05-sticker:hover{ opacity:0.92; }
+
+.p05-sticker.is-done{
+  opacity:0.18;
+  cursor:default;
+}
+
+.p05-sticker.is-dragging{
+  opacity:0;
+}
+
+.p05-sticker:disabled{ pointer-events:none; }
+
+.p05-sticker svg{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+.p05-status{
+  flex:0 0 auto;
+  min-height:22px;
+  padding-top:10px;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:-0.01em;
+  color:rgba(74,144,226,0.92);
+}
+
+.p05-status.is-error{ color:var(--p05-red); }
+
+.p05-progress{
+  flex:0 0 auto;
+  margin-top:auto;
+  padding-top:12px;
+  border-top:1px solid rgba(74,144,226,0.22);
+}
+
+.p05-progress-row{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+
+.p05-progress-left{
+  font-size:14px;
+  font-weight:900;
+}
+
+.p05-progress-right{
+  font-size:12px;
+  font-weight:900;
+  color:rgba(74,144,226,0.75);
+}
+
+.p05-bar{
+  height:10px;
+  border-radius:999px;
+  background:rgba(74,144,226,0.12);
+  overflow:hidden;
+}
+
+.p05-bar-fill{
+  height:100%;
+  background:var(--p05-theme);
+  width:0%;
+  transition:width 420ms ease;
+}
+
+/* RIGHT */
+.p05-board-wrap{
+  width:100%;
+  display:flex;
+  align-items:stretch;
+  gap:18px;
+}
+
+/* label panel (완성 후 2초 뒤 나타남) */
+.p05-labelPanel{
+  flex:0 0 auto;
+  width:0;
+  overflow:hidden;
+  opacity:0;
+  transform:translateX(10px);
+  border:1px solid rgba(74,144,226,0.22);
+  border-radius:10px;
+  background:rgba(74,144,226,0.03);
+  padding:0;
+  pointer-events:none;
+
+  transition:
+    width 600ms ease,
+    opacity 420ms ease,
+    transform 420ms ease,
+    padding 600ms ease;
+}
+
+.p05-labelTitle{
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:-0.01em;
+  color:rgba(74,144,226,0.92);
+  margin:0 0 10px;
+}
+
+.p05-labelList{
+  margin:0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  gap:10px;
+}
+
+.p05-labelItem{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 10px;
+  border:1px solid rgba(74,144,226,0.20);
+  border-radius:10px;
+  background:#ffffff;
+}
+
+.p05-labelName{
+  font-size:13px;
+  font-weight:900;
+  color:rgba(74,144,226,0.92);
+}
+
+.p05-labelSwatch{
+  width:14px;
+  height:14px;
+  border-radius:999px;
+  border:2px solid rgba(74,144,226,0.28);
+  background:rgba(74,144,226,0.08);
+}
+
+/* board */
+.p05-board{
+  width:100%;
+  height:var(--p05-panelH);
+  position:relative;
+  border:1px solid rgba(74,144,226,0.55);
+  border-radius:10px;
+  background:#ffffff;
+  overflow:hidden;
+
+  /* Safari 검은 타일 아티팩트 방지 */
+  isolation:isolate;
+
+  transition:
+    width 600ms ease,
+    height 600ms ease;
+}
+
+/* 완성 후 가로 캔버스 모드 */
+.p05-sheet.is-wide .p05-board{
+  width:720px;
+  height:420px;
+}
+
+.p05-sheet.is-wide .p05-labelPanel{
+  width:260px;
+  opacity:1;
+  transform:none;
+  padding:14px;
+}
+
+@media (max-width:860px){
+  .p05-board-wrap{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .p05-sheet.is-wide .p05-board{
+    width:100%;
+    height:420px;
+  }
+  .p05-sheet.is-wide .p05-labelPanel{
+    width:100%;
+  }
+}
+
+.p05-guide{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+/* 검정 뚫림 재발 방지: 기본 path fill을 투명으로 강제 */
+.p05-guide path{ fill:transparent; stroke:none; }
+.p05-guide line{ stroke:none; }
+.p05-guide circle{ fill:transparent; stroke:none; }
+
+/* guide styling */
+.p05-guide .g-petal path{
+  fill:rgba(213,57,116,0.05);
+  stroke:rgba(213,57,116,0.14);
+  stroke-width:6;
+}
+
+.p05-guide .g-sepal path{
+  fill:rgba(74,160,88,0.06);
+  stroke:rgba(74,160,88,0.16);
+  stroke-width:6;
+}
+
+.p05-guide .g-pistil path{
+  fill:rgba(74,144,226,0.04);
+  stroke:rgba(74,144,226,0.14);
+  stroke-width:6;
+}
+
+.p05-guide .g-stamen line{
+  stroke:rgba(74,144,226,0.14);
+  stroke-width:8;
+  stroke-linecap:round;
+}
+
+.p05-guide .g-stamen circle{
+  fill:rgba(212,206,37,0.08);
+  stroke:rgba(74,144,226,0.10);
+  stroke-width:6;
+}
+
+.p05-guide .g-frame{
+  fill:none;
+  stroke:rgba(74,144,226,0.16);
+  stroke-width:6;
+  stroke-dasharray:16 14;
+}
+
+/* board hint */
+.p05-board-hint{
+  position:absolute;
+  left:18px;
+  bottom:16px;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:-0.01em;
+  color:rgba(74,144,226,0.28);
+  user-select:none;
+  pointer-events:none;
+}
+
+/* slots highlight only */
+.p05-slot{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  outline:none;
+}
+
+.p05-slot.is-error{
+  outline:2px dashed rgba(195,69,46,0.35);
+  outline-offset:-10px;
+}
+
+.p05-slot.is-active{
+  outline:2px dashed rgba(74,144,226,0.35);
+  outline-offset:-10px;
+}
+
+.p05-fixed{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+
+/* fixed parts 기본은 약간 부드럽게, 완성되면 선명 */
+.p05-fixed > div{
+  opacity:0.86;
+  transition:opacity 240ms ease, filter 240ms ease;
+}
+.p05-sheet.is-complete .p05-fixed > div{
+  opacity:1;
+  filter:saturate(1.25) contrast(1.08);
+}
+
+/* 드래그 고스트: Safari 검은 사각형 원인 제거 */
+.p05-ghost{
+  position:fixed;
+  pointer-events:none;
+  z-index:99999;
+  opacity:0.92;
+
+  transform:none;
+  filter:none;
+
+  will-change:transform;
+}
+
+.p05-ghost svg{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+/* shake */
+@keyframes p05-shake{
+  0%{ transform:translate(0,0); }
+  20%{ transform:translate(-6px,0); }
+  40%{ transform:translate(6px,0); }
+  60%{ transform:translate(-4px,0); }
+  80%{ transform:translate(4px,0); }
+  100%{ transform:translate(0,0); }
+}
+
+.p05-board.is-shake{ animation:p05-shake 260ms ease; }
+
+/* manual */
+.p05-manual{
+  margin-top:18px;
+  padding:18px 8px 0;
+  border-top:2px solid rgba(74,144,226,0.55);
+}
+
+.p05-manual-title{
+  margin:0 0 10px;
+  font-size:16px;
+  font-weight:900;
+  letter-spacing:-0.01em;
+  color:var(--p05-theme);
+}
+
+.p05-manual-intro{
+  margin:0 0 14px;
+  font-size:13px;
+  line-height:1.75;
+  color:rgba(74,144,226,0.86);
+}
+
+.p05-steps{
+  display:grid;
+  gap:14px;
+}
+
+.p05-step{
+  padding-top:12px;
+  border-top:1px solid rgba(74,144,226,0.22);
+}
+
+.p05-step:first-child{
+  border-top:0;
+  padding-top:0;
+}
+
+.p05-step-title{
+  margin:0 0 8px;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:-0.01em;
+  color:var(--p05-theme);
+}
+
+.p05-step-list{
+  margin:0;
+  padding-left:18px;
+  display:grid;
+  gap:6px;
+  font-size:13px;
+  line-height:1.75;
+  color:rgba(74,144,226,0.86);
+}
+
+.p05-step-list strong{
+  color:rgba(74,144,226,0.96);
+  font-weight:900;
+}
+
+/* completion mode */
+.p05-sheet.is-complete .p05-stage{ grid-template-columns:1fr; }
+.p05-sheet.is-complete .p05-tray{ display:none; }
+.p05-sheet.is-complete .p05-guide{ opacity:0; }
+.p05-sheet.is-complete .p05-board-hint{ opacity:0; }

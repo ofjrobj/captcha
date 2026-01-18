@@ -1,0 +1,90 @@
+<!-- index.html -->
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Capcha</title>
+
+  <!-- 공용 -->
+  <link rel="stylesheet" href="style.css" />
+  <!-- p01 전용: 반드시 style.css 다음에 -->
+  <link rel="stylesheet" href="p01.css" />
+</head>
+
+<body class="p01-body">
+  <main class="page">
+
+    <div class="top-spacer"></div>
+
+    <section class="hero">
+      <img src="assets/img/p01-00.png" alt="Cover" />
+    </section>
+
+    <section class="grid" id="captchaGrid">
+      <!-- 1,2,7,9는 페이지 진입이 없는 버튼 -->
+      <button class="tile" type="button" data-tile="1" aria-label="tile 1">
+        <img src="assets/img/p01-01.jpg" alt="p01-01" loading="lazy" />
+      </button>
+
+      <button class="tile" type="button" data-tile="2" aria-label="tile 2">
+        <img src="assets/img/p01-02.jpg" alt="p01-02" loading="lazy" />
+      </button>
+
+      <!-- 나머지는 기존처럼 링크 -->
+      <a class="tile" data-tile="3" href="p01-03.html">
+        <img src="assets/img/p01-03.jpg" alt="p01-03" loading="lazy" />
+      </a>
+
+      <a class="tile" data-tile="4" href="p01-04.html">
+        <img src="assets/img/p01-04.jpg" alt="p01-04" loading="lazy" />
+      </a>
+
+      <a class="tile" data-tile="5" href="p01-05.html">
+        <img src="assets/img/p01-05.jpg" alt="p01-05" loading="lazy" />
+      </a>
+
+      <a class="tile" data-tile="6" href="p01-06.html">
+        <img src="assets/img/p01-06.jpg" alt="p01-06" loading="lazy" />
+      </a>
+
+      <button class="tile" type="button" data-tile="7" aria-label="tile 7">
+        <img src="assets/img/p01-07.jpg" alt="p01-07" loading="lazy" />
+      </button>
+
+      <a class="tile" data-tile="8" href="p01-08.html">
+        <img src="assets/img/p01-08.jpg" alt="p01-08" loading="lazy" />
+      </a>
+
+      <button class="tile" type="button" data-tile="9" aria-label="tile 9">
+        <img src="assets/img/p01-09.jpg" alt="p01-09" loading="lazy" />
+      </button>
+    </section>
+
+    <section class="footer-ui" aria-label="footer controls">
+      <div class="footer-left">
+        <button class="icon-btn" type="button" aria-label="refresh" id="resetBtn">
+          <span class="icon">↻</span>
+        </button>
+
+        <button class="icon-btn" type="button" aria-label="audio">
+          <span class="icon">♪</span>
+        </button>
+
+        <button class="icon-btn" type="button" aria-label="info">
+          <span class="icon">i</span>
+        </button>
+      </div>
+
+      <div class="footer-right">
+        <button class="verify-btn" type="button" id="verifyBtn">VERIFY</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

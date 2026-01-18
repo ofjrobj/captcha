@@ -1,0 +1,63 @@
+<!-- p01-04.html -->
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aristotle — Connect the Dots</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="p04-body">
+  <main class="p04-page">
+
+    <section class="p04-text">
+      <h1 class="p04-title"># <strong>Aristotle's Essentialism</strong></h1>
+      <p class="p04-instruction">Drag across dots, or click dots to connect.</p>
+    </section>
+
+    <header class="p04-top">
+      <div class="p04-meta">
+        <div class="p04-pill" id="p04Progress">Dot 0/0</div>
+        <div class="p04-pill" id="p04Timer">Time 00:00.0</div>
+      </div>
+
+      <div class="p04-actions">
+        <button class="p04-btn" id="p04StartBtn">Start</button>
+        <button class="p04-btn" id="p04TryBtn" disabled>Try again</button>
+        <button class="p04-btn" id="p04SkipBtn">Skip</button>
+        <button class="p04-btn p04-primary" id="p04VerifyBtn" disabled>Verify</button>
+      </div>
+    </header>
+
+    <section class="p04-stage-wrap">
+      <div class="p04-stage" id="p04Stage">
+
+        <div class="p04-canvas">
+          <svg id="p04Svg" viewBox="0 0 2048 1895" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="p04SvgTitle">
+            <title id="p04SvgTitle">Connect the dots</title>
+            <g id="p04Lines"></g>
+            <g id="p04Dots"></g>
+          </svg>
+
+          <div class="p04-hint" id="p04Hint">Press Start to begin.</div>
+        </div>
+
+        <section class="p04-letters" aria-label="Quote builder">
+          <div class="p04-built" id="p04Built"></div>
+          <div class="p04-pool" id="p04Pool"></div>
+        </section>
+
+      </div>
+    </section>
+
+    <blockquote class="p04-quote" id="p04Quote" hidden>
+      <p>“The essence of a thing is what it is said to be in virtue of itself, and not in virtue of anything else.”</p>
+      <footer>— Aristotle, <em>Metaphysics</em>, Book VII, 1032a</footer>
+    </blockquote>
+
+  </main>
+
+  <script src="p01-04.js"></script>
+</body>
+</html>

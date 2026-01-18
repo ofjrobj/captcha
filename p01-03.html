@@ -1,0 +1,1436 @@
+<!doctype html>
+<html lang="en-GB">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Fig (Ficus carica) — Is It a Flower?</title>
+
+    <style>
+        :root {
+            --max: 1040px;
+            --pad: 30px;
+            --gap: 10px;
+
+            --theme: #5e8fde;
+            --wrong: #e45b37;
+
+            --border: rgba(0, 0, 0, 0.14);
+            --borderSoft: rgba(0, 0, 0, 0.08);
+            --shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+
+            --ink: #111;
+            --muted: rgba(0, 0, 0, 0.55);
+            --muted2: rgba(0, 0, 0, 0.35);
+
+            --radius: 6px;
+            --radius2: 6px;
+
+            --bubble: 25px;
+            --bubbleFont: 13px;
+
+            --title: 44px;
+            --h2: 18px;
+            --body: 14px;
+
+            --stickyTop: 25px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+            background: #fff;
+            color: var(--theme);
+        }
+
+        .page {
+            max-width: var(--max);
+            margin: 0 auto;
+            padding: 18px var(--pad) 34px;
+        }
+
+        .card {
+            border: 1px solid var(--borderSoft);
+            border-radius: var(--radius2);
+            background: #fff;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            padding: 32px 18px 16px;
+            border: 1px solid var(--borderSoft);
+            border-radius: var(--radius2);
+            background: #fff;
+            box-shadow: var(--shadow);
+        }
+
+        .header-top {
+            position: relative;
+            overflow: hidden;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+
+            gap: 12px;
+            padding: 8px 0 18px;
+
+            min-height: 360px;
+        }
+
+
+        .figmark {
+            width: 340px;
+            height: 250px;
+            display: block;
+            flex: 0 0 auto;
+            margin-top: 6px;
+
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        h1 {
+            margin: 6px 0 0 0;
+            font-size: var(--title);
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            text-align: center;
+            font-weight: 800;
+            position: relative;
+            z-index: 2;
+        }
+
+        .top-actions {
+            position: absolute;
+            right: 14px;
+            top: 14px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* Inputs + score */
+        .meta {
+            margin-top: 14px;
+            padding: 14px;
+        }
+
+        .metaGrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 0.30fr;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .metaCol {
+            grid-column: 1 / 3;
+            display: grid;
+            gap: 12px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 220px 1fr 140px;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .label {
+            font-size: var(--h2);
+            font-weight: 900;
+            line-height: 1.15;
+        }
+
+        .input {
+            width: 100%;
+            height: 42px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0 14px;
+            font-size: var(--h2);
+            color: var(--ink);
+            outline: none;
+            background: #fff;
+        }
+
+        .input:focus {
+            border-color: rgba(94, 143, 222, 0.85);
+            box-shadow: 0 0 0 3px rgba(94, 143, 222, 0.18);
+        }
+
+        .smallBtn {
+            height: 42px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--theme);
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .smallBtn:active {
+            transform: translateY(1px);
+        }
+
+        .scoreBox {
+            grid-column: 3 / 4;
+            padding: 10px;
+            height: 100%;
+            display: grid;
+            gap: 5px;
+            align-content: start;
+        }
+
+        .scoreTitle {
+            font-size: 16px;
+            font-weight: 800;
+            line-height: 1.1;
+            color: var(--theme);
+        }
+
+        .scoreValue {
+            height: 50px;
+            border: 0px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: var(--ink);
+            background: #fff;
+            letter-spacing: 0.01em;
+            font-size: var(--h2);
+        }
+
+        .scoreHint {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.35;
+        }
+
+        /* Main layout */
+        .main {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1.25fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        /* Answer sheet */
+        .sheet {
+            padding: 30px;
+            position: sticky;
+            top: var(--stickyTop);
+        }
+
+        .sheetHeader {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--borderSoft);
+            margin-bottom: 12px;
+        }
+
+        .sheetTitle {
+            font-size: var(--h2);
+            font-weight: 900;
+            line-height: 1.1;
+        }
+
+        .sheetRange {
+            font-size: 14px;
+            font-weight: 800;
+            color: rgba(94, 143, 222, 0.85);
+        }
+
+        .sheetGrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 18px;
+        }
+
+        .ansRow {
+            display: grid;
+            grid-template-columns: 34px 1fr;
+            gap: 10px;
+            align-items: center;
+            padding: 3px 4px;
+            border-radius: 8px;
+        }
+
+        .ansRow.active {
+            outline: 2px solid rgba(94, 143, 222, 0.25);
+            background: rgba(94, 143, 222, 0.06);
+        }
+
+        .qnum {
+            font-size: var(--h2);
+            font-weight: 900;
+            text-align: right;
+            color: rgba(94, 143, 222, 0.95);
+        }
+
+        .bubbles {
+            display: flex;
+            gap: 10px;
+            flex-wrap: nowrap;
+            align-items: center;
+        }
+
+        .bubble {
+            width: var(--bubble);
+            height: var(--bubble);
+            border-radius: 999px;
+            border: 2px solid rgba(94, 143, 222, 0.85);
+            background: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: var(--bubbleFont);
+            color: rgba(94, 143, 222, 0.95);
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+        }
+
+        .bubble.filled {
+            background: var(--ink);
+            border-color: var(--ink);
+            color: #fff;
+        }
+
+        .bubble.correctHint {
+            background: var(--theme);
+            border-color: var(--theme);
+            color: #fff;
+        }
+
+        .bubble.wrongStrike::after {
+            content: "";
+            position: absolute;
+            width: 36px;
+            height: 3px;
+            background: var(--wrong);
+            transform: rotate(-35deg);
+            border-radius: 3px;
+        }
+
+        .sheetFooter {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid var(--borderSoft);
+        }
+
+        .resetBtn {
+            flex: 1;
+            height: 56px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--theme);
+            font-weight: 900;
+            cursor: pointer;
+            font-size: 22px;
+        }
+
+        .resetBtn:active {
+            transform: translateY(1px);
+        }
+
+        /* Questions */
+        .questions {
+            padding: 24px;
+        }
+
+        .qHeader {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--borderSoft);
+            margin-bottom: 10px;
+        }
+
+        .qHeader h2 {
+            margin: 0;
+            font-size: var(--h2);
+            font-weight: 700;
+            color: var(--theme);
+        }
+
+        .qHeader .hint {
+            font-size: 14px;
+            font-weight: 800;
+            color: rgba(94, 143, 222, 0.85);
+        }
+
+        #qList {
+            display: grid;
+            gap: 18px;
+        }
+
+        .qCard {
+            padding: 12px 12px 10px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            scroll-margin-top: 18px;
+            position: relative;
+        }
+
+        .qCard.active {
+            border-color: rgba(94, 143, 222, 0.35);
+            background: rgba(94, 143, 222, 0.05);
+        }
+
+        .qTop {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qIndex {
+            font-weight: 900;
+            font-size: var(--h2);
+            color: rgba(94, 143, 222, 0.95);
+            min-width: 40px;
+        }
+
+        .qStatus {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            border: 2px solid rgba(94, 143, 222, 0.6);
+            background: transparent;
+            margin-left: 2px;
+            flex: 0 0 auto;
+        }
+
+        .qStatus.answered {
+            background: rgba(94, 143, 222, 0.85);
+            border-color: rgba(94, 143, 222, 0.85);
+        }
+
+        .qStatus.correct {
+            background: rgba(17, 17, 17, 0.9);
+            border-color: rgba(17, 17, 17, 0.9);
+        }
+
+        .qStatus.wrong {
+            background: var(--wrong);
+            border-color: var(--wrong);
+        }
+
+        .qText {
+            font-weight: 700;
+            font-size: var(--h2);
+            line-height: 1.25;
+            margin: 0;
+            color: rgba(94, 143, 222, 0.95);
+        }
+
+        .qCard.graded.wrong .qText,
+        .qCard.graded.wrong .optText {
+            color: var(--wrong);
+        }
+
+        .options {
+            margin-top: 12px;
+            display: grid;
+            gap: 10px;
+            padding-left: 52px;
+        }
+
+        .opt {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .optBullet {
+            width: 10px;
+            height: 10px;
+            margin-top: 8px;
+            border-radius: 999px;
+            border: 2px solid rgba(94, 143, 222, 0.55);
+            background: transparent;
+            flex: 0 0 auto;
+        }
+
+        .opt.selected .optBullet {
+            background: rgba(17, 17, 17, 0.92);
+            border-color: rgba(17, 17, 17, 0.92);
+        }
+
+        .opt.correctChoice .optBullet {
+            background: var(--theme);
+            border-color: var(--theme);
+        }
+
+        .optText {
+            font-size: 19px;
+            font-weight: 500;
+            color: rgba(94, 143, 222, 0.90);
+            line-height: 1.25;
+        }
+
+        .actions {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--borderSoft);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .checkBtn {
+            height: 56px;
+            padding: 0 18px;
+            border: 0;
+            border-radius: 8px;
+            background: var(--theme);
+            color: #fff;
+            font-weight: 900;
+            cursor: pointer;
+            font-size: 22px;
+        }
+
+        .checkBtn:active {
+            transform: translateY(1px);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 50;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modalPanel {
+            width: min(720px, 100%);
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid var(--borderSoft);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+            padding: 16px;
+            color: var(--ink);
+        }
+
+        .modalTitle {
+            margin: 0 0 8px 0;
+            font-size: var(--h2);
+            font-weight: 900;
+            color: var(--theme);
+        }
+
+        .modalBody {
+            font-size: 14px;
+            line-height: 1.6;
+            color: rgba(0, 0, 0, 0.78);
+        }
+
+        .modalFooter {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 12px;
+        }
+
+        .closeBtn {
+            height: 44px;
+            padding: 0 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--theme);
+            font-weight: 900;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* 좁은 화면 */
+        @media (max-width: 820px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+
+            .sheet {
+                position: relative;
+                top: auto;
+            }
+
+            .row {
+                grid-template-columns: 1fr;
+            }
+
+            .metaGrid {
+                grid-template-columns: 1fr;
+            }
+
+            .metaCol {
+                grid-column: 1 / -1;
+            }
+
+            .scoreBox {
+                grid-column: 1 / -1;
+            }
+
+            .figmark {
+                width: 300px;
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <header class="header">
+            <div class="top-actions"></div>
+
+            <div class="header-top" aria-label="title">
+                <svg class="figmark" viewBox="0 0 220 160" aria-hidden="true">
+                    <g id="figDots"></g>
+                </svg>
+
+                <h1>Fig (Ficus carica) — Is It a Flower?</h1>
+            </div>
+        </header>
+
+        <section class="card meta" aria-label="meta">
+            <div class="metaGrid">
+                <div class="metaCol">
+                    <div class="row">
+                        <div class="label">Names of figs you know</div>
+                        <input id="figNames" class="input" type="text" />
+                        <button class="smallBtn" type="button" data-open="names">Answer →</button>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">How to make a fig move</div>
+                        <input id="figMove" class="input" type="text" />
+                        <button class="smallBtn" type="button" data-open="move">Answer →</button>
+                    </div>
+                </div>
+
+                <aside class="card scoreBox" aria-label="score">
+                    <div class="scoreTitle">Score</div>
+                    <div id="scoreValue" class="scoreValue"></div>
+                    <div class="scoreHint"></div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="main" aria-label="exam layout">
+            <aside class="card sheet" aria-label="answer sheet">
+                <div class="sheetHeader">
+                    <div class="sheetTitle">Answer sheet</div>
+                    <div class="sheetRange">1–40 (A–D)</div>
+                </div>
+
+                <div id="sheetGrid" class="sheetGrid"></div>
+
+                <div class="sheetFooter">
+                    <button id="resetBtn" class="resetBtn" type="button">Reset</button>
+                </div>
+            </aside>
+
+            <main class="card questions" aria-label="questions">
+                <div class="qHeader">
+                    <h2>Questions</h2>
+                    <div class="hint">Choose one answer for each question</div>
+                </div>
+
+                <div id="qList"></div>
+
+                <div class="actions">
+                    <button id="checkBtn" class="checkBtn" type="button">Check answers</button>
+                </div>
+            </main>
+        </section>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modalPanel">
+            <div id="modalTitle" class="modalTitle"></div>
+            <div id="modalBody" class="modalBody"></div>
+            <div class="modalFooter">
+                <button id="closeBtn" class="closeBtn" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const QUESTIONS = [
+            { a: "A", q: "Which family does Ficus carica (fig) belong to?", o: { A: "Moraceae", B: "Rosaceae", C: "Solanaceae", D: "Asteraceae" } },
+            { a: "A", q: "What is the genus of fig?", o: { A: "Ficus", B: "Morus", C: "Prunus", D: "Solanum" } },
+            { a: "A", q: "Which is the correct scientific name of fig?", o: { A: "Ficus carica", B: "Ficus caricus", C: "Ficus ficus", D: "Carica ficus" } },
+            { a: "A", q: "What is the botanical term for the structure that looks like a fruit in fig?", o: { A: "Syconium", B: "Cone", C: "Legume", D: "Berry" } },
+            { a: "B", q: "Which statement correctly describes the structure of a syconium?", o: { A: "A flat structure with flowers only on the outer surface", B: "A hollow, pouch-like structure with flowers attached to the inner walls", C: "A storage organ formed by swollen roots", D: "An organ formed by rolled leaves" } },
+            { a: "A", q: "Where are the actual flowers mainly located in fig?", o: { A: "On the inner wall of the syconium", B: "On the outer surface of the syconium", C: "On the upper side of leaves", D: "Under the bark of the stem" } },
+            { a: "A", q: "What is the small opening at the top of a syconium through which insects enter and exit?", o: { A: "Ostiole", B: "Receptacle", C: "Hypocotyl", D: "Petiole" } },
+            { a: "B", q: "In the fig–wasp relationship, what is the most widely known key point?", o: { A: "Wind pollination is essential", B: "A specific fig wasp is involved in pollination", C: "Fertilisation occurs via water", D: "Only bats pollinate figs" } },
+            { a: "C", q: "Which species is commonly known as a key pollinating insect for Ficus carica?", o: { A: "Bombus terrestris", B: "Apis mellifera", C: "Blastophaga psenes", D: "Drosophila melanogaster" } },
+            { a: "C", q: "After an individual flower in fig is fertilised, what is the most accurate fruit type for the small unit that forms?", o: { A: "Drupe", B: "Capsule", C: "Achene", D: "Legume" } },
+            { a: "C", q: "A syconium is best described as which category, given that it contains many small fruit units?", o: { A: "Simple fruit", B: "Aggregate fruit", C: "Multiple fruit / infructescence", D: "Berry" } },
+            { a: "B", q: "Which latex colour is commonly observed in many Ficus species?", o: { A: "Colourless and transparent", B: "Milky white", C: "Blue", D: "Black" } },
+            { a: "C", q: "Which proteolytic enzyme is known to occur in fig latex?", o: { A: "Pepsin", B: "Trypsin", C: "Ficin", D: "Amylase" } },
+            { a: "B", q: "Why can fig latex cause skin problems in some cases?", o: { A: "Because it is strongly alkaline", B: "Because it can contain irritant compounds and phototoxic compounds", C: "Because it contains high caffeine", D: "Because it is completely harmless" } },
+            { a: "C", q: "Which arrangement best describes fig leaves on the stem?", o: { A: "Whorled", B: "Opposite", C: "Alternate", D: "Basal rosette" } },
+            { a: "B", q: "Which description best fits the typical leaf form of Ficus carica?", o: { A: "Needle-like leaves are typical", B: "Palmately lobed leaves are common", C: "Pinnately compound leaves are typical", D: "Fan-shaped leaves are typical" } },
+            { a: "C", q: "Which life form description best fits Ficus carica?", o: { A: "Aquatic herb", B: "Climbing vine", C: "Deciduous shrub or small tree", D: "Epiphytic orchid" } },
+            { a: "B", q: "Which statement is broadly true of Moraceae (the mulberry family), where figs belong?", o: { A: "They reproduce by spores without seeds", B: "Many species exude latex", C: "They include only conifers", D: "They live only underwater" } },
+            { a: "A", q: "Which statement best describes the edible part of fig?", o: { A: "The syconium tissue plus many small fruit units are eaten together", B: "Only the seeds are edible and the tissue is toxic", C: "Only the leaves are edible", D: "Only the roots are edible" } },
+            { a: "B", q: "When a fig is cut open, many small gritty particles are visible inside. What are they most accurately?", o: { A: "Petals", B: "Achenes", C: "Pollen grains", D: "Root hairs" } },
+            { a: "B", q: "What does the term ‘caprification’ refer to?", o: { A: "Drying fig leaves", B: "A traditional practice using male figs to support pollination in certain fig types", C: "Preserving figs in sugar", D: "Smoking figs" } },
+            { a: "A", q: "Which region is widely associated with the origin or long-term cultivation centre of fig?", o: { A: "The Mediterranean and West Asia", B: "The Arctic", C: "Antarctica", D: "The Siberian tundra" } },
+            { a: "B", q: "Why are fig flowers not visible from the outside during fruit development?", o: { A: "Because the flowers open only at night", B: "Because the flowers are located inside the syconium", C: "Because the flowers are fully covered by leaves", D: "Because the flowers bloom underwater" } },
+            { a: "B", q: "What is the function of the ostiole?", o: { A: "It controls photosynthesis rate", B: "It serves as an entrance and exit passage into the syconium", C: "It helps roots absorb water", D: "It prevents transpiration from leaves" } },
+            { a: "B", q: "The genus Ficus includes which of the following?", o: { A: "Apple trees", B: "Ornamental houseplants such as weeping fig (Ficus benjamina)", C: "Rice", D: "Pine trees" } },
+            { a: "B", q: "Which propagation method is commonly used in fig cultivation?", o: { A: "Spore propagation", B: "Vegetative propagation such as cuttings", C: "Mycelial propagation", D: "Binary fission" } },
+            { a: "B", q: "Why do fresh figs often spoil relatively quickly at room temperature?", o: { A: "Because the tissue is hard and contains almost no water", B: "Because ripe figs are soft and high in sugar and moisture, making them prone to microbial growth and damage", C: "Because the surface contains metallic compounds", D: "Because the acidity is extremely high" } },
+            { a: "B", q: "Which statement about dried figs is broadly true?", o: { A: "They contain more water than fresh figs", B: "They contain less water than fresh figs", C: "Drying removes all sugars completely", D: "Drying removes all seeds" } },
+            { a: "A", q: "When is fig latex most likely to remain on the fruit surface?", o: { A: "When the fruit is damaged or cut", B: "Only when the fruit is fully frozen", C: "Only when the fruit is washed", D: "Latex never appears before ripening" } },
+            { a: "B", q: "Is it correct to say the ‘fruit part’ of fig comes from a single flower?", o: { A: "Yes", B: "No", C: "It always depends on the cultivar", D: "It depends only on the region" } },
+            { a: "A", q: "Which statement follows directly from the fact that a syconium contains many flowers?", o: { A: "A fig is not the fruit of a single flower", B: "A fig is a conifer", C: "A fig reproduces by spores", D: "A fig flowers only underwater" } },
+            { a: "B", q: "Which statement about Ficus carica leaves is accurate?", o: { A: "They are mostly evergreen and do not drop in winter", B: "They are deciduous and may drop seasonally", C: "They are composed only of scale leaves", D: "They are needle leaves" } },
+            { a: "A", q: "At the broad classification level, which statement is correct for fig?", o: { A: "It is an angiosperm", B: "It is a gymnosperm", C: "It is a fern", D: "It is algae" } },
+            { a: "B", q: "Why is the small fruit unit inside a fig often described as an achene?", o: { A: "Because it contains many seeds", B: "Because it is typically a dry fruit with one seed", C: "Because it opens in water", D: "Because it has wings" } },
+            { a: "A", q: "How is the fig–fig wasp interaction most commonly classified in ecology?", o: { A: "Mutualism", B: "Competition", C: "Predation", D: "Commensalism" } },
+            { a: "B", q: "Which sentence most accurately describes the relationship between ‘flowers’ and ‘fruit’ in fig?", o: { A: "Figs have no flowers, so they have no seeds", B: "A fig contains many flowers inside the syconium; after fertilisation they form many small fruit units", C: "A fig fruit is formed from leaves", D: "A fig fruit is formed from roots" } },
+            { a: "A", q: "If the ostiole is blocked, which direct effect is most plausible?", o: { A: "Insect entry becomes difficult, potentially limiting pollination", B: "Photosynthesis stops immediately", C: "Root uptake stops immediately", D: "Leaves immediately turn into spines" } },
+            { a: "A", q: "Which plant parts most commonly exude latex when cut in fig?", o: { A: "Wounded areas of leaves and stems", B: "Only root tips", C: "Only pollen", D: "Only seeds" } },
+            { a: "A", q: "Which combination correctly describes fig taxonomy?", o: { A: "Genus Ficus, family Moraceae", B: "Genus Morus, family Ficus", C: "Genus Carica, family Moraceae", D: "Genus Ficus, family Rosaceae" } },
+            { a: "C", q: "Based on objective botanical facts, what is the most accurate answer to ‘Is fig (Ficus carica) a flower?’", o: { A: "A fig is a single flower by itself", B: "A fig has no flowers at all", C: "A fig is a structure containing many flowers inside a syconium; what we eat is that developed structure", D: "A fig is made from clustered leaves" } }
+        ];
+
+        const CHOICES = ["A", "B", "C", "D"];
+        const state = { selected: Array(QUESTIONS.length).fill(null), graded: false };
+
+        const elSheetGrid = document.getElementById("sheetGrid");
+        const elQList = document.getElementById("qList");
+        const elScoreValue = document.getElementById("scoreValue");
+
+        function safeSetScore(text) {
+            if (!elScoreValue) return;
+            elScoreValue.textContent = text;
+        }
+
+        function buildAnswerSheet() {
+            elSheetGrid.innerHTML = "";
+            const left = document.createElement("div");
+            const right = document.createElement("div");
+            left.style.display = "grid";
+            left.style.gap = "8px";
+            right.style.display = "grid";
+            right.style.gap = "8px";
+
+            for (let i = 0; i < 40; i++) {
+                const row = document.createElement("div");
+                row.className = "ansRow";
+                row.id = `ansRow-${i + 1}`;
+
+                const num = document.createElement("div");
+                num.className = "qnum";
+                num.textContent = (i + 1) + ".";
+
+                const bubbles = document.createElement("div");
+                bubbles.className = "bubbles";
+
+                CHOICES.forEach(ch => {
+                    const b = document.createElement("button");
+                    b.type = "button";
+                    b.className = "bubble";
+                    b.textContent = ch;
+                    b.setAttribute("data-q", String(i + 1));
+                    b.setAttribute("data-choice", ch);
+                    b.addEventListener("click", () => selectAnswer(i + 1, ch, { scrollToQuestion: true }));
+                    bubbles.appendChild(b);
+                });
+
+                row.appendChild(num);
+                row.appendChild(bubbles);
+
+                if (i < 20) left.appendChild(row);
+                else right.appendChild(row);
+            }
+
+            elSheetGrid.appendChild(left);
+            elSheetGrid.appendChild(right);
+        }
+
+        function buildQuestions() {
+            elQList.innerHTML = "";
+            QUESTIONS.forEach((it, idx) => {
+                const n = idx + 1;
+                const card = document.createElement("section");
+                card.className = "qCard";
+                card.id = `q-${n}`;
+                card.setAttribute("data-q", String(n));
+
+                const top = document.createElement("div");
+                top.className = "qTop";
+
+                const index = document.createElement("div");
+                index.className = "qIndex";
+                index.textContent = n + ".";
+
+                const status = document.createElement("span");
+                status.className = "qStatus";
+                status.id = `qStatus-${n}`;
+                status.title = "answer status";
+
+                const title = document.createElement("h3");
+                title.className = "qText";
+                title.textContent = it.q;
+
+                top.appendChild(index);
+                top.appendChild(status);
+                top.appendChild(title);
+
+                const opts = document.createElement("div");
+                opts.className = "options";
+
+                CHOICES.forEach(ch => {
+                    const opt = document.createElement("div");
+                    opt.className = "opt";
+                    opt.setAttribute("data-q", String(n));
+                    opt.setAttribute("data-choice", ch);
+
+                    const bullet = document.createElement("span");
+                    bullet.className = "optBullet";
+
+                    const text = document.createElement("div");
+                    text.className = "optText";
+                    text.textContent = `${ch}. ${it.o[ch]}`;
+
+                    opt.appendChild(bullet);
+                    opt.appendChild(text);
+
+                    opt.addEventListener("click", () => selectAnswer(n, ch, { scrollToQuestion: false }));
+
+                    opts.appendChild(opt);
+                });
+
+                card.appendChild(top);
+                card.appendChild(opts);
+                elQList.appendChild(card);
+            });
+        }
+
+        function selectAnswer(qNum, choice, { scrollToQuestion }) {
+            const idx = qNum - 1;
+            state.selected[idx] = choice;
+
+            if (state.graded) clearGrading();
+
+            renderSelection(qNum);
+
+            if (scrollToQuestion) {
+                const qEl = document.getElementById(`q-${qNum}`);
+                if (qEl) qEl.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        }
+
+        function renderSelection(qNum) {
+            const idx = qNum - 1;
+            const choice = state.selected[idx];
+
+            const row = document.getElementById(`ansRow-${qNum}`);
+            if (row) {
+                row.querySelectorAll(".bubble").forEach(b => {
+                    const c = b.getAttribute("data-choice");
+                    b.classList.toggle("filled", c === choice);
+                    b.classList.remove("wrongStrike", "correctHint");
+                });
+            }
+
+            const qEl = document.getElementById(`q-${qNum}`);
+            if (qEl) {
+                qEl.querySelectorAll(".opt").forEach(opt => {
+                    const c = opt.getAttribute("data-choice");
+                    opt.classList.toggle("selected", c === choice);
+                    opt.classList.remove("correctChoice");
+                });
+            }
+
+            const st = document.getElementById(`qStatus-${qNum}`);
+            if (st) {
+                st.classList.remove("correct", "wrong");
+                st.classList.toggle("answered", !!choice);
+            }
+        }
+
+        function renderAllSelections() {
+            for (let q = 1; q <= 40; q++) renderSelection(q);
+        }
+
+        function clearActive() {
+            document.querySelectorAll(".qCard.active").forEach(el => el.classList.remove("active"));
+            document.querySelectorAll(".ansRow.active").forEach(el => el.classList.remove("active"));
+        }
+
+        function setActive(qNum) {
+            clearActive();
+            const qEl = document.getElementById(`q-${qNum}`);
+            const aEl = document.getElementById(`ansRow-${qNum}`);
+            if (qEl) qEl.classList.add("active");
+            if (aEl) aEl.classList.add("active");
+        }
+
+        function setupScrollSpy() {
+            const cards = Array.from(document.querySelectorAll(".qCard"));
+            const io = new IntersectionObserver((entries) => {
+                const visible = entries
+                    .filter(e => e.isIntersecting)
+                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+                if (visible.length) {
+                    const qNum = Number(visible[0].target.getAttribute("data-q"));
+                    setActive(qNum);
+                }
+            }, {
+                root: null,
+                threshold: [0.25, 0.45, 0.6, 0.75],
+                rootMargin: "-10% 0px -65% 0px"
+            });
+
+            cards.forEach(c => io.observe(c));
+        }
+
+        function grade() {
+            state.graded = true;
+            let wrongCount = 0;
+
+            for (let i = 0; i < 40; i++) {
+                const qNum = i + 1;
+                const correct = QUESTIONS[i].a;
+                const chosen = state.selected[i];
+
+                const qEl = document.getElementById(`q-${qNum}`);
+                const st = document.getElementById(`qStatus-${qNum}`);
+                const ansRow = document.getElementById(`ansRow-${qNum}`);
+
+                if (qEl) qEl.classList.add("graded");
+                if (qEl) qEl.classList.remove("wrong");
+
+                if (st) {
+                    st.classList.remove("correct", "wrong");
+                    st.classList.toggle("answered", !!chosen);
+                }
+
+                if (qEl) qEl.querySelectorAll(".opt").forEach(opt => opt.classList.remove("correctChoice"));
+                if (ansRow) ansRow.querySelectorAll(".bubble").forEach(b => b.classList.remove("wrongStrike", "correctHint"));
+
+                const isCorrect = (chosen === correct);
+                if (isCorrect) {
+                    if (st) {
+                        st.classList.add("correct");
+                        st.classList.remove("answered");
+                    }
+                    continue;
+                }
+
+                wrongCount++;
+
+                if (qEl) {
+                    qEl.classList.add("wrong");
+                    const correctOpt = qEl.querySelector(`.opt[data-choice="${correct}"]`);
+                    if (correctOpt) correctOpt.classList.add("correctChoice");
+                }
+
+                if (st) {
+                    st.classList.add("wrong");
+                    st.classList.remove("answered");
+                }
+
+                if (ansRow) {
+                    if (chosen) {
+                        const chosenB = ansRow.querySelector(`.bubble[data-choice="${chosen}"]`);
+                        if (chosenB) chosenB.classList.add("wrongStrike");
+                    }
+                    const correctB = ansRow.querySelector(`.bubble[data-choice="${correct}"]`);
+                    if (correctB) correctB.classList.add("correctHint");
+                }
+            }
+
+            safeSetScore(`${40 - wrongCount}/40`);
+        }
+
+        function clearGrading() {
+            state.graded = false;
+            safeSetScore("");
+
+            for (let q = 1; q <= 40; q++) {
+                const qEl = document.getElementById(`q-${q}`);
+                const st = document.getElementById(`qStatus-${q}`);
+                const ansRow = document.getElementById(`ansRow-${q}`);
+
+                if (qEl) {
+                    qEl.classList.remove("graded", "wrong");
+                    qEl.querySelectorAll(".opt").forEach(opt => opt.classList.remove("correctChoice"));
+                }
+
+                if (st) {
+                    st.classList.remove("correct", "wrong");
+                    st.classList.toggle("answered", !!state.selected[q - 1]);
+                }
+
+                if (ansRow) {
+                    ansRow.querySelectorAll(".bubble").forEach(b => b.classList.remove("wrongStrike", "correctHint"));
+                }
+            }
+        }
+
+        function resetAll() {
+            state.selected = Array(QUESTIONS.length).fill(null);
+            clearGrading();
+            renderAllSelections();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function handleResetClick() {
+            if (state.graded) {
+                clearGrading();
+                return;
+            }
+            resetAll();
+        }
+
+        /* Modal */
+        const modal = document.getElementById("modal");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalBody = document.getElementById("modalBody");
+        const closeBtn = document.getElementById("closeBtn");
+
+        const ANSWERS = {
+            names: {
+                title: "Answer for “Names of figs you know”",
+                body: `
+          <div>
+            <p><strong>Fig in 50 languages</strong></p>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px 22px; margin-top: 10px;">
+              <div>English: fig</div><div>한국어: 무화과</div>
+              <div>日本語: イチジク</div><div>中文: 无花果</div>
+              <div>العربية: تين</div><div>עברית: תְּאֵנָה</div>
+              <div>فارسی: انجیر</div><div>Türkçe: incir</div>
+              <div>اردو: انجیر</div><div>हिन्दी: अंजीर</div>
+              <div>ગુજરાતી: અંજીર</div><div>ਪੰਜਾਬੀ: ਅੰਜੀਰ</div>
+              <div>বাংলা: ডুমুর</div><div>தமிழ்: அத்தி</div>
+              <div>తెలుగు: అత్తి పండు</div><div>മലയാളം: അത്തിപ്പഴം</div>
+              <div>ಕನ್ನಡ: ಅಂಜೂರ</div><div>ไทย: มะเดื่อ</div>
+              <div>Tiếng Việt: sung</div><div>Bahasa Indonesia: buah ara</div>
+              <div>Bahasa Melayu: buah tin</div><div>Français: figue</div>
+              <div>Deutsch: Feige</div><div>Italiano: fico</div>
+              <div>Español: higo</div><div>Português: figo</div>
+              <div>Nederlands: vijg</div><div>Svenska: fikon</div>
+              <div>Norsk: fiken</div><div>Dansk: figen</div>
+              <div>Suomi: viikuna</div><div>Íslenska: fíkja</div>
+              <div>Gaeilge: fige</div><div>Esperanto: figo</div>
+              <div>Polski: figa</div><div>Română: smochină</div>
+              <div>Русский: инжи́р</div><div>Українська: інжи́р</div>
+              <div>Ελληνικά: σύκο</div><div>Magyar: füge</div>
+              <div>Български: смокиня</div><div>Català: figa</div>
+              <div>Slovenščina: figa</div><div>Slovenčina: figa</div>
+              <div>Srpskohrvatski: smokva</div><div>Հայերեն: թուզ</div>
+              <div>অসমীয়া: ডিমৰু</div><div>Аҧс
+
+              <div>Euskara: piku</div><div>Kiswahili: tini</div>
+            </div>
+          </div>
+        `
+            },
+            move: {
+                title: "Answer for “How to make a fig move”",
+                body: `
+          <div>
+            <p><strong>Nonsense answer</strong></p>
+            <p>If you flip <strong>fig</strong> upside down, it becomes <strong>gif</strong>, so it “moves”.</p>
+          </div>
+        `
+            }
+        };
+
+        function openModal(key) {
+            const data = ANSWERS[key];
+            if (!data) return;
+            modalTitle.textContent = data.title;
+            modalBody.innerHTML = data.body;
+            modal.classList.add("open");
+            modal.setAttribute("aria-hidden", "false");
+        }
+
+        function closeModal() {
+            modal.classList.remove("open");
+            modal.setAttribute("aria-hidden", "true");
+        }
+
+        /* ---------- Fig / Flower dot animation (hex lattice, flower -> fig, 4 turns) ---------- */
+
+        /* 기본 유틸 */
+        function clamp01(x) { return Math.max(0, Math.min(1, x)); }
+        function lerp(a, b, t) { return a + (b - a) * t; }
+        function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+
+        /* 색 섞기(검정 끼는 현상 방지: #hex / rgb() 둘 다 처리) */
+        function clampByte(n) {
+            n = Number(n);
+            if (!Number.isFinite(n)) return 0;
+            return Math.max(0, Math.min(255, Math.round(n)));
+        }
+        function parseColourToRgb(input) {
+            if (!input) return null;
+            const s = String(input).trim();
+
+            const m = s.match(/^rgba?\(\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)(?:\s*,\s*([0-9.]+))?\s*\)$/i);
+            if (m) return { r: clampByte(m[1]), g: clampByte(m[2]), b: clampByte(m[3]) };
+
+            if (s[0] === "#") {
+                let h = s.slice(1);
+                if (h.length === 3) h = h.split("").map(c => c + c).join("");
+                if (h.length !== 6) return null;
+                const n = parseInt(h, 16);
+                if (!Number.isFinite(n)) return null;
+                return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+            }
+            return null;
+        }
+        function rgbToHex({ r, g, b }) {
+            const to = (x) => clampByte(x).toString(16).padStart(2, "0");
+            return "#" + to(r) + to(g) + to(b);
+        }
+        function mixHex(a, b, t) {
+            t = clamp01(Number(t));
+            const A = parseColourToRgb(a);
+            const B = parseColourToRgb(b);
+            if (!A || !B) return a || b || "#000000";
+
+            return rgbToHex({
+                r: A.r + (B.r - A.r) * t,
+                g: A.g + (B.g - A.g) * t,
+                b: A.b + (B.b - A.b) * t
+            });
+        }
+
+        /* 육각 격자 점 생성 */
+        function hexLatticePoints(bounds, step, insideFn) {
+            const { x0, y0, x1, y1 } = bounds;
+            const pts = [];
+            const rowH = step * 0.8660254038; // sqrt(3)/2
+
+            let row = 0;
+            for (let y = y0; y <= y1; y += rowH) {
+                const offset = (row % 2) ? step * 0.5 : 0;
+                for (let x = x0 + offset; x <= x1; x += step) {
+                    if (insideFn(x, y)) pts.push({ x, y });
+                }
+                row++;
+            }
+            return pts;
+        }
+
+        /* 점 크기: 처음부터 중심 굵고 바깥 얇게 */
+        function radiusByDistance(x, y, cx, cy, rMin, rMax, maxD) {
+            const dx = x - cx;
+            const dy = y - cy;
+            const d = Math.sqrt(dx * dx + dy * dy);
+
+            const t = Math.max(0, 1 - (d / maxD));
+            const curve = Math.pow(t, 1.6);
+            return rMin + (rMax - rMin) * curve;
+        }
+
+        /* 꽃 실루엣 */
+        function makeFlowerInside(C) {
+            const petals = 6;
+            const base = 44;
+            const amp = 14;
+
+            return function insideFlower(x, y) {
+                const dx = x - C.x;
+                const dy = y - C.y;
+                const r = Math.sqrt(dx * dx + dy * dy);
+                const ang = Math.atan2(dy, dx);
+
+                const ripple = (Math.cos(petals * ang) + 1) * 0.5;
+                const rMax = base + amp * ripple;
+
+                const innerHole = 12;
+                return r <= rMax && r >= innerHole;
+            };
+        }
+
+        /* 무화과 실루엣 */
+        function makeFigInside(C) {
+            const w = 60, h = 76;
+
+            return function insideFig(x, y) {
+                const nx = (x - C.x) / w;   // -1..1
+                const ny = (y - C.y) / h;   // -1..1
+
+                const t = (ny + 1) * 0.5;   // 위->아래 0..1
+
+                let rx = 0.44 + 0.58 * Math.pow(t, 1.25);
+                if (t < 0.22) rx *= 0.66;
+                if (t < 0.12) rx *= 0.62;
+
+                let yy = ny;
+                if (yy > 0.86) yy = 0.86 + (yy - 0.86) * 0.35;
+
+                const bulge = 1 + 0.10 * Math.max(0, (t - 0.45)) / 0.55;
+
+                const a = nx / rx;
+                const b = yy / bulge;
+
+                const p = 2.25;
+                return (Math.pow(Math.abs(a), p) + Math.pow(Math.abs(b), p)) <= 1;
+            };
+        }
+
+        /* 매칭용 정렬 */
+        function sortByAngleRadius(pts, C) {
+            return pts.slice().sort((a, b) => {
+                const aa = Math.atan2(a.y - C.y, a.x - C.x);
+                const ab = Math.atan2(b.y - C.y, b.x - C.x);
+                if (aa !== ab) return aa - ab;
+
+                const da = (a.x - C.x) * (a.x - C.x) + (a.y - C.y) * (a.y - C.y);
+                const db = (b.x - C.x) * (b.x - C.x) + (b.y - C.y) * (b.y - C.y);
+                return da - db;
+            });
+        }
+
+        /* 옆구리 깨짐 완화: 원이 실루엣 밖으로 튀는 점은 제외 */
+        function circleFitsInside(insideFn, x, y, r) {
+            const margin = 0.18;
+            const rr = Math.max(0.1, r - margin);
+            const samples = 10;
+
+            for (let k = 0; k < samples; k++) {
+                const a = (Math.PI * 2 * k) / samples;
+                const sx = x + Math.cos(a) * rr;
+                const sy = y + Math.sin(a) * rr;
+                if (!insideFn(sx, sy)) return false;
+            }
+            return true;
+        }
+
+        function buildDots() {
+            const g = document.getElementById("figDots");
+            if (!g) return null;
+            g.innerHTML = "";
+
+            const C = { x: 110, y: 92 };
+
+            const step = 6.6;
+            const safeR = 70;
+            const shapeBounds = { x0: C.x - safeR, y0: C.y - safeR, x1: C.x + safeR, y1: C.y + safeR };
+
+            const flowerInside = makeFlowerInside(C);
+            const figInside = makeFigInside(C);
+
+            const flowerAll = hexLatticePoints(shapeBounds, step, flowerInside);
+            const figAll = hexLatticePoints(shapeBounds, step, figInside);
+
+            if (!flowerAll.length || !figAll.length) return null;
+
+            const figSorted = sortByAngleRadius(figAll, C);
+            const flowerSorted = sortByAngleRadius(flowerAll, C);
+
+            const figPts = [];
+            const baseR = [];
+
+            for (let i = 0; i < figSorted.length; i++) {
+                const p = figSorted[i];
+                const r = radiusByDistance(p.x, p.y, C.x, C.y, 1.1, 3.5, 78);
+                if (circleFitsInside(figInside, p.x, p.y, r)) {
+                    figPts.push(p);
+                    baseR.push(r);
+                }
+            }
+
+            if (figPts.length === 0) {
+                for (let i = 0; i < figSorted.length; i++) {
+                    const p = figSorted[i];
+                    const r = radiusByDistance(p.x, p.y, C.x, C.y, 1.1, 3.5, 78);
+                    figPts.push(p);
+                    baseR.push(r);
+                }
+            }
+
+            let N = figPts.length;
+            if (N <= 0) return null;
+
+            const flowerPts = [];
+            for (let i = 0; i < flowerSorted.length && flowerPts.length < N; i++) flowerPts.push(flowerSorted[i]);
+
+            N = Math.min(N, flowerPts.length);
+            if (N <= 0) return null;
+
+            figPts.length = N;
+            baseR.length = N;
+            flowerPts.length = N;
+
+            const themeColour =
+                getComputedStyle(document.documentElement).getPropertyValue("--theme").trim() || "#5e8fde";
+
+            const circles = [];
+            for (let i = 0; i < N; i++) {
+                const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                c.setAttribute("cx", String(flowerPts[i].x));
+                c.setAttribute("cy", String(flowerPts[i].y));
+                c.setAttribute("r", String(baseR[i]));
+                c.setAttribute("fill", themeColour);
+                g.appendChild(c);
+                circles.push(c);
+            }
+
+            return { circles, flowerPts, figPts, baseR, N, centre: C, themeColour };
+        }
+
+        function animateLogo() {
+            const data = buildDots();
+            if (!data) return;
+
+            const { circles, flowerPts, figPts, N, centre: C, themeColour } = data;
+
+            const g = document.getElementById("figDots");
+            if (!g) return;
+
+            const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+            const palette = ["#f6eebf", "#e4e448", "#c3452e", "#4a90e2"];
+
+            function colourRamp(t) {
+                t = clamp01(t);
+
+                if (t < 0.20) {
+                    const u = easeInOutCubic(t / 0.20);
+                    return mixHex(themeColour, palette[0], u);
+                }
+                if (t > 0.80) {
+                    const u = easeInOutCubic((t - 0.80) / 0.20);
+                    return mixHex(palette[3], themeColour, u);
+                }
+
+                const mid = (t - 0.20) / 0.60;
+                const seg = mid < 1 / 3 ? 0 : (mid < 2 / 3 ? 1 : 2);
+                const local = seg === 0 ? (mid / (1 / 3)) : (seg === 1 ? ((mid - 1 / 3) / (1 / 3)) : ((mid - 2 / 3) / (1 / 3)));
+                const e = easeInOutCubic(local);
+                return mixHex(palette[seg], palette[seg + 1], e);
+            }
+
+            if (reduce) {
+                for (let i = 0; i < N; i++) {
+                    circles[i].setAttribute("cx", String(figPts[i].x));
+                    circles[i].setAttribute("cy", String(figPts[i].y));
+                    circles[i].setAttribute("fill", themeColour);
+                }
+                return;
+            }
+
+            const turns = 7;       // 요청: 대략 3바퀴
+            const totalDur = 4200;
+            const twoPi = Math.PI * 2;
+
+            const t0 = performance.now();
+
+            function frame(now) {
+                const elapsed = now - t0;
+                const globalT = clamp01(elapsed / totalDur);
+                const e = easeInOutCubic(globalT);
+
+                const ang = e * turns * twoPi;
+                g.setAttribute("transform", `rotate(${ang * 180 / Math.PI} ${C.x} ${C.y})`);
+
+                const fill = colourRamp(globalT);
+
+                for (let i = 0; i < N; i++) {
+                    const fx = flowerPts[i].x, fy = flowerPts[i].y;
+                    const tx = figPts[i].x, ty = figPts[i].y;
+
+                    const x = lerp(fx, tx, e);
+                    const y = lerp(fy, ty, e);
+
+                    circles[i].setAttribute("cx", String(x));
+                    circles[i].setAttribute("cy", String(y));
+                    circles[i].setAttribute("fill", fill);
+                }
+
+                if (globalT < 1) {
+                    requestAnimationFrame(frame);
+                    return;
+                }
+
+                g.removeAttribute("transform");
+                for (let i = 0; i < N; i++) {
+                    circles[i].setAttribute("cx", String(figPts[i].x));
+                    circles[i].setAttribute("cy", String(figPts[i].y));
+                    circles[i].setAttribute("fill", themeColour);
+                }
+            }
+
+            requestAnimationFrame(frame);
+        }
+
+
+
+        /* Wire up */
+        buildAnswerSheet();
+        buildQuestions();
+        renderAllSelections();
+        setupScrollSpy();
+        setActive(1);
+
+        document.getElementById("checkBtn").addEventListener("click", grade);
+        document.getElementById("resetBtn").addEventListener("click", handleResetClick);
+
+        document.querySelectorAll("[data-open]").forEach(btn => {
+            btn.addEventListener("click", () => openModal(btn.getAttribute("data-open")));
+        });
+
+        closeBtn.addEventListener("click", closeModal);
+        modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+        });
+
+        /* Run logo animation once on load */
+        animateLogo();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,279 @@
+/* p01.css: index 전용 */
+
+.p01-body{
+  margin: 0;
+  background: #fff;
+  color: #111;
+  font-family: "MyFont", system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
+.p01-body img{
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 전체 위젯 크기 */
+.p01-body .page{
+  max-width: 620px;
+  margin: 40px auto 56px;
+  padding: 0 14px;
+}
+
+.p01-body .top-spacer{ height: 0; }
+
+/* 상단 이미지: 원래대로 */
+.p01-body .hero{
+  border: 1px solid rgba(0,0,0,0.12);
+  border-bottom: 0;
+  background: #fff;
+}
+
+.p01-body .hero img{
+  width: 100%;
+  height: auto;
+}
+
+/* 3x3 타일 */
+.p01-body .grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 8px;
+
+  border-left: 1px solid rgba(0,0,0,0.12);
+  border-right: 1px solid rgba(0,0,0,0.12);
+  background: #fff;
+}
+
+.p01-body .tile{
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+
+  text-decoration: none;
+  color: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.p01-body .tile img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 오버레이 기본 */
+.p01-body .tile::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+/* 1,2,7,9 클릭 시: 단색 완전 불투명 덮기 */
+.p01-body .tile.is-no-nav.is-visited::after{
+  background: #4a90e2;
+  opacity: 1;
+}
+
+/* 단색 덮일 때 이미지 완전 숨김 */
+.p01-body .tile.is-no-nav.is-visited img{
+  opacity: 0;
+}
+
+/* VERIFY 성공 후: 9개 전부 완전 불투명 그라데이션 덮기 */
+.p01-body .grid.is-verified .tile::after{
+  background: linear-gradient(135deg, #4a90e2 0%, #3f84db 55%, #357ad4 100%);
+  opacity: 1;
+}
+
+/* VERIFY 후 이미지 완전 숨김 */
+.p01-body .grid.is-verified .tile img{
+  opacity: 0;
+}
+
+/* 하단 UI */
+.p01-body .footer-ui{
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 12px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-top: 0;
+  background: #fff;
+}
+
+.p01-body .footer-left{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.p01-body .icon-btn{
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(0,0,0,0.16);
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+
+  padding: 0;
+}
+
+.p01-body .icon-btn .icon{
+  font-size: 18px;
+  line-height: 38px;
+  color: rgba(0,0,0,0.60);
+  display: block;
+  text-align: center;
+}
+
+.p01-body .verify-btn{
+  height: 38px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 6px;
+  background: #4a90e2;
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.p01-body .verify-btn:active{
+  transform: translateY(1px);
+}
+
+@keyframes p01-shake{
+  0%{ transform: translateX(0); }
+  20%{ transform: translateX(-6px); }
+  40%{ transform: translateX(6px); }
+  60%{ transform: translateX(-4px); }
+  80%{ transform: translateX(4px); }
+  100%{ transform: translateX(0); }
+}
+
+.p01-body .verify-btn.is-shake{
+  animation: p01-shake 260ms ease;
+}
+
+/* i 버튼 안내 말풍선 */
+.p01-infobubble{
+  position: absolute;
+  left: 12px;
+  bottom: 56px;
+
+  display: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+
+  border: 1px solid rgba(74,144,226,0.28);
+  background: rgba(255,255,255,0.98);
+  color: #4a90e2;
+
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+}
+
+.p01-body.is-info-on .p01-infobubble{
+  display: block;
+}
+
+/* 엔딩 화면 */
+.p01-end-screen{
+  position: fixed;
+  inset: 0;
+  background: #fff;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  padding: 22px;
+  z-index: 999999;
+}
+
+.p01-body.p01-end-on .p01-end-screen{
+  display: flex;
+}
+
+.p01-body.p01-end-on main.page{
+  display: none;
+}
+
+.p01-end-inner{
+  max-width: 860px;
+  width: 100%;
+}
+
+.p01-end-text{
+  margin: 0;
+  color: #4a90e2;
+  font-weight: 900;
+  font-size: 22px;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+}
+
+/* 엔딩 화면에서도 리셋 가능하게 */
+.p01-end-reset{
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(0,0,0,0.16);
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+
+  padding: 0;
+  z-index: 1000000;
+}
+
+.p01-end-reset span{
+  display: block;
+  text-align: center;
+  line-height: 38px;
+  font-size: 18px;
+  color: rgba(0,0,0,0.60);
+}
+
+@media (max-width: 520px){
+  .p01-end-text{ font-size: 18px; }
+}
+
+/* 타일에 생기는 테두리/아웃라인/그림자 강제 제거 */
+.p01-body .tile{
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 클릭 후 남는 포커스 링 제거 */
+.p01-body .tile:focus,
+.p01-body .tile:focus-visible{
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 모바일 탭 하이라이트가 남는 경우 */
+.p01-body .tile{
+  -webkit-tap-highlight-color: transparent;
+}

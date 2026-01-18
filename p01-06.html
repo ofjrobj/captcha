@@ -1,0 +1,1228 @@
+<!doctype html>
+<html lang="en-GB">
+
+<style>
+    :root {
+        --blue: #4a90e2;
+        --paper: #ffffff;
+        --runner: #d4ce25;
+        --danger: #d53974;
+        --ui-border: #4a90e2;
+        --ui-border-strong: rgba(74, 144, 226, 0.45);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        height: 100%;
+    }
+
+    body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--blue);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 22px 18px 64px;
+    }
+
+    /* Top animated “DNA” mark (matches the reference: tall, vertical, rotates) */
+    .mark {
+        display: grid;
+        place-items: center;
+        margin: 6px 0 12px;
+    }
+
+    .mark svg {
+        width: 170px;
+        /* smaller (about half vs earlier) */
+        height: 260px;
+        display: block;
+        background: transparent;
+        /* blend into page */
+        overflow: visible;
+    }
+
+    h1 {
+        margin: 8px 0 18px;
+        font-size: 54px;
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        text-align: center;
+        color: var(--blue);
+    }
+
+    /* Game panel */
+    .gameCard {
+        border: 2px solid var(--ui-border);
+        border-radius: 18px;
+        background: #fff;
+        padding: 16px 16px 14px;
+    }
+
+    .topRow {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .leftMeta {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 320px;
+        flex: 1;
+    }
+
+    .gameTitle {
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--blue);
+        margin: 0;
+    }
+
+    .gameSub {
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.45;
+        color: rgba(74, 144, 226, 0.75);
+    }
+
+    .rightMeta {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .roundPill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        border-radius: 999px;
+        border: 2px solid var(--ui-border-strong);
+        background: rgba(74, 144, 226, 0.06);
+        color: var(--blue);
+        font-weight: 900;
+        font-size: 28px;
+        letter-spacing: 0.02em;
+        position: relative;
+        overflow: hidden;
+        user-select: none;
+    }
+
+    /* subtle glitter sweep (on round change) */
+    .roundPill.glitter::after {
+        content: "";
+        position: absolute;
+        inset: -40% -60%;
+        background:
+            radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0) 45%),
+            radial-gradient(circle at 70% 55%, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0) 42%),
+            linear-gradient(120deg, rgba(255, 255, 255, 0) 35%, rgba(255, 255, 255, 0.45) 50%, rgba(255, 255, 255, 0) 65%);
+        transform: translateX(-35%) rotate(8deg);
+        animation: glitterSweep 720ms ease-out 1;
+        pointer-events: none;
+        mix-blend-mode: screen;
+        opacity: 0.95;
+    }
+
+    @keyframes glitterSweep {
+        0% {
+            transform: translateX(-55%) rotate(8deg);
+            opacity: 0;
+        }
+
+        15% {
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateX(55%) rotate(8deg);
+            opacity: 0;
+        }
+    }
+
+    .btn {
+        height: 46px;
+        padding: 0 18px;
+        border-radius: 14px;
+        border: 2px solid var(--ui-border-strong);
+        background: #fff;
+        color: var(--blue);
+        font-weight: 800;
+        font-size: 16px;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 120ms ease, background 160ms ease, border-color 160ms ease, opacity 160ms ease;
+    }
+
+    .btnPrimary {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: #fff;
+    }
+
+    .btn:active {
+        transform: translateY(1px);
+    }
+
+    .btn[disabled] {
+        opacity: 0.45;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .is-hidden {
+        display: none !important;
+    }
+
+    /* chances squares only */
+    .chances {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 999px;
+        border: 2px solid var(--ui-border);
+        background: rgba(74, 144, 226, 0.03);
+        margin-top: 10px;
+        width: fit-content;
+    }
+
+    .life {
+        width: 18px;
+        height: 18px;
+        border-radius: 5px;
+        border: 2px solid rgba(74, 144, 226, 0.35);
+        background: transparent;
+    }
+
+    .life.used {
+        border-color: rgba(213, 57, 116, 0.55);
+        background: rgba(213, 57, 116, 0.92);
+    }
+
+    /* canvas stage */
+    .stageWrap {
+        margin-top: 14px;
+        border-radius: 16px;
+        border: 2px solid var(--ui-border);
+        overflow: hidden;
+        background: #fff;
+        position: relative;
+    }
+
+    canvas {
+        width: 100%;
+        height: 360px;
+        display: block;
+        background: #fff;
+    }
+
+    /* single red flash on hit */
+    .hitFlash {
+        position: absolute;
+        inset: 0;
+        background: rgba(213, 57, 116, 0.22);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 120ms ease;
+    }
+
+    .hitFlash.is-on {
+        opacity: 1;
+        transition: opacity 60ms ease;
+    }
+
+    /* Receipt area */
+    .receiptCard {
+        margin-top: 16px;
+        border: 2px solid var(--ui-border);
+        border-radius: 18px;
+        background: #fff;
+        overflow: hidden;
+    }
+
+    .receiptHeader {
+        padding: 14px 14px 10px;
+        border-bottom: 1px dashed rgba(74, 144, 226, 0.35);
+        color: rgba(74, 144, 226, 0.90);
+        font-weight: 800;
+        font-size: 15px;
+        letter-spacing: 0.02em;
+    }
+
+    .receiptBody {
+        padding: 12px 14px 18px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        color: rgba(74, 144, 226, 0.92);
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+    .line {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 6px 0;
+        border-bottom: 1px dotted rgba(74, 144, 226, 0.16);
+    }
+
+    .line:last-child {
+        border-bottom: none;
+    }
+
+    .ico {
+        width: 18px;
+        height: 18px;
+        flex: 0 0 18px;
+        margin-top: 1px;
+        color: var(--blue);
+    }
+
+    .txt {
+        flex: 1 1 auto;
+        min-width: 0;
+        color: rgba(74, 144, 226, 0.92);
+    }
+
+    /* zigzag cut at bottom */
+    .receiptZig {
+        height: 18px;
+        background:
+            linear-gradient(135deg, transparent 75%, rgba(74, 144, 226, 0.12) 76%) 0 0/18px 18px,
+            linear-gradient(225deg, transparent 75%, rgba(74, 144, 226, 0.12) 76%) 0 0/18px 18px;
+        border-top: 1px dashed rgba(74, 144, 226, 0.28);
+    }
+
+    .note {
+        margin-top: 10px;
+        font-size: 12px;
+        color: rgba(74, 144, 226, 0.58);
+    }
+
+    @media (max-width:560px) {
+        h1 {
+            font-size: 44px;
+        }
+
+        .roundPill {
+            font-size: 24px;
+        }
+
+        canvas {
+            height: 320px;
+        }
+
+        .mark svg {
+            width: 150px;
+            height: 230px;
+        }
+    }
+</style>
+</head>
+
+<body>
+    <div class="wrap">
+
+        <!-- animated mark ABOVE title -->
+        <div class="mark" aria-hidden="true">
+            <svg id="dnaMark" viewBox="0 0 240 360"></svg>
+        </div>
+
+        <h1>How to Prove You Are Human</h1>
+
+        <section class="gameCard" aria-label="Runner game">
+            <div class="topRow">
+                <div class="leftMeta">
+                    <p class="gameTitle">Prove it by running</p>
+                    <p class="gameSub">Press Space or click to jump. Press Shift or S to duck. Avoid obstacles and keep
+                        going.</p>
+
+                    <!-- chances only -->
+                    <div class="chances" id="chances" aria-label="Chances"></div>
+                </div>
+
+                <div class="rightMeta">
+                    <div class="roundPill" id="roundPill">ROUND 1</div>
+
+                    <button class="btn btnPrimary" id="btnStart" type="button">Start</button>
+                    <button class="btn" id="btnRetry" type="button" disabled>Try again</button>
+                    <button class="btn is-hidden" id="btnReset" type="button">Reset</button>
+                </div>
+            </div>
+
+            <div class="stageWrap">
+                <canvas id="gameCanvas" width="980" height="360"></canvas>
+                <div class="hitFlash" id="hitFlash" aria-hidden="true"></div>
+            </div>
+
+            <div class="note" id="note">
+                A round ends when you survive long enough. The game stops after each round. Press Start to continue.
+            </div>
+        </section>
+
+        <section class="receiptCard" aria-label="Receipt statements">
+            <div class="receiptHeader">Statements printed on receipt</div>
+            <div class="receiptBody" id="receiptBody"></div>
+            <div class="receiptZig" aria-hidden="true"></div>
+        </section>
+    </div>
+
+    <script>
+        /* ---------------------------------------
+           0) Top mark: tall “DNA” (reference-like)
+           --------------------------------------- */
+        (function initMark() {
+            const svg = document.getElementById("dnaMark");
+            if (!svg) return;
+
+            const NS = "http://www.w3.org/2000/svg";
+            svg.innerHTML = "";
+
+            const cx = 120, cy = 180;
+
+            const g = document.createElementNS(NS, "g");
+            g.setAttribute("transform", `translate(${cx} ${cy}) rotate(0) translate(${-cx} ${-cy})`);
+            svg.appendChild(g);
+
+            const items = [];
+
+            const rows = 22;
+            const yTop = 44;
+            const yGap = 12.5;
+            const baseLen = 150;
+
+            for (let i = 0; i < rows; i++) {
+                const t = i / (rows - 1);
+                const y = yTop + i * yGap;
+
+                // hourglass squeeze: shortest at centre
+                const squeeze = Math.abs(t - 0.5) * 2; // 0 centre, 1 ends
+                const len = baseLen - (1 - squeeze) * 62;
+
+                const x1 = cx - len / 2;
+                const x2 = cx + len / 2;
+
+                const line = document.createElementNS(NS, "line");
+                line.setAttribute("x1", x1);
+                line.setAttribute("y1", y);
+                line.setAttribute("x2", x2);
+                line.setAttribute("y2", y);
+                line.setAttribute("stroke-linecap", "round");
+                line.setAttribute("stroke-width", 7);
+                g.appendChild(line);
+
+                // dots (slightly alternating emphasis like the reference)
+                const big = Math.max(4.2, 9.2 - squeeze * 4.2);
+                const small = Math.max(3.6, 6.0 - squeeze * 2.4);
+                const bigOnLeft = (i % 2 === 0);
+
+                const cL = document.createElementNS(NS, "circle");
+                cL.setAttribute("cx", x1);
+                cL.setAttribute("cy", y);
+                cL.setAttribute("r", bigOnLeft ? big : small);
+                g.appendChild(cL);
+
+                const cR = document.createElementNS(NS, "circle");
+                cR.setAttribute("cx", x2);
+                cR.setAttribute("cy", y);
+                cR.setAttribute("r", bigOnLeft ? small : big);
+                g.appendChild(cR);
+
+                items.push(line, cL, cR);
+
+                // a few centre dots (reference has small “floating” dots)
+                if (i === 9 || i === 10 || i === 11) {
+                    const mid1 = document.createElementNS(NS, "circle");
+                    mid1.setAttribute("cx", cx - 8);
+                    mid1.setAttribute("cy", y + (i === 10 ? 0 : 1.5));
+                    mid1.setAttribute("r", 3.6);
+                    g.appendChild(mid1);
+
+                    const mid2 = document.createElementNS(NS, "circle");
+                    mid2.setAttribute("cx", cx + 8);
+                    mid2.setAttribute("cy", y - (i === 10 ? 0 : 1.5));
+                    mid2.setAttribute("r", 3.6);
+                    g.appendChild(mid2);
+
+                    items.push(mid1, mid2);
+                }
+            }
+
+            // Colour cycle: red -> green -> blue, slow and smooth
+            function cycleColour(t) {
+                // t in seconds
+                const phase = (t / 6) % 3; // 0..3
+                const colours = [
+                    [228, 74, 74],   // soft red
+                    [54, 171, 106],  // soft green
+                    [74, 144, 226]   // blue
+                ];
+                const a = Math.floor(phase);
+                const b = (a + 1) % 3;
+                const f = phase - a;
+
+                const r = Math.round(colours[a][0] + (colours[b][0] - colours[a][0]) * f);
+                const g2 = Math.round(colours[a][1] + (colours[b][1] - colours[a][1]) * f);
+                const b2 = Math.round(colours[a][2] + (colours[b][2] - colours[a][2]) * f);
+                return `rgb(${r},${g2},${b2})`;
+            }
+
+            let t0 = null;
+            function tick(ts) {
+                if (t0 === null) t0 = ts;
+                const t = (ts - t0) / 1000;
+
+                const colour = cycleColour(t);
+                for (const el of items) {
+                    el.setAttribute("stroke", colour);
+                    el.setAttribute("fill", colour);
+                }
+
+                // continuous rotation (the user requested rotation)
+                const ang = (t * 22) % 360; // ~16s per full turn
+                g.setAttribute("transform", `translate(${cx} ${cy}) rotate(${ang}) translate(${-cx} ${-cy})`);
+
+                requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        })();
+
+        /* ---------------------------
+           1) Receipt statements + animal icons
+           --------------------------- */
+        const STATEMENTS = [
+            "Humans are made of cells.",
+            "Human cells have a nucleus.",
+            "Human genetic information is stored in DNA.",
+            "Human DNA is made up of base sequences.",
+            "Human cells synthesise proteins.",
+            "Human cells contain mitochondria.",
+            "Humans use ATP as an energy unit.",
+            "A human cell membrane regulates what enters and leaves.",
+            "Human cells divide.",
+            "The human body is made up of tissues and organs.",
+            "Humans need water.",
+            "Humans need oxygen.",
+            "Humans expel carbon dioxide.",
+            "Humans produce energy using oxygen.",
+            "Humans maintain internal homeostasis.",
+            "Humans regulate body temperature.",
+            "Humans regulate blood glucose.",
+            "Humans regulate electrolyte balance.",
+            "Humans regulate acid–base balance.",
+            "Humans regulate body fluid volume.",
+            "Humans have a heart.",
+            "A human heart beats.",
+            "Humans have blood.",
+            "Human blood carries oxygen.",
+            "Human blood carries nutrients.",
+            "Human blood helps carry waste products.",
+            "Humans have arteries.",
+            "Humans have veins.",
+            "Humans have capillaries.",
+            "Human blood pressure is regulated.",
+            "Humans have lungs.",
+            "Humans exchange gases through breathing.",
+            "Humans have a trachea.",
+            "Humans have bronchi.",
+            "Humans have alveoli.",
+            "Humans have a diaphragm.",
+            "Humans regulate breathing rate.",
+            "Humans have a cough reflex.",
+            "Humans have a sneeze reflex.",
+            "Humans yawn.",
+            "Humans have a mouth.",
+            "Humans have teeth.",
+            "Humans have a tongue.",
+            "Humans have salivary glands.",
+            "Humans secrete saliva.",
+            "Humans chew.",
+            "Humans have a swallowing reflex.",
+            "Humans have an oesophagus.",
+            "Humans have a stomach.",
+            "Humans secrete stomach acid.",
+            "Humans have a small intestine.",
+            "Humans have a large intestine.",
+            "Humans use digestive enzymes.",
+            "Humans absorb nutrients in the intestine.",
+            "Humans have intestinal movement.",
+            "Humans have gut microbes.",
+            "Humans have a liver.",
+            "The human liver is involved in metabolism.",
+            "Humans have a pancreas.",
+            "The human pancreas helps regulate blood glucose.",
+            "Humans have kidneys.",
+            "Human kidneys filter blood.",
+            "Humans produce urine.",
+            "Humans have a bladder.",
+            "Humans urinate.",
+            "Humans defecate.",
+            "Humans have sweat glands.",
+            "Humans sweat.",
+            "Humans can lose body water.",
+            "Humans feel thirst.",
+            "Humans have skin.",
+            "Human skin acts as a barrier.",
+            "Human skin conveys sensation.",
+            "Human skin has sebaceous glands.",
+            "Human skin has hair follicles.",
+            "Human skin contains melanin.",
+            "Human skin forms a stratum corneum.",
+            "Human skin recovers after injury.",
+            "Human wounds form scabs.",
+            "Humans can have scars.",
+            "Humans feel pain.",
+            "Humans feel touch.",
+            "Humans sense pressure.",
+            "Humans sense temperature.",
+            "Humans feel itch.",
+            "Humans get goosebumps.",
+            "Humans blush.",
+            "Humans turn pale.",
+            "Humans develop calluses.",
+            "Humans develop wrinkles.",
+            "Humans have a skeleton.",
+            "The human skeleton is made of bones.",
+            "Humans have joints.",
+            "Humans have cartilage.",
+            "Humans have skeletal muscle.",
+            "Human muscles contract.",
+            "Human muscles relax.",
+            "Humans have tendons.",
+            "Humans have ligaments.",
+            "Human bones remodel over time.",
+            "Humans have fingers.",
+            "Humans have thumbs.",
+            "Human fingers have fingerprints.",
+            "Humans grasp objects.",
+            "Humans release objects.",
+            "Humans walk.",
+            "Humans run.",
+            "Humans sit.",
+            "Humans lie down.",
+            "Humans maintain posture.",
+            "Humans maintain balance.",
+            "Humans have vision.",
+            "Humans have hearing.",
+            "Humans have smell.",
+            "Humans have taste.",
+            "Humans blink.",
+            "Human pupils respond to light.",
+            "Humans show a startle response to sound.",
+            "Humans see less well in the dark.",
+            "Humans squint in bright light.",
+            "Humans have a brain.",
+            "Humans have a spinal cord.",
+            "Humans have peripheral nerves.",
+            "Human neurons transmit electrical signals.",
+            "Human nerves produce reflexes.",
+            "Humans withdraw their hand from painful stimuli.",
+            "Humans have a knee-jerk reflex.",
+            "Humans have a gag reflex.",
+            "Humans plan actions.",
+            "Humans learn actions.",
+            "Humans remember.",
+            "Humans learn new information.",
+            "Practice increases proficiency.",
+            "Humans recognise patterns.",
+            "Humans infer cause and effect.",
+            "Humans set goals.",
+            "Humans make choices.",
+            "Humans shift attention.",
+            "Humans make mistakes.",
+            "Humans sometimes learn from mistakes.",
+            "Humans experience emotions.",
+            "Humans experience fear.",
+            "Humans experience anger.",
+            "Humans experience joy.",
+            "Humans experience sadness.",
+            "Humans experience disgust.",
+            "Humans experience anxiety.",
+            "Humans experience tension.",
+            "Humans show stress responses.",
+            "Humans experience relief.",
+            "Humans make sounds.",
+            "Humans communicate by voice.",
+            "Humans distinguish one another’s voices.",
+            "Humans make facial expressions.",
+            "Humans use gestures.",
+            "Humans notice where others are looking.",
+            "Humans observe others’ behaviour.",
+            "Humans imitate.",
+            "Humans play.",
+            "Humans compete.",
+            "Humans cooperate.",
+            "Humans form groups.",
+            "Humans form family relationships.",
+            "Humans recognise social status.",
+            "Humans create rules.",
+            "Humans learn rules.",
+            "Humans respond to warning signals.",
+            "Humans avoid threats.",
+            "Humans define territories.",
+            "Humans recognise ownership.",
+            "Humans use tools.",
+            "Humans change their environment.",
+            "Humans store things.",
+            "Humans find their way.",
+            "Humans remember familiar places.",
+            "Humans explore unfamiliar stimuli.",
+            "Humans assess risks.",
+            "Humans form food preferences.",
+            "Humans hesitate around unfamiliar food.",
+            "Humans approach familiar food.",
+            "Humans have sleep–wake cycles.",
+            "Humans respond to day and night changes.",
+            "Humans accumulate fatigue.",
+            "Humans rest.",
+            "Performance recovers after rest.",
+            "Humans grow.",
+            "Humans age.",
+            "Humans recover after injury.",
+            "Humans mount immune responses.",
+            "Humans produce antibodies.",
+            "Humans respond to infection.",
+            "Humans defend themselves with fever.",
+            "Humans avoid pain-related behaviours.",
+            "Humans expel harmful substances by vomiting.",
+            "Humans rapidly expel intestinal contents by diarrhoea.",
+            "Humans hiccup.",
+            "Humans burp.",
+            "Humans pass wind.",
+            "Human body weight changes.",
+            "Body composition changes with energy balance."
+        ];
+
+        function animalIconSVG(kind) {
+            const c = "currentColor";
+            switch (kind) {
+                case 0: return `<svg class="ico" viewBox="0 0 24 24" fill="none">
+      <path d="M7 6l-2-2v6" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M17 6l2-2v6" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M6.5 10.5c1.8-2 4-3 5.5-3s3.7 1 5.5 3c1 1.1 1.5 2.5 1.5 4 0 3.6-3.1 6-7 6s-7-2.4-7-6c0-1.5.5-2.9 1.5-4z" stroke="${c}" stroke-width="2" />
+      <path d="M9.5 14h.01M14.5 14h.01" stroke="${c}" stroke-width="3" stroke-linecap="round"/>
+      <path d="M10 17c.7.6 1.3.9 2 .9s1.3-.3 2-.9" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+    </svg>`;
+                case 1: return `<svg class="ico" viewBox="0 0 24 24" fill="none">
+      <path d="M7 8c-1.5 0-3-1.8-3-3.5S5 2 6.5 2L8 5" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M17 8c1.5 0 3-1.8 3-3.5S19 2 17.5 2L16 5" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M6 11c0-3 2.7-5 6-5s6 2 6 5v4.5c0 3-2.7 5.5-6 5.5s-6-2.5-6-5.5V11z" stroke="${c}" stroke-width="2"/>
+      <path d="M10 14h.01M14 14h.01" stroke="${c}" stroke-width="3" stroke-linecap="round"/>
+      <path d="M10.5 17.2c.8.6 2.2.6 3 0" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+    </svg>`;
+                case 2: return `<svg class="ico" viewBox="0 0 24 24" fill="none">
+      <path d="M4 14c5-6 10-6 16-2" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M9 13c1.5 0 3-.6 4.2-1.6" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M14.5 10.2l2.5.8-2.5.8" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M8 18c2-1 4-1 6 0" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+    </svg>`;
+                case 3: return `<svg class="ico" viewBox="0 0 24 24" fill="none">
+      <path d="M4 12c3-4 8-6 12-4 2 1 3 2 4 4-1 2-2 3-4 4-4 2-9 0-12-4z" stroke="${c}" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M20 12l2-2v4l-2-2z" fill="${c}"/>
+      <path d="M10.5 11h.01" stroke="${c}" stroke-width="3" stroke-linecap="round"/>
+    </svg>`;
+                case 4: return `<svg class="ico" viewBox="0 0 24 24" fill="none">
+      <path d="M9 7c0-3 1-5 2.5-5S14 4 14 7" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M7 10c0-2 2-4 5-4s5 2 5 4v5c0 3-2 6-5 6s-5-3-5-6v-5z" stroke="${c}" stroke-width="2"/>
+      <path d="M10 13h.01M14 13h.01" stroke="${c}" stroke-width="3" stroke-linecap="round"/>
+      <path d="M11 16c.6.4 1.4.4 2 0" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+    </svg>`;
+                case 5: return `<svg class="ico" viewBox="0 0 24 24" fill="none">
+      <path d="M7 12c0-3 2.5-5 5-5s5 2 5 5-2.5 6-5 6-5-3-5-6z" stroke="${c}" stroke-width="2"/>
+      <path d="M5 13l-2 1m18-1l2 1" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M10 7l-1-2m6 2l1-2" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+    </svg>`;
+                case 6: return `<svg class="ico" viewBox="0 0 24 24" fill="none">
+      <path d="M6 8l-2-3v8c0 4 3 8 8 8s8-4 8-8V5l-2 3" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M8 9c2-2 6-2 8 0" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M10 13h.01M14 13h.01" stroke="${c}" stroke-width="3" stroke-linecap="round"/>
+    </svg>`;
+                default: return `<svg class="ico" viewBox="0 0 24 24" fill="none">
+      <path d="M8 8c-1.2 0-2-1-2-2s.8-2 2-2c.8 0 1.3.3 2 1M16 8c1.2 0 2-1 2-2s-.8-2-2-2c-.8 0-1.3.3-2 1" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M6 12c0-3 2.7-5 6-5s6 2 6 5v4c0 3-2.7 5-6 5s-6-2-6-5v-4z" stroke="${c}" stroke-width="2"/>
+      <path d="M10 14h.01M14 14h.01" stroke="${c}" stroke-width="3" stroke-linecap="round"/>
+      <path d="M11 17c.6.4 1.4.4 2 0" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+    </svg>`;
+            }
+        }
+
+        function renderReceipt(upto) {
+            const box = document.getElementById("receiptBody");
+            if (!box) return;
+            box.innerHTML = "";
+            for (let i = 0; i < upto; i++) {
+                const kind = i % 8;
+                const row = document.createElement("div");
+                row.className = "line";
+                row.innerHTML = `${animalIconSVG(kind)}<div class="txt">${String(i + 1).padStart(3, "0")}. ${STATEMENTS[i]}</div>`;
+                box.appendChild(row);
+            }
+        }
+
+        /* ---------------------------
+           2) Chances UI (10 lives)
+           --------------------------- */
+        const chancesEl = document.getElementById("chances");
+        const MAX_LIVES = 10;
+        let livesUsed = 0;
+
+        function initLives() {
+            if (!chancesEl) return;
+            chancesEl.innerHTML = "";
+            for (let i = 0; i < MAX_LIVES; i++) {
+                const d = document.createElement("div");
+                d.className = "life";
+                chancesEl.appendChild(d);
+            }
+        }
+        function updateLives() {
+            if (!chancesEl) return;
+            const kids = [...chancesEl.children];
+            kids.forEach((k, idx) => {
+                if (idx < livesUsed) k.classList.add("used");
+                else k.classList.remove("used");
+            });
+        }
+
+        /* ---------------------------
+           3) Runner game
+           - Stops after each round
+           - Start for a new attempt
+           - Try again only after a fail (same round)
+           - Reset only appears at ROUND 200
+           --------------------------- */
+        (function initRunner() {
+            const canvas = document.getElementById("gameCanvas");
+            const ctx = canvas ? canvas.getContext("2d") : null;
+
+            const btnStart = document.getElementById("btnStart");
+            const btnRetry = document.getElementById("btnRetry");
+            const btnReset = document.getElementById("btnReset");
+
+            const roundPill = document.getElementById("roundPill");
+            const note = document.getElementById("note");
+            const flash = document.getElementById("hitFlash");
+
+            if (!canvas || !ctx || !btnStart || !btnRetry || !btnReset || !roundPill || !flash) return;
+
+            const RESET_SHOW_ROUND = 200;
+
+            let groundY = 290;
+
+            function fitCanvas() {
+                const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+                const cssW = canvas.clientWidth;
+                const cssH = canvas.clientHeight;
+                canvas.width = Math.round(cssW * dpr);
+                canvas.height = Math.round(cssH * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+                // keep ground near bottom, responsive
+                groundY = Math.round(cssH - 70);
+            }
+            window.addEventListener("resize", fitCanvas);
+            fitCanvas();
+
+            // state
+            let round = 1;
+            let running = false;
+            let lastTs = 0;
+            let roundTime = 0;
+            let mode = "idle"; // idle | running | failed
+
+            const gravity = 1600;
+            const jumpV = -560;
+
+            const player = {
+                x: 160,
+                y: groundY,
+                vy: 0,
+                w: 16,
+                h: 52,
+                duck: false,
+                onGround: true
+            };
+
+            let obstacles = [];
+            let spawnTimer = 0;
+
+            // round tuning (this is where you adjust rounds)
+            function roundDurationFor(r) {
+                return 6.2 + Math.min(r * 0.05, 3.0);
+            }
+            function speedFor(r) {
+                return 340 + Math.min(r * 8, 380);
+            }
+            function spawnIntervalFor(r) {
+                const base = 0.92 - Math.min(r * 0.006, 0.35);
+                return Math.max(0.46, base);
+            }
+
+            let shownRound = null;
+            function setRoundLabel() {
+                if (shownRound !== round) {
+                    shownRound = round;
+                    roundPill.textContent = `ROUND ${round}`;
+                    roundPill.classList.remove("glitter");
+                    void roundPill.offsetWidth;
+                    roundPill.classList.add("glitter");
+                }
+
+                // show Reset only at round 200+
+                if (round >= RESET_SHOW_ROUND) btnReset.classList.remove("is-hidden");
+                else btnReset.classList.add("is-hidden");
+            }
+
+            function setMode(m) {
+                mode = m;
+                if (mode === "idle") {
+                    btnStart.disabled = (livesUsed >= MAX_LIVES);
+                    btnRetry.disabled = true;
+                    if (note) note.textContent =
+                        "A round ends when you survive long enough. The game stops after each round. Press Start to continue.";
+                }
+                if (mode === "running") {
+                    btnStart.disabled = true;
+                    btnRetry.disabled = true;
+                    if (note) note.textContent = "Running…";
+                }
+                if (mode === "failed") {
+                    btnStart.disabled = true;     // Start disabled after fail
+                    btnRetry.disabled = (livesUsed >= MAX_LIVES);
+                    if (note) note.textContent = (livesUsed >= MAX_LIVES)
+                        ? "No chances left."
+                        : "You hit an obstacle. Press Try again to restart this round.";
+                }
+            }
+
+            function resetRoundState() {
+                roundTime = 0;
+                player.y = groundY;
+                player.vy = 0;
+                player.duck = false;
+                player.onGround = true;
+                obstacles = [];
+                spawnTimer = 0;
+                setRoundLabel();
+            }
+
+            function fullReset() {
+                round = 1;
+                livesUsed = 0;
+                updateLives();
+                resetRoundState();
+                renderReceipt(0);
+                running = false;
+                setMode("idle");
+                draw();
+            }
+
+            function flashHit() {
+                flash.classList.remove("is-on");
+                void flash.offsetWidth;
+                flash.classList.add("is-on");
+                window.setTimeout(() => {
+                    flash.classList.remove("is-on");
+                }, 140);
+            }
+
+            function failRound() {
+                livesUsed = Math.min(MAX_LIVES, livesUsed + 1);
+                updateLives();
+                running = false;
+                flashHit();
+                setMode("failed");
+                draw();
+            }
+
+            function clearRound() {
+                running = false;
+                round += 1;
+
+                // reveal next receipt line (one per cleared round)
+                const revealCount = Math.min(round - 1, STATEMENTS.length);
+                renderReceipt(revealCount);
+
+                resetRoundState();
+                setMode("idle");
+                draw();
+            }
+
+            function startRoundFresh() {
+                if (livesUsed >= MAX_LIVES) return;
+                resetRoundState();
+                running = true;
+                lastTs = performance.now();
+                setMode("running");
+                requestAnimationFrame(loop);
+            }
+
+            function retrySameRound() {
+                if (livesUsed >= MAX_LIVES) return;
+                resetRoundState();
+                running = true;
+                lastTs = performance.now();
+                setMode("running");
+                requestAnimationFrame(loop);
+            }
+
+            // obstacle generator (smaller, varied, jump/duck-able)
+            function spawnObstacle() {
+                const r = Math.random();
+                const type =
+                    r < 0.55 ? "block" :
+                        r < 0.80 ? "tri" :
+                            "lowbar";
+
+                const speed = speedFor(round);
+
+                if (type === "block") {
+                    const w = 18 + Math.random() * 22;
+                    const h = 20 + Math.random() * 28;
+                    obstacles.push({
+                        type, x: canvas.clientWidth + 40,
+                        y: groundY - h,
+                        w, h,
+                        vx: -speed
+                    });
+                    return;
+                }
+
+                if (type === "tri") {
+                    const w = 22 + Math.random() * 18;
+                    const h = 18 + Math.random() * 24;
+                    obstacles.push({
+                        type, x: canvas.clientWidth + 40,
+                        y: groundY,
+                        w, h,
+                        vx: -speed
+                    });
+                    return;
+                }
+
+                // lowbar (duck)
+                const w = 34 + Math.random() * 30;
+                const h = 12 + Math.random() * 10;
+                const y = groundY - (44 + Math.random() * 16);
+                obstacles.push({
+                    type, x: canvas.clientWidth + 40,
+                    y, w, h,
+                    vx: -speed
+                });
+            }
+
+            // controls
+            function doJump() {
+                if (!running) return;
+                if (!player.onGround) return;
+                player.vy = jumpV;
+                player.onGround = false;
+            }
+            function setDuck(on) {
+                if (!running) return;
+                player.duck = on;
+            }
+
+            window.addEventListener("keydown", (e) => {
+                if (e.code === "Space") { e.preventDefault(); doJump(); }
+                if (e.key === "Shift" || e.key.toLowerCase() === "s") { setDuck(true); }
+            });
+            window.addEventListener("keyup", (e) => {
+                if (e.key === "Shift" || e.key.toLowerCase() === "s") { setDuck(false); }
+            });
+            canvas.addEventListener("pointerdown", () => doJump());
+
+            function rectsOverlap(a, b) {
+                return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+            }
+
+            function update(dt) {
+                roundTime += dt;
+
+                // spawn
+                spawnTimer -= dt;
+                if (spawnTimer <= 0) {
+                    spawnObstacle();
+                    spawnTimer = spawnIntervalFor(round) + (Math.random() * 0.22);
+                }
+
+                // player physics
+                const baseH = 52;
+                const duckH = 30;
+                player.h = player.duck ? duckH : baseH;
+
+                if (!player.onGround) {
+                    player.vy += gravity * dt;
+                    player.y += player.vy * dt;
+                    if (player.y >= groundY) {
+                        player.y = groundY;
+                        player.vy = 0;
+                        player.onGround = true;
+                    }
+                } else {
+                    player.y = groundY;
+                    player.vy = 0;
+                }
+
+                // obstacles move
+                for (const o of obstacles) o.x += o.vx * dt;
+                obstacles = obstacles.filter(o => o.x + o.w > -80);
+
+                // collision boxes
+                const pBox = {
+                    x: player.x - player.w / 2,
+                    y: player.y - player.h,
+                    w: player.w,
+                    h: player.h
+                };
+
+                for (const o of obstacles) {
+                    if (o.type === "tri") {
+                        const b = { x: o.x, y: o.y - o.h, w: o.w, h: o.h };
+                        if (rectsOverlap(pBox, b)) {
+                            failRound();
+                            break;
+                        }
+                    } else {
+                        const b = { x: o.x, y: o.y, w: o.w, h: o.h };
+                        if (rectsOverlap(pBox, b)) {
+                            failRound();
+                            break;
+                        }
+                    }
+                    if (!running) break;
+                }
+
+                if (running && roundTime >= roundDurationFor(round)) {
+                    clearRound();
+                }
+            }
+
+            function draw() {
+                const w = canvas.clientWidth;
+                const h = canvas.clientHeight;
+
+                ctx.clearRect(0, 0, w, h);
+
+                // ground line
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = "rgba(74,144,226,0.45)";
+                ctx.beginPath();
+                ctx.moveTo(0, groundY);
+                ctx.lineTo(w, groundY);
+                ctx.stroke();
+
+                // subtle border inside stage
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "rgba(74,144,226,0.18)";
+                ctx.strokeRect(8, 8, w - 16, h - 16);
+
+                // obstacles
+                ctx.fillStyle = "rgba(74,144,226,0.75)";
+                ctx.lineWidth = 2;
+
+                for (const o of obstacles) {
+                    if (o.type === "block" || o.type === "lowbar") {
+                        ctx.fillRect(o.x, o.y, o.w, o.h);
+                        continue;
+                    }
+                    // triangle
+                    ctx.beginPath();
+                    ctx.moveTo(o.x, o.y);
+                    ctx.lineTo(o.x + o.w, o.y);
+                    ctx.lineTo(o.x + o.w / 2, o.y - o.h);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // runner (stick figure)
+                ctx.strokeStyle = "rgba(212,206,37,0.98)";
+                ctx.fillStyle = "rgba(212,206,37,0.98)";
+                ctx.lineWidth = 4;
+
+                const headR = 10;
+                const headX = player.x;
+                const headY = player.y - player.h - 12;
+
+                ctx.beginPath();
+                ctx.arc(headX, headY, headR, 0, Math.PI * 2);
+                ctx.fill();
+
+                const bodyTopY = headY + headR + 6;
+                const bodyBottomY = player.y - 10;
+                ctx.beginPath();
+                ctx.moveTo(headX, bodyTopY);
+                ctx.lineTo(headX, bodyBottomY);
+                ctx.stroke();
+
+                const legY = player.y - 2;
+                ctx.beginPath();
+                ctx.moveTo(headX, bodyBottomY);
+                ctx.lineTo(headX - 14, legY);
+                ctx.moveTo(headX, bodyBottomY);
+                ctx.lineTo(headX + 14, legY);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(headX, bodyTopY + 10);
+                ctx.lineTo(headX - 14, bodyTopY + 22);
+                ctx.moveTo(headX, bodyTopY + 10);
+                ctx.lineTo(headX + 14, bodyTopY + 22);
+                ctx.stroke();
+            }
+
+            function loop(ts) {
+                if (!running) { draw(); return; }
+                const dt = Math.min(0.033, (ts - lastTs) / 1000);
+                lastTs = ts;
+
+                update(dt);
+                draw();
+
+                if (running) requestAnimationFrame(loop);
+            }
+
+            btnStart.addEventListener("click", () => {
+                if (mode !== "idle") return;
+                startRoundFresh();
+            });
+
+            btnRetry.addEventListener("click", () => {
+                if (mode !== "failed") return;
+                retrySameRound();
+            });
+
+            btnReset.addEventListener("click", () => {
+                // Only visible at round 200, per requirement
+                fullReset();
+            });
+
+            // init
+            initLives();
+            updateLives();
+            setRoundLabel();
+            renderReceipt(0);
+            resetRoundState();
+            running = false;
+            setMode("idle");
+            draw();
+        })();
+    </script>
+</body>
+
+</html>

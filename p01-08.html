@@ -1,0 +1,81 @@
+<!-- p01-08.html -->
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Korean Class: Nature and Life</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="p01-08.css" />
+</head>
+
+<body class="p08-body">
+  <main class="p08-page" id="p08Page">
+
+    <header class="p08-header">
+      <h1 class="p08-title">Korean Class: Nature and Life</h1>
+
+      <div class="p08-meta">
+        <div class="p08-left">
+          <div class="p08-round" id="p08RoundLabel">ROUND 1</div>
+          <p class="p08-sub" id="p08Sub">Learn with flashcards. Click the card to flip.</p>
+        </div>
+
+        <div class="p08-right">
+          <div class="p08-progress" id="p08Progress">1/12</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ROUND 1 -->
+    <section class="p08-stage" id="p08StageR1">
+      <div class="p08-flipWrap" id="p08R1FlipWrap" aria-live="polite">
+
+        <div class="p08-flipCard" id="p08R1Card" role="button" tabindex="0" aria-label="Flashcard">
+          <div class="p08-flipInner">
+            <div class="p08-face p08-front" id="p08R1Front"></div>
+            <div class="p08-face p08-back" id="p08R1Back"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="p08-navRow">
+        <div class="p08-nav">
+          <button class="p08-iconBtn" id="p08PrevBtn" type="button" aria-label="Previous card">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14.5 5.5L8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <button class="p08-iconBtn" id="p08NextBtn" type="button" aria-label="Next card">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9.5 5.5L16 12l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="p08-actions">
+          <button class="p08-btn p08-btnGhost" id="p08RestartBtn" type="button">Restart</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROUND 2 -->
+    <section class="p08-stage p08-hidden" id="p08StageR2">
+      <div class="p08-toolbar">
+        <button class="p08-btn p08-btnPrimary" id="p08CheckBtn" type="button">Check answers</button>
+        <button class="p08-btn" id="p08EditBtn" type="button">Edit</button>
+        <button class="p08-btn" id="p08ClearBtn" type="button">Clear</button>
+        <button class="p08-btn p08-btnGhost" id="p08BackBtn" type="button">Back to Round 1</button>
+      </div>
+
+      <div class="p08-grid" id="p08Grid" aria-live="polite"></div>
+    </section>
+
+  </main>
+
+  <script src="p01-08.js"></script>
+</body>
+</html>
