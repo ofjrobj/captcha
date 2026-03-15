@@ -2,9 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const grid = document.getElementById("captchaGrid");
   if (!grid) return;
 
-  const ALL_TILES = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-  const NO_NAV = new Set(["1", "2", "7", "9"]);
-  const KEY_VISITED = "p01_visited_tiles_v6";
+  const REQUIRED_TILES = ["3", "4", "5", "6", "8"];
+  const SELECTABLE = new Set(REQUIRED_TILES);
+  const KEY_VISITED = "p01_visited_tiles_v8";
 
   const tiles = Array.from(document.querySelectorAll(".tile[data-tile]"));
   const resetBtn = document.getElementById("resetBtn");
@@ -14,16 +14,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let verified = false;
   let endTimer = null;
 
-  // 1,2,7,9 식별 클래스 부여
+  // 꽃 사진 타일만 선택 가능하도록 클래스 부여
   tiles.forEach((tile) => {
     const id = String(tile.dataset.tile || "");
-    if (NO_NAV.has(id)) tile.classList.add("is-no-nav");
+    if (SELECTABLE.has(id)) tile.classList.add("is-selectable");
   });
 
-  // i 버튼 안내 말풍선 생성
   ensureInfoBubble();
-
-  // 엔딩 화면 생성
   ensureEndScreen();
 
   const visited = new Set(loadVisited());
@@ -31,22 +28,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 타일 클릭
   tiles.forEach((tile) => {
-    tile.addEventListener("click", (e) => {
+    tile.addEventListener("click", () => {
       const id = String(tile.dataset.tile || "");
       if (!id) return;
 
+      document.body.classList.remove("is-info-on");
+
+      // 1,2,7,9는 눌러도 아무 변화 없음
+      if (!SELECTABLE.has(id)) return;
+
+      // 꽃 사진 타일만 방문 기록 저장
       visited.add(id);
       persistVisited();
       tile.classList.add("is-visited");
-
-      // 1,2,7,9는 페이지 이동 대신 덮기만
-      if (NO_NAV.has(id)) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-
-      // 타일 누르면 안내 말풍선은 닫음
-      document.body.classList.remove("is-info-on");
     });
   });
 
@@ -74,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
     verifyBtn.addEventListener("click", () => {
       if (verified) return;
 
-      const allVisited = ALL_TILES.every((id) => visited.has(id));
+      const allVisited = REQUIRED_TILES.every((id) => visited.has(id));
       if (!allVisited) {
         shakeVerify();
         return;
@@ -94,7 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // RESET
   if (resetBtn) resetBtn.addEventListener("click", resetAll);
 
-  // 엔딩 화면 리셋 버튼
   const endResetBtn = document.getElementById("p01EndReset");
   if (endResetBtn) endResetBtn.addEventListener("click", resetAll);
 
@@ -170,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const saved = JSON.parse(localStorage.getItem(KEY_VISITED) || "[]");
       if (!Array.isArray(saved)) return [];
-      return saved.map((v) => String(v));
+      return saved.map((v) => String(v)).filter((id) => SELECTABLE.has(id));
     } catch {
       return [];
     }

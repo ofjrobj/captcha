@@ -1,15 +1,12 @@
-<!-- index.html -->
 <!doctype html>
 <html lang="ko">
 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Capcha</title>
+  <title>CAPTCHA</title>
 
-  <!-- 공용 -->
   <link rel="stylesheet" href="style.css" />
-  <!-- p01 전용: 반드시 style.css 다음에 -->
   <link rel="stylesheet" href="p01.css" />
 </head>
 
@@ -23,7 +20,6 @@
     </section>
 
     <section class="grid" id="captchaGrid">
-      <!-- 1,2,7,9는 페이지 진입이 없는 버튼 -->
       <button class="tile" type="button" data-tile="1" aria-label="tile 1">
         <img src="assets/img/p01-01.jpg" alt="p01-01" loading="lazy" />
       </button>
@@ -32,20 +28,19 @@
         <img src="assets/img/p01-02.jpg" alt="p01-02" loading="lazy" />
       </button>
 
-      <!-- 나머지는 기존처럼 링크 -->
-      <a class="tile" data-tile="3" href="p01-03.html">
+      <a class="tile" data-tile="3" href="p01-03.html" aria-label="tile 3">
         <img src="assets/img/p01-03.jpg" alt="p01-03" loading="lazy" />
       </a>
 
-      <a class="tile" data-tile="4" href="p01-04.html">
+      <a class="tile" data-tile="4" href="p01-04.html" aria-label="tile 4">
         <img src="assets/img/p01-04.jpg" alt="p01-04" loading="lazy" />
       </a>
 
-      <a class="tile" data-tile="5" href="p01-05.html">
+      <a class="tile" data-tile="5" href="p01-05.html" aria-label="tile 5">
         <img src="assets/img/p01-05.jpg" alt="p01-05" loading="lazy" />
       </a>
 
-      <a class="tile" data-tile="6" href="p01-06.html">
+      <a class="tile" data-tile="6" href="p01-06.html" aria-label="tile 6">
         <img src="assets/img/p01-06.jpg" alt="p01-06" loading="lazy" />
       </a>
 
@@ -53,7 +48,7 @@
         <img src="assets/img/p01-07.jpg" alt="p01-07" loading="lazy" />
       </button>
 
-      <a class="tile" data-tile="8" href="p01-08.html">
+      <a class="tile" data-tile="8" href="p01-08.html" aria-label="tile 8">
         <img src="assets/img/p01-08.jpg" alt="p01-08" loading="lazy" />
       </a>
 

@@ -18,10 +18,9 @@
       </div>
     </header>
 
-    <h1 class="p05-title">Assembly Manual: Flower</h1>
+    <h1 class="p05-title">Product Assembly Manual: Flower</h1>
 
     <section class="p05-stage" id="p05-stage" aria-label="Assembly stage">
-      <!-- LEFT: PARTS TRAY -->
       <aside class="p05-tray" aria-label="Parts tray">
         <div class="p05-tray-head">
           <div class="p05-tray-title">
@@ -32,7 +31,6 @@
         </div>
 
         <div class="p05-stickerfield" id="p05-stickerfield" aria-label="Parts sticker sheet">
-          <!-- Petals -->
           <button class="p05-sticker" type="button" data-part="petalA" aria-label="Petal"
             style="--x:70;--y:18;--s:84;--r:14">
             <svg viewBox="0 0 1000 1000" aria-hidden="true">
@@ -97,7 +95,6 @@
             </svg>
           </button>
 
-          <!-- Sepal -->
           <button class="p05-sticker" type="button" data-part="sepal" aria-label="Sepal"
             style="--x:34;--y:44;--s:110;--r:-8">
             <svg viewBox="0 0 1000 1000" aria-hidden="true">
@@ -106,7 +103,6 @@
             </svg>
           </button>
 
-          <!-- Stamen -->
           <button class="p05-sticker" type="button" data-part="stamen" aria-label="Stamen"
             style="--x:78;--y:30;--s:92;--r:-4">
             <svg viewBox="0 0 1000 1000" aria-hidden="true">
@@ -123,7 +119,6 @@
             </svg>
           </button>
 
-          <!-- Pistil (겹침 방지로 위치 이동) -->
           <button class="p05-sticker" type="button" data-part="pistil" aria-label="Pistil"
             style="--x:54;--y:76;--s:96;--r:10">
             <svg viewBox="0 0 1000 1000" aria-hidden="true">
@@ -148,12 +143,9 @@
         </div>
       </aside>
 
-      <!-- RIGHT: BOARD + LABEL PANEL -->
       <section class="p05-board-wrap" aria-label="Assembly board and labels">
         <div class="p05-board" id="p05-board">
-          <!-- GUIDE -->
           <svg class="p05-guide" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-            <!-- petals 펼쳐진 형태: 동일 꽃잎 8장 회전 배치 -->
             <g class="g-petal">
               <path d="M500 160 C 640 270, 700 430, 610 575 C 555 670, 545 720, 500 800 C 455 720, 445 670, 390 575 C 300 430, 360 270, 500 160 Z" transform="rotate(0 500 520)"/>
               <path d="M500 160 C 640 270, 700 430, 610 575 C 555 670, 545 720, 500 800 C 455 720, 445 670, 390 575 C 300 430, 360 270, 500 160 Z" transform="rotate(45 500 520)"/>
@@ -165,18 +157,15 @@
               <path d="M500 160 C 640 270, 700 430, 610 575 C 555 670, 545 720, 500 800 C 455 720, 445 670, 390 575 C 300 430, 360 270, 500 160 Z" transform="rotate(315 500 520)"/>
             </g>
 
-            <!-- sepal -->
             <g class="g-sepal">
               <path d="M170 700 C 285 565, 430 545, 500 595 C 570 545, 715 565, 830 700 C 740 825, 600 880, 500 865 C 400 880, 260 825, 170 700 Z"/>
             </g>
 
-            <!-- pistil -->
             <g class="g-pistil">
               <path d="M500 260 C 610 360, 610 470, 500 570 C 390 470, 390 360, 500 260 Z"/>
               <path d="M500 570 C 590 650, 590 750, 500 860 C 410 750, 410 650, 500 570 Z"/>
             </g>
 
-            <!-- stamen -->
             <g class="g-stamen">
               <line x1="430" y1="310" x2="430" y2="680" />
               <line x1="500" y1="290" x2="500" y2="710" />
@@ -186,16 +175,13 @@
               <circle cx="570" cy="290" r="28" />
             </g>
 
-            <!-- dashed frame -->
             <rect class="g-frame" x="140" y="140" width="720" height="720" rx="28"/>
           </svg>
 
           <div class="p05-board-hint">Snap locks the part in place.</div>
 
-          <!-- Slots -->
-          <div class="p05-slot" data-slot="sepal"  data-x="160" data-y="560" data-w="680" data-h="340" data-z="1"></div>
+          <div class="p05-slot" data-slot="sepal" data-x="160" data-y="560" data-w="680" data-h="340" data-z="1"></div>
 
-          <!-- petals (8) -->
           <div class="p05-slot" data-slot="petalA" data-x="190" data-y="120" data-w="620" data-h="700" data-z="6"></div>
           <div class="p05-slot" data-slot="petalB" data-x="190" data-y="120" data-w="620" data-h="700" data-z="7"></div>
           <div class="p05-slot" data-slot="petalC" data-x="190" data-y="120" data-w="620" data-h="700" data-z="8"></div>
@@ -208,11 +194,9 @@
           <div class="p05-slot" data-slot="stamen" data-x="360" data-y="240" data-w="280" data-h="520" data-z="11"></div>
           <div class="p05-slot" data-slot="pistil" data-x="390" data-y="240" data-w="220" data-h="650" data-z="12"></div>
 
-          <!-- Locked parts -->
           <div class="p05-fixed" id="p05-fixed"></div>
         </div>
 
-        <!-- 완성 후 2초 뒤 표시되는 명칭 패널 -->
         <aside class="p05-labelPanel" id="p05-labelPanel" aria-hidden="true">
           <div class="p05-labelTitle">Parts</div>
           <ul class="p05-labelList">
@@ -225,47 +209,46 @@
       </section>
     </section>
 
-    <!-- Manual -->
     <section class="p05-manual" aria-label="Product assembly manual">
       <h2 class="p05-manual-title">Product Assembly Manual: Flower</h2>
       <p class="p05-manual-intro">
-        This product is a core apparatus responsible for plant reproduction. Assemble it in the prescribed order below.
+        This model is based on the reproductive structure of a typical camellia flower. Assemble all components in the order below.
       </p>
 
       <div class="p05-steps">
         <article class="p05-step" id="step-1">
-          <h3 class="p05-step-title">Step 1. Install the base and protective unit</h3>
+          <h3 class="p05-step-title">Step 1. Install the protective base layer</h3>
           <ul class="p05-step-list">
             <li><strong>Component</strong> Sepal</li>
-            <li><strong>Purpose</strong> Protects and supports the overall structure while internal components are assembled.</li>
-            <li><strong>Method</strong> Arrange the sepal in a circular formation at the base and secure it in place.</li>
+            <li><strong>Purpose</strong> Protects the developing flower bud and supports the outer base of the flower.</li>
+            <li><strong>Method</strong> Arrange the sepals in a circular formation at the base and secure them in place.</li>
           </ul>
         </article>
 
         <article class="p05-step" id="step-2">
-          <h3 class="p05-step-title">Step 2. Attach the attraction outer panels</h3>
+          <h3 class="p05-step-title">Step 2. Attach the corolla</h3>
           <ul class="p05-step-list">
             <li><strong>Component</strong> Petal</li>
-            <li><strong>Purpose</strong> Attracts external agents and encloses the internal reproductive components.</li>
-            <li><strong>Method</strong> Fix petals around the centre until the corolla is formed.</li>
+            <li><strong>Purpose</strong> Surrounds the reproductive organs and helps attract pollinators.</li>
+            <li><strong>Method</strong> Fix the petals around the centre to form the corolla.</li>
           </ul>
         </article>
 
         <article class="p05-step" id="step-3">
-          <h3 class="p05-step-title">Step 3. Assemble the male reproductive module</h3>
+          <h3 class="p05-step-title">Step 3. Assemble the stamens</h3>
           <ul class="p05-step-list">
             <li><strong>Component</strong> Stamen</li>
             <li><strong>Purpose</strong> Produces and releases pollen.</li>
-            <li><strong>Method</strong> Place the stamen set in the centre above the petals.</li>
+            <li><strong>Method</strong> Position the stamens around the central pistil.</li>
           </ul>
         </article>
 
         <article class="p05-step" id="step-4">
-          <h3 class="p05-step-title">Step 4. Seat the central control unit</h3>
+          <h3 class="p05-step-title">Step 4. Install the pistil</h3>
           <ul class="p05-step-list">
             <li><strong>Component</strong> Pistil</li>
-            <li><strong>Purpose</strong> Receives pollen and forms seeds as the final destination of fertilisation.</li>
-            <li><strong>Method</strong> Fix the pistil vertically at the exact centre. Verify that all components are firmly connected.</li>
+            <li><strong>Purpose</strong> Receives pollen and contains the ovules that develop into seeds after fertilisation.</li>
+            <li><strong>Method</strong> Fix the pistil upright at the centre. Verify that all components are securely connected.</li>
           </ul>
         </article>
       </div>
@@ -386,7 +369,6 @@
         else nextEl.textContent = "Next: " + displayName(req);
       }
 
-      /* === Overlay path definitions === */
       const PETAL_D = "M500 160 C 640 270, 700 430, 610 575 C 555 670, 545 720, 500 800 C 455 720, 445 670, 390 575 C 300 430, 360 270, 500 160 Z";
 
       const PATHS = {
@@ -431,7 +413,6 @@
         ]
       };
 
-      /* petals 펼쳐지게: 아이디별 회전 */
       const PETAL_ROT = {
         petalA: 0,
         petalB: 45,
