@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
     grid.classList.remove("is-verified");
 
     visited.clear();
-    localStorage.removeItem(KEY_VISITED);
+    sessionStorage.removeItem(KEY_VISITED);
 
     tiles.forEach((t) => t.classList.remove("is-visited"));
     if (verifyBtn) verifyBtn.classList.remove("is-shake");
@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function loadVisited() {
     try {
-      const saved = JSON.parse(localStorage.getItem(KEY_VISITED) || "[]");
+      const saved = JSON.parse(sessionStorage.getItem(KEY_VISITED) || "[]");
       if (!Array.isArray(saved)) return [];
       return saved.map((v) => String(v)).filter((id) => SELECTABLE.has(id));
     } catch {
@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function persistVisited() {
-    localStorage.setItem(KEY_VISITED, JSON.stringify(Array.from(visited)));
+    sessionStorage.setItem(KEY_VISITED, JSON.stringify(Array.from(visited)));
   }
 
   function applyVisitedClasses() {
