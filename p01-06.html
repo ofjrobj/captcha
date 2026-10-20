@@ -1,9 +1,12 @@
 <!doctype html>
 <html lang="en-GB">
-
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>How to Prove You Are Human — Runner</title>
 <style>
     :root {
-        --blue: #4a90e2;
+        --blue: var(--ui-blue, #5e8fde);
         --paper: #ffffff;
         --runner: #d4ce25;
         --danger: #d53974;
@@ -76,7 +79,7 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
-        min-width: 320px;
+        min-width: 0;
         flex: 1;
     }
 
@@ -313,7 +316,7 @@
 
     @media (max-width:560px) {
         h1 {
-            font-size: 44px;
+            font-size: clamp(30px, 7vw, 38px);
         }
 
         .roundPill {
@@ -328,10 +331,41 @@
             width: min(360px, 78vw);
         }
     }
+
+    .gameCard, .receiptCard { border: 1px solid var(--ui-border-strong); border-radius: var(--ui-card-radius, 18px); }
+    .stageWrap { border-width: 1px; border-radius: var(--ui-radius, 12px); }
+    .btn { height: auto; min-height: var(--ui-control-height, 44px); border-width: 1px; border-radius: var(--ui-radius, 12px); font-size: 14px; padding: 10px 16px; }
+    .roundPill { min-height: 38px; font-size: 14px; padding: 8px 12px; border-width: 1px; letter-spacing: .04em; }
+    .chances { border-width: 1px; padding: 8px 10px; gap: 6px; }
+    .life { width: 13px; height: 13px; border-width: 1px; border-radius: 3px; }
+    .gameTitle { font-size: 22px; line-height: 1.25; }
+    .gameSub { color: #526b8e; }
+    .note { color: #526b8e; font-size: 14px; line-height: 1.5; min-height: 42px; }
+    .runner-controls { display: flex; gap: 10px; margin-top: 14px; }
+    .runner-controls .btn { flex: 1; touch-action: none; }
+    .runner-controls .btn[aria-pressed="true"] { background: #e8eef8; }
+    .runner-progress { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+    .runner-progress progress { flex: 1; min-width: 0; height: 6px; appearance: none; border: 0; background: #eaf0fa; }
+    .runner-progress progress::-webkit-progress-bar { background: #eaf0fa; border-radius: 6px; }
+    .runner-progress progress::-webkit-progress-value { background: var(--blue); border-radius: 6px; }
+    .runner-progress progress::-moz-progress-bar { background: var(--blue); }
+    #roundRemaining { min-width: 62px; font-size: 13px; font-variant-numeric: tabular-nums; }
+    .receiptBody:empty::before { content: "Clear a round to print your first statement."; color: #526b8e; }
+    canvas { touch-action: pan-y; }
+    @media (max-width: 560px) {
+      .rightMeta { justify-content: flex-start; width: 100%; gap: 8px; }
+      .rightMeta .roundPill { width: 100%; justify-content: flex-start; border: 0; background: transparent; padding-inline: 0; }
+      .rightMeta .btn { flex: 1; padding-inline: 10px; }
+      .gameCard { padding: 16px 12px; }
+      canvas { height: 260px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .roundPill.glitter::after { animation: none; } .hitFlash { display: none; } }
 </style>
+  <link rel="stylesheet" href="common.css" />
+  <script src="common.js" defer></script>
 </head>
 
-<body>
+<body data-activity="6">
     <div class="wrap">
 
         <div class="mark" aria-hidden="true">
@@ -344,8 +378,7 @@
             <div class="topRow">
                 <div class="leftMeta">
                     <p class="gameTitle">Prove it by running</p>
-                    <p class="gameSub">Press Space or click to jump. Press Shift or S to duck. Avoid obstacles and keep
-                        going.</p>
+                    <p class="gameSub">Jump over ground obstacles. Hold Duck to pass under floating bars. Keyboard: Space / ↑ to jump, Shift / S / ↓ to duck.</p>
 
                     <!-- chances only -->
                     <div class="chances" id="chances" aria-label="Chances"></div>
@@ -356,16 +389,25 @@
 
                     <button class="btn btnPrimary" id="btnStart" type="button">Start</button>
                     <button class="btn" id="btnRetry" type="button" disabled>Try again</button>
-                    <button class="btn is-hidden" id="btnReset" type="button">Reset</button>
+                    <button class="btn" id="btnReset" type="button">Reset</button>
                 </div>
             </div>
 
+            <div class="runner-progress">
+                <progress id="roundProgress" value="0" max="1" aria-label="Round progress"></progress>
+                <span id="roundRemaining">6.3s left</span>
+            </div>
             <div class="stageWrap">
-                <canvas id="gameCanvas" width="980" height="360"></canvas>
+                <canvas id="gameCanvas" width="980" height="360" aria-label="Runner game. Use the Jump and Duck buttons below."></canvas>
                 <div class="hitFlash" id="hitFlash" aria-hidden="true"></div>
             </div>
 
-            <div class="note" id="note">
+            <div class="runner-controls" aria-label="Game controls">
+                <button class="btn" id="btnJump" type="button" disabled>↑ Jump</button>
+                <button class="btn" id="btnDuck" type="button" aria-pressed="false" disabled>↓ Hold to duck</button>
+                <button class="btn" id="btnPause" type="button" disabled>Pause</button>
+            </div>
+            <div class="note" id="note" role="status" aria-live="polite">
                 A round ends when you survive long enough. The game stops after each round. Press Start to continue.
             </div>
         </section>
@@ -668,6 +710,7 @@
         }
         function updateLives() {
             if (!chancesEl) return;
+            chancesEl.setAttribute("aria-label", `${MAX_LIVES - livesUsed} of ${MAX_LIVES} chances remaining`);
             const kids = [...chancesEl.children];
             kids.forEach((k, idx) => {
                 if (idx < livesUsed) k.classList.add("used");
@@ -680,7 +723,7 @@
            - Stops after each round
            - Start for a new attempt
            - Try again only after a fail (same round)
-           - Reset only appears at ROUND 200
+           - Reset remains available between attempts
            --------------------------- */
         (function initRunner() {
             const canvas = document.getElementById("gameCanvas");
@@ -696,30 +739,45 @@
 
             if (!canvas || !ctx || !btnStart || !btnRetry || !btnReset || !roundPill || !flash) return;
 
-            const RESET_SHOW_ROUND = 200;
-
+            const btnJump = document.getElementById("btnJump");
+            const btnDuck = document.getElementById("btnDuck");
+            const btnPause = document.getElementById("btnPause");
+            const roundProgress = document.getElementById("roundProgress");
+            const roundRemaining = document.getElementById("roundRemaining");
+            let loopRaf = 0;
+            let flashTimeout = 0;
             let groundY = 290;
+            let previousWidth = 0;
 
             function fitCanvas() {
+                if (running) pauseRound("Paused after resizing. Press Resume when you’re ready.");
                 const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
                 const cssW = canvas.clientWidth;
                 const cssH = canvas.clientHeight;
+                const oldGround = groundY;
+                const oldPlayerX = player.x;
                 canvas.width = Math.round(cssW * dpr);
                 canvas.height = Math.round(cssH * dpr);
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-                // keep ground near bottom, responsive
-                groundY = Math.round(cssH - 70);
+                groundY = Math.round(cssH - 50);
+                player.x = Math.max(42, Math.min(160, cssW * .18));
+                player.y += groundY - oldGround;
+                for (const o of obstacles) {
+                    o.y += groundY - oldGround;
+                    o.x = player.x + (o.x - oldPlayerX) * (previousWidth ? cssW / previousWidth : 1);
+                    o.vx = -speedFor(round);
+                }
+                previousWidth = cssW;
+                draw();
             }
             window.addEventListener("resize", fitCanvas);
-            fitCanvas();
 
             // state
             let round = 1;
             let running = false;
             let lastTs = 0;
             let roundTime = 0;
-            let mode = "idle"; // idle | running | failed
+            let mode = "idle"; // idle | running | paused | failed
 
             const gravity = 1600;
             const jumpV = -560;
@@ -736,17 +794,21 @@
 
             let obstacles = [];
             let spawnTimer = 0;
+            let duckRequested = false;
+            let pausedDucking = false;
+            let resumeDuckGrace = 0;
 
             // round tuning (this is where you adjust rounds)
             function roundDurationFor(r) {
                 return 6.2 + Math.min(r * 0.05, 3.0);
             }
             function speedFor(r) {
-                return 340 + Math.min(r * 8, 380);
+                const widthScale = Math.max(.48, Math.min(1, canvas.clientWidth / 800));
+                return (300 + Math.min(r * 7, 280)) * widthScale;
             }
             function spawnIntervalFor(r) {
-                const base = 0.92 - Math.min(r * 0.006, 0.35);
-                return Math.max(0.46, base);
+                // A jump lasts about 0.7s; leave time to land before the next obstacle.
+                return Math.max(.96, 1.35 - r * .006);
             }
 
             let shownRound = null;
@@ -759,31 +821,68 @@
                     roundPill.classList.add("glitter");
                 }
 
-                // show Reset only at round 200+
-                if (round >= RESET_SHOW_ROUND) btnReset.classList.remove("is-hidden");
-                else btnReset.classList.add("is-hidden");
+                btnReset.classList.remove("is-hidden");
             }
 
             function setMode(m) {
                 mode = m;
-                if (mode === "idle") {
-                    btnStart.disabled = (livesUsed >= MAX_LIVES);
-                    btnRetry.disabled = true;
-                    if (note) note.textContent =
-                        "A round ends when you survive long enough. The game stops after each round. Press Start to continue.";
+                btnStart.textContent = mode === "paused" ? "Resume" : round > 1 ? "Next round" : "Start";
+                btnStart.disabled = !["idle", "paused"].includes(mode) || livesUsed >= MAX_LIVES;
+                btnRetry.disabled = mode !== "failed" || livesUsed >= MAX_LIVES;
+                btnReset.disabled = mode === "running";
+                btnJump.disabled = mode !== "running";
+                btnDuck.disabled = mode !== "running";
+                btnPause.disabled = mode !== "running";
+                btnDuck.setAttribute("aria-pressed", String(player.duck));
+                if (mode === "idle") note.textContent = round === 1
+                    ? "Survive the round to reveal a statement. Clear one round to complete this activity; keep playing to collect more."
+                    : `Round ${round - 1} cleared — a new statement is on your receipt. Continue with Next round, or return to All flowers.`;
+                if (mode === "running") note.textContent = "Jump over shapes. Hold Duck beneath bars. You can pause at any time.";
+                if (mode === "paused") note.textContent = "Paused. Your round is saved here. Press Resume to continue.";
+                if (mode === "failed") note.textContent = livesUsed >= MAX_LIVES
+                    ? "All 10 chances used. Press Reset for a fresh run."
+                    : `An obstacle caught you. ${MAX_LIVES - livesUsed} chances left — Try again restarts this round.`;
+            }
+
+            function updateRoundProgress() {
+                const duration = roundDurationFor(round);
+                roundProgress.value = Math.min(1, roundTime / duration);
+                roundRemaining.textContent = `${Math.max(0, duration - roundTime).toFixed(1)}s left`;
+            }
+
+            function stopLoop(preservePosture = false) {
+                running = false;
+                cancelAnimationFrame(loopRaf);
+                loopRaf = 0;
+                duckRequested = false;
+                if (!preservePosture) {
+                    player.duck = false;
+                    pausedDucking = false;
+                    resumeDuckGrace = 0;
                 }
-                if (mode === "running") {
-                    btnStart.disabled = true;
-                    btnRetry.disabled = true;
-                    if (note) note.textContent = "Running…";
-                }
-                if (mode === "failed") {
-                    btnStart.disabled = true;     // Start disabled after fail
-                    btnRetry.disabled = (livesUsed >= MAX_LIVES);
-                    if (note) note.textContent = (livesUsed >= MAX_LIVES)
-                        ? "No chances left."
-                        : "You hit an obstacle. Press Try again to restart this round.";
-                }
+                btnDuck.setAttribute("aria-pressed", String(player.duck));
+            }
+
+            function pauseRound(message) {
+                if (!running) return;
+                pausedDucking = player.duck;
+                stopLoop(true);
+                setMode("paused");
+                if (message) note.textContent = message;
+                draw();
+            }
+
+            function resumeRound() {
+                if (mode !== "paused") return;
+                // Retain the safe paused posture briefly after controls are released.
+                // If a bar is overhead, stay crouched until it passes, then release.
+                resumeDuckGrace = pausedDucking ? .6 : 0;
+                pausedDucking = false;
+                player.duck = duckRequested || resumeDuckGrace > 0;
+                running = true;
+                lastTs = performance.now();
+                setMode("running");
+                loopRaf = requestAnimationFrame(loop);
             }
 
             function resetRoundState() {
@@ -791,13 +890,21 @@
                 player.y = groundY;
                 player.vy = 0;
                 player.duck = false;
+                duckRequested = false;
+                pausedDucking = false;
+                resumeDuckGrace = 0;
                 player.onGround = true;
                 obstacles = [];
-                spawnTimer = 0;
+                spawnTimer = .65;
+                player.h = 52;
+                updateRoundProgress();
                 setRoundLabel();
             }
 
             function fullReset() {
+                stopLoop();
+                window.clearTimeout(flashTimeout);
+                flash.classList.remove("is-on");
                 round = 1;
                 livesUsed = 0;
                 updateLives();
@@ -812,7 +919,8 @@
                 flash.classList.remove("is-on");
                 void flash.offsetWidth;
                 flash.classList.add("is-on");
-                window.setTimeout(() => {
+                window.clearTimeout(flashTimeout);
+                flashTimeout = window.setTimeout(() => {
                     flash.classList.remove("is-on");
                 }, 140);
             }
@@ -820,14 +928,15 @@
             function failRound() {
                 livesUsed = Math.min(MAX_LIVES, livesUsed + 1);
                 updateLives();
-                running = false;
+                stopLoop();
                 flashHit();
                 setMode("failed");
                 draw();
             }
 
             function clearRound() {
-                running = false;
+                stopLoop();
+                window.CaptchaProgress?.complete("6");
                 round += 1;
 
                 // reveal next receipt line (one per cleared round)
@@ -840,21 +949,17 @@
             }
 
             function startRoundFresh() {
-                if (livesUsed >= MAX_LIVES) return;
+                if (livesUsed >= MAX_LIVES || running) return;
+                stopLoop();
                 resetRoundState();
                 running = true;
                 lastTs = performance.now();
                 setMode("running");
-                requestAnimationFrame(loop);
+                loopRaf = requestAnimationFrame(loop);
             }
 
             function retrySameRound() {
-                if (livesUsed >= MAX_LIVES) return;
-                resetRoundState();
-                running = true;
-                lastTs = performance.now();
-                setMode("running");
-                requestAnimationFrame(loop);
+                startRoundFresh();
             }
 
             // obstacle generator (smaller, varied, jump/duck-able)
@@ -894,7 +999,9 @@
                 // lowbar (duck)
                 const w = 34 + Math.random() * 30;
                 const h = 12 + Math.random() * 10;
-                const y = groundY - (44 + Math.random() * 16);
+                // The bar bottom clears a 30px ducked player by at least 8px.
+                const clearance = 38 + Math.random() * 5;
+                const y = groundY - clearance - h;
                 obstacles.push({
                     type, x: canvas.clientWidth + 40,
                     y, w, h,
@@ -902,26 +1009,64 @@
                 });
             }
 
-            // controls
+            // Shared keyboard and touch controls.
             function doJump() {
-                if (!running) return;
-                if (!player.onGround) return;
+                if (!running || !player.onGround) return;
+                setDuck(false);
                 player.vy = jumpV;
                 player.onGround = false;
             }
             function setDuck(on) {
-                if (!running) return;
-                player.duck = on;
+                duckRequested = (running || mode === "paused") && on;
+                if (running) player.duck = duckRequested || resumeDuckGrace > 0;
+                // A release while paused updates the input state without moving
+                // the frozen figure into an obstacle before the player resumes.
+                btnDuck.setAttribute("aria-pressed", String(player.duck));
             }
-
+            const duckKeys = new Set();
             window.addEventListener("keydown", (e) => {
-                if (e.code === "Space") { e.preventDefault(); doJump(); }
-                if (e.key === "Shift" || e.key.toLowerCase() === "s") { setDuck(true); }
+                if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+                if (e.code === "Escape") { if (running) { e.preventDefault(); pauseRound(); } return; }
+                if (!running) return;
+                const nativeControl = [btnJump, btnDuck, btnPause].includes(e.target);
+                if ((e.code === "Space" && !nativeControl) || e.code === "ArrowUp") {
+                    e.preventDefault(); if (!e.repeat) doJump();
+                }
+                if (["ShiftLeft", "ShiftRight", "KeyS", "ArrowDown"].includes(e.code)) {
+                    e.preventDefault(); duckKeys.add(e.code); setDuck(true);
+                }
             });
             window.addEventListener("keyup", (e) => {
-                if (e.key === "Shift" || e.key.toLowerCase() === "s") { setDuck(false); }
+                if (duckKeys.delete(e.code)) setDuck(duckKeys.size > 0);
             });
-            canvas.addEventListener("pointerdown", () => doJump());
+            canvas.addEventListener("pointerdown", (e) => { if (e.isPrimary) doJump(); });
+            btnJump.addEventListener("pointerdown", (e) => {
+                if (e.isPrimary) { e.preventDefault(); doJump(); }
+            });
+            btnJump.addEventListener("click", doJump);
+            btnDuck.addEventListener("pointerdown", (e) => {
+                if (!running || !e.isPrimary) return;
+                e.preventDefault();
+                btnDuck.setPointerCapture(e.pointerId);
+                setDuck(true);
+            });
+            for (const event of ["pointerup", "pointercancel", "lostpointercapture"]) {
+                btnDuck.addEventListener(event, () => setDuck(false));
+            }
+            btnDuck.addEventListener("keydown", (e) => {
+                if (["Space", "Enter"].includes(e.code)) { e.preventDefault(); setDuck(true); }
+            });
+            btnDuck.addEventListener("keyup", (e) => {
+                if (["Space", "Enter"].includes(e.code)) { e.preventDefault(); setDuck(false); }
+            });
+            btnPause.addEventListener("click", () => pauseRound());
+            window.addEventListener("blur", () => {
+                duckKeys.clear();
+                pauseRound("Paused while you were away. Press Resume when you’re ready.");
+            });
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden) { duckKeys.clear(); pauseRound("Paused while you were away. Press Resume when you’re ready."); }
+            });
 
             function rectsOverlap(a, b) {
                 return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
@@ -929,6 +1074,7 @@
 
             function update(dt) {
                 roundTime += dt;
+                updateRoundProgress();
 
                 // spawn
                 spawnTimer -= dt;
@@ -940,6 +1086,15 @@
                 // player physics
                 const baseH = 52;
                 const duckH = 30;
+                if (resumeDuckGrace > 0) {
+                    resumeDuckGrace = Math.max(0, resumeDuckGrace - dt);
+                    const standingBox = { x: player.x - player.w / 2, y: player.y - baseH, w: player.w, h: baseH };
+                    const barOverhead = obstacles.some(o => o.type === "lowbar" && rectsOverlap(standingBox,
+                        { x: o.x + o.vx * dt, y: o.y, w: o.w, h: o.h }));
+                    if (resumeDuckGrace === 0 && barOverhead) resumeDuckGrace = .05;
+                }
+                player.duck = duckRequested || resumeDuckGrace > 0;
+                btnDuck.setAttribute("aria-pressed", String(player.duck));
                 player.h = player.duck ? duckH : baseH;
 
                 if (!player.onGround) {
@@ -961,15 +1116,15 @@
 
                 // collision boxes
                 const pBox = {
-                    x: player.x - player.w / 2,
-                    y: player.y - player.h,
-                    w: player.w,
-                    h: player.h
+                    x: player.x - player.w / 2 + 2,
+                    y: player.y - player.h + 2,
+                    w: player.w - 4,
+                    h: player.h - 4
                 };
 
                 for (const o of obstacles) {
                     if (o.type === "tri") {
-                        const b = { x: o.x, y: o.y - o.h, w: o.w, h: o.h };
+                        const b = { x: o.x + 4, y: o.y - o.h + 4, w: o.w - 8, h: o.h - 4 };
                         if (rectsOverlap(pBox, b)) {
                             failRound();
                             break;
@@ -1003,11 +1158,6 @@
                 ctx.lineTo(w, groundY);
                 ctx.stroke();
 
-                // subtle border inside stage
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = "rgba(74,144,226,0.18)";
-                ctx.strokeRect(8, 8, w - 16, h - 16);
-
                 // obstacles
                 ctx.fillStyle = "rgba(74,144,226,0.75)";
                 ctx.lineWidth = 2;
@@ -1015,6 +1165,11 @@
                 for (const o of obstacles) {
                     if (o.type === "block" || o.type === "lowbar") {
                         ctx.fillRect(o.x, o.y, o.w, o.h);
+                        if (o.type === "lowbar") {
+                            ctx.font = "600 11px system-ui";
+                            ctx.textAlign = "center";
+                            ctx.fillText("DUCK", o.x + o.w / 2, o.y - 10);
+                        }
                         continue;
                     }
                     // triangle
@@ -1031,15 +1186,15 @@
                 ctx.fillStyle = "rgba(212,206,37,0.98)";
                 ctx.lineWidth = 4;
 
-                const headR = 10;
+                const headR = player.duck ? 6 : 8;
                 const headX = player.x;
-                const headY = player.y - player.h - 12;
+                const headY = player.y - player.h + headR;
 
                 ctx.beginPath();
                 ctx.arc(headX, headY, headR, 0, Math.PI * 2);
                 ctx.fill();
 
-                const bodyTopY = headY + headR + 6;
+                const bodyTopY = headY + headR + 2;
                 const bodyBottomY = player.y - 10;
                 ctx.beginPath();
                 ctx.moveTo(headX, bodyTopY);
@@ -1056,9 +1211,9 @@
 
                 ctx.beginPath();
                 ctx.moveTo(headX, bodyTopY + 10);
-                ctx.lineTo(headX - 14, bodyTopY + 22);
+                ctx.lineTo(headX - 12, Math.min(player.y - 6, bodyTopY + 20));
                 ctx.moveTo(headX, bodyTopY + 10);
-                ctx.lineTo(headX + 14, bodyTopY + 22);
+                ctx.lineTo(headX + 12, Math.min(player.y - 6, bodyTopY + 20));
                 ctx.stroke();
             }
 
@@ -1070,12 +1225,12 @@
                 update(dt);
                 draw();
 
-                if (running) requestAnimationFrame(loop);
+                if (running) loopRaf = requestAnimationFrame(loop);
             }
 
             btnStart.addEventListener("click", () => {
-                if (mode !== "idle") return;
-                startRoundFresh();
+                if (mode === "paused") { resumeRound(); return; }
+                if (mode === "idle") startRoundFresh();
             });
 
             btnRetry.addEventListener("click", () => {
@@ -1084,11 +1239,11 @@
             });
 
             btnReset.addEventListener("click", () => {
-                // Only visible at round 200, per requirement
                 fullReset();
             });
 
             // init
+            fitCanvas();
             initLives();
             updateLives();
             setRoundLabel();

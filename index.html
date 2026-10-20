@@ -1,85 +1,55 @@
 <!doctype html>
-<html lang="ko">
-
+<html lang="en-GB">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CAPTCHA</title>
-
-  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Five playful ways to look at flowers, images, language and being human." />
+  <title>CAPTCHA — A study in looking</title>
   <link rel="stylesheet" href="p01.css" />
+  <link rel="stylesheet" href="common.css" />
+  <script src="common.js" defer></script>
+  <script src="script.js" defer></script>
 </head>
-
 <body class="p01-body">
   <main class="page">
-
-    <div class="top-spacer"></div>
-
-    <section class="hero">
-      <img src="assets/img/p01-00.png" alt="Cover" />
-    </section>
-
-    <section class="grid" id="captchaGrid">
-      <button class="tile" type="button" data-tile="1" aria-label="tile 1">
-        <img src="assets/img/p01-01.jpg" alt="p01-01" loading="lazy" />
-      </button>
-
-      <button class="tile" type="button" data-tile="2" aria-label="tile 2">
-        <img src="assets/img/p01-02.jpg" alt="p01-02" loading="lazy" />
-      </button>
-
-      <a class="tile" data-tile="3" href="p01-03.html" aria-label="tile 3">
-        <img src="assets/img/p01-03.jpg" alt="p01-03" loading="lazy" />
-      </a>
-
-      <a class="tile" data-tile="4" href="p01-04.html" aria-label="tile 4">
-        <img src="assets/img/p01-04.jpg" alt="p01-04" loading="lazy" />
-      </a>
-
-      <a class="tile" data-tile="5" href="p01-05.html" aria-label="tile 5">
-        <img src="assets/img/p01-05.jpg" alt="p01-05" loading="lazy" />
-      </a>
-
-      <a class="tile" data-tile="6" href="p01-06.html" aria-label="tile 6">
-        <img src="assets/img/p01-06.jpg" alt="p01-06" loading="lazy" />
-      </a>
-
-      <button class="tile" type="button" data-tile="7" aria-label="tile 7">
-        <img src="assets/img/p01-07.jpg" alt="p01-07" loading="lazy" />
-      </button>
-
-      <a class="tile" data-tile="8" href="p01-08.html" aria-label="tile 8">
-        <img src="assets/img/p01-08.jpg" alt="p01-08" loading="lazy" />
-      </a>
-
-      <button class="tile" type="button" data-tile="9" aria-label="tile 9">
-        <img src="assets/img/p01-09.jpg" alt="p01-09" loading="lazy" />
-      </button>
-    </section>
-
-    <section class="footer-ui" aria-label="footer controls">
-      <div class="footer-left">
-        <button class="icon-btn" type="button" aria-label="refresh" id="resetBtn">
-          <span class="icon">↻</span>
-        </button>
-
-        <button class="icon-btn" type="button" aria-label="audio">
-          <span class="icon">♪</span>
-        </button>
-
-        <button class="icon-btn" type="button" aria-label="info">
-          <span class="icon">i</span>
-        </button>
+    <div class="collection-heading"><span>CAPTCHA</span><span>A study in looking</span></div>
+    <section class="captcha-panel" aria-label="Explore the flowers">
+      <header class="hero">
+        <p class="hero-eyebrow">LOOK A LITTLE CLOSER</p>
+        <h1>Flower</h1>
+        <p class="hero-definition">The seed-producing reproductive organ of a plant.</p>
+        <p class="hero-instruction">Open the five flower tiles. Explore each activity,<br class="desktop-break"> then return to verify what you have seen.</p>
+      </header>
+      <div class="grid" id="captchaGrid">
+        <button class="tile" type="button" data-tile="1" aria-label="Pea pod — no activity"><img src="assets/img/p01-01.jpg" alt="A pea pod" /></button>
+        <button class="tile" type="button" data-tile="2" aria-label="Seed head — no activity"><img src="assets/img/p01-02.jpg" alt="A green seed head" /></button>
+        <a class="tile is-selectable" data-tile="3" href="p01-03.html" aria-label="Explore: Is it a flower?"><img src="assets/img/p01-03.jpg" alt="Pink lily" /><span class="tile-name">01 · Is it a flower?</span><span class="tile-status" aria-hidden="true"></span></a>
+        <a class="tile is-selectable" data-tile="4" href="p01-04.html" aria-label="Explore: Connect the dots"><img src="assets/img/p01-04.jpg" alt="Yellow flower" /><span class="tile-name">02 · Connect the dots</span><span class="tile-status" aria-hidden="true"></span></a>
+        <a class="tile is-selectable" data-tile="5" href="p01-05.html" aria-label="Explore: Assemble a flower"><img src="assets/img/p01-05.jpg" alt="White heart-shaped flowers" /><span class="tile-name">03 · Assemble</span><span class="tile-status" aria-hidden="true"></span></a>
+        <a class="tile is-selectable" data-tile="6" href="p01-06.html" aria-label="Explore: Prove you are human"><img src="assets/img/p01-06.jpg" alt="Pink tulip" /><span class="tile-name">04 · Be human</span><span class="tile-status" aria-hidden="true"></span></a>
+        <button class="tile" type="button" data-tile="7" aria-label="Plant detail — no activity"><img src="assets/img/p01-07.jpg" alt="A plant detail" loading="lazy" /></button>
+        <a class="tile is-selectable" data-tile="8" href="p01-08.html" aria-label="Explore: Nature in words"><img src="assets/img/p01-08.jpg" alt="A flower" loading="lazy" /><span class="tile-name">05 · Nature in words</span><span class="tile-status" aria-hidden="true"></span></a>
+        <button class="tile" type="button" data-tile="9" aria-label="Plant detail — no activity"><img src="assets/img/p01-09.jpg" alt="A plant detail" loading="lazy" /></button>
       </div>
-
-      <div class="footer-right">
-        <button class="verify-btn" type="button" id="verifyBtn">VERIFY</button>
-      </div>
+      <footer class="footer-ui">
+        <div class="collection-progress"><span id="exploreCount">0 / 5 explored</span><span id="completeCount">Five ways to see a flower</span></div>
+        <button class="verify-btn" type="button" id="verifyBtn">Verify <span aria-hidden="true">↗</span></button>
+      </footer>
     </section>
-
+    <div class="collection-bottom">
+      <button class="text-btn" type="button" id="resetBtn">↻ Reset collection</button>
+      <button class="text-btn" type="button" id="infoBtn" aria-expanded="false" aria-controls="collectionInfo">How it works</button>
+    </div>
+    <p id="collectionMessage" class="collection-message" role="status" aria-live="polite">Choose a flower to begin.</p>
+    <div id="collectionInfo" class="collection-info" hidden>Each flower opens a different experience. A dot means explored; a check means completed. Visit all five to reveal the final thought. You can return to any activity at your own pace.</div>
   </main>
-
-  <script src="script.js"></script>
+  <dialog class="ending" id="ending" aria-labelledby="endingTitle">
+    <div class="ending-inner">
+      <p class="ending-eyebrow">VERIFIED. OR IS IT?</p>
+      <h2 id="endingTitle">Only images<br>of flowers.</h2>
+      <p class="ending-text">Funny thing is, we’ve been looking at photos this whole time — not real flowers. Just images of flowers, as you already know.</p>
+      <div class="ending-actions"><button type="button" class="verify-btn" id="endReturn">Look again ↗</button><button type="button" class="text-btn" id="endReset">Start over</button></div>
+    </div>
+  </dialog>
 </body>
-
 </html>

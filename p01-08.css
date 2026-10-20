@@ -554,3 +554,54 @@
 .p08-meaning{
   display:block;
 }
+
+/* Shared scale, compact study flow, and naturally sized quiz faces. */
+:root { --p08-blue:var(--ui-blue, #5e8fde); }
+.p08-page { width:min(980px, calc(100% - 40px)); padding:40px 0 64px; }
+.p08-title { margin-bottom:32px; line-height:1.15; }
+.p08-meta { margin-bottom:24px; gap:16px; align-items:center; }
+.p08-round { font-size:14px; letter-spacing:.12em; }
+.p08-progress { font-size:15px; font-weight:700; white-space:nowrap; }
+.p08-sub { font-size:15px; line-height:1.5; font-weight:500; margin-top:8px; }
+.p08-flipCard { border-radius:var(--ui-card-radius, 18px); box-shadow:0 8px 28px rgba(33,69,112,.06); }
+.p08-hint { animation:none; font-size:14px; color:#5476a6; font-weight:600; }
+.p08-btn, .p08-iconBtn { border-radius:var(--ui-radius, 12px); height:44px; font-size:14px; font-weight:650; border-width:1px; }
+.p08-iconBtn { width:44px; box-shadow:none; }
+.p08-btn:disabled { opacity:.45; cursor:default; }
+.p08-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.p08-navRow { width:min(760px, 100%); gap:12px; flex-wrap:wrap; }
+.p08-nav { gap:8px; }
+.p08-toolbar { border-radius:var(--ui-card-radius, 18px); padding:12px; gap:8px; margin:16px 0 24px; box-shadow:none; border-width:1px; }
+.p08-grid { align-items:start; gap:18px; }
+.p08-qCard { border-width:1px; border-radius:var(--ui-card-radius, 18px); box-shadow:0 5px 20px rgba(33,69,112,.04); }
+.p08-qInner { display:block; }
+.p08-qFront { display:block; }
+.p08-qBack { display:none; }
+.p08-qCard.is-flipped .p08-qFront { display:none; }
+.p08-qCard.is-flipped .p08-qBack { display:block; }
+.p08-qFace { padding:22px; }
+.p08-qClue { font-size:18px; font-weight:650; line-height:1.45; }
+.p08-qRow { grid-template-columns:70px minmax(0, 1fr); gap:10px; }
+.p08-qRow input { border-width:1px; border-radius:var(--ui-radius, 12px); font-size:16px; font-weight:500; }
+.p08-qKV { grid-template-columns:100px minmax(0, 1fr); font-size:14px; line-height:1.5; }
+.p08-qVal, .p08-qKey { font-weight:500; }
+.p08-qCard.is-noanswer .p08-qBadge, .p08-qCard.is-noanswer .p08-qResultBadge { background:#f0f5fc; border-color:#dce7f6; color:#5476a6; }
+.p08-summary { margin:0 0 24px; padding:18px 20px; border:1px solid var(--p08-line); background:#f1f6fd; border-radius:var(--ui-card-radius, 18px); font-size:16px; line-height:1.5; font-weight:600; scroll-margin-top:24px; }
+.p08-qCard[hidden], .p08-summary[hidden], .p08-btn[hidden] { display:none; }
+@media (max-width:640px) {
+  .p08-page { width:calc(100% - 32px); padding-top:28px; }
+  .p08-meta { flex-direction:row; align-items:flex-start; }
+  .p08-right { min-width:0; }
+  .p08-progress { font-size:13px; }
+  .p08-flipCard { width:100%; height:360px; }
+  .p08-face { padding:24px; }
+  .p08-hangul { font-size:62px; }
+  .p08-roman { font-size:24px; }
+  .p08-english { font-size:30px; }
+  .p08-meaning { font-size:16px; font-weight:500; }
+  .p08-toolbar { justify-content:flex-start; }
+  .p08-qFace { padding:18px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .p08-flipInner, .p08-qFace { transition:none; }
+}

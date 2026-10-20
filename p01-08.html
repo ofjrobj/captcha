@@ -8,9 +8,11 @@
 
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="p01-08.css" />
+  <link rel="stylesheet" href="common.css" />
+  <script src="common.js" defer></script>
 </head>
 
-<body class="p08-body">
+<body class="p08-body" data-activity="8">
   <main class="p08-page" id="p08Page">
 
     <header class="p08-header">
@@ -57,6 +59,7 @@
         </div>
 
         <div class="p08-actions">
+          <button class="p08-btn p08-btnPrimary" id="p08QuizBtn" type="button">Start quiz</button>
           <button class="p08-btn p08-btnGhost" id="p08RestartBtn" type="button">Restart</button>
         </div>
       </div>
@@ -66,12 +69,14 @@
     <section class="p08-stage p08-hidden" id="p08StageR2">
       <div class="p08-toolbar">
         <button class="p08-btn p08-btnPrimary" id="p08CheckBtn" type="button">Check answers</button>
-        <button class="p08-btn" id="p08EditBtn" type="button">Edit</button>
+        <button class="p08-btn" id="p08EditBtn" type="button" disabled>Edit answers</button>
+        <button class="p08-btn" id="p08ReviewBtn" type="button" hidden>Review missed words</button>
         <button class="p08-btn" id="p08ClearBtn" type="button">Clear</button>
         <button class="p08-btn p08-btnGhost" id="p08BackBtn" type="button">Back to Round 1</button>
       </div>
 
-      <div class="p08-grid" id="p08Grid" aria-live="polite"></div>
+      <div class="p08-summary" id="p08Summary" role="status" tabindex="-1" hidden></div>
+      <div class="p08-grid" id="p08Grid"></div>
     </section>
 
   </main>
