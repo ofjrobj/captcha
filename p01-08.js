@@ -159,142 +159,83 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getIconSvg(kind) {
-    const common = `fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"`;
-
-    if (kind === "fruit") {
-      return `
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path ${common} d="M32 18c-9 0-16 7-16 16s7 18 16 18 16-9 16-18-7-16-16-16z"/>
-          <path ${common} d="M32 18c0-6 3-10 8-12"/>
-          <path ${common} d="M40 6c-6 0-10 3-12 8"/>
-          <path ${common} d="M39 10c4 0 7 2 9 6"/>
-        </svg>
-      `;
-    }
-
-    if (kind === "bear") {
-      return `
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <circle ${common} cx="20" cy="20" r="6"/>
-          <circle ${common} cx="44" cy="20" r="6"/>
-          <path ${common} d="M18 48c0-10 6-18 14-18s14 8 14 18"/>
-          <circle ${common} cx="32" cy="34" r="3"/>
-          <path ${common} d="M24 40c2 2 5 3 8 3s6-1 8-3"/>
-        </svg>
-      `;
-    }
-
-    if (kind === "dragon") {
-      return `
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path ${common} d="M44 14c-6 0-10 4-10 10 0 4 2 7 6 8-10 3-16 8-16 14 0 6 6 10 14 10"/>
-          <path ${common} d="M36 14l4-4"/>
-          <path ${common} d="M40 18l6-2"/>
-          <path ${common} d="M46 26c2 0 4 2 4 4"/>
-          <path ${common} d="M18 50c6 0 10-3 10-7"/>
-        </svg>
-      `;
-    }
-
-    if (kind === "moss") {
-      return `
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path ${common} d="M16 46c6-8 10-8 16 0"/>
-          <path ${common} d="M28 46c6-10 10-10 16 0"/>
-          <path ${common} d="M18 36c0-4 3-6 6-6"/>
-          <path ${common} d="M30 34c0-4 3-6 6-6"/>
-          <path ${common} d="M42 36c0-4 3-6 6-6"/>
-        </svg>
-      `;
-    }
-
-    if (kind === "river") {
-      return `
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path ${common} d="M14 18c8 0 8 10 16 10s8-10 16-10 8 10 18 10"/>
-          <path ${common} d="M14 30c8 0 8 10 16 10s8-10 16-10 8 10 18 10"/>
-          <path ${common} d="M14 42c8 0 8 10 16 10s8-10 16-10 8 10 18 10"/>
-        </svg>
-      `;
-    }
-
-    if (kind === "evening") {
-      return `
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path ${common} d="M14 42h36"/>
-          <path ${common} d="M20 42c2-10 8-16 14-16s12 6 14 16"/>
-          <path ${common} d="M32 26v-8"/>
-          <path ${common} d="M24 22l-4-4"/>
-          <path ${common} d="M40 22l4-4"/>
-        </svg>
-      `;
-    }
-
-    if (kind === "cloud") {
-      return `
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path ${common} d="M22 44h22c6 0 10-4 10-10s-4-10-10-10c-2 0-4 0-6 2-2-6-7-10-14-10-8 0-14 6-14 14 0 8 6 14 12 14z"/>
-          <path ${common} d="M26 50v6"/>
-          <path ${common} d="M34 50v6"/>
-          <path ${common} d="M42 50v6"/>
-        </svg>
-      `;
-    }
-
-    if (kind === "wind") {
-      return `
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path ${common} d="M14 28h28c6 0 8-6 4-10"/>
-          <path ${common} d="M14 38h36c6 0 8-6 4-10"/>
-          <path ${common} d="M14 48h22c6 0 8-6 4-10"/>
-        </svg>
-      `;
-    }
-
-    if (kind === "bud") {
-      return `
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path ${common} d="M32 50c10-6 14-16 14-24-6 0-10 2-14 6-4-4-8-6-14-6 0 8 4 18 14 24z"/>
-          <path ${common} d="M32 50v8"/>
-        </svg>
-      `;
-    }
-
-    if (kind === "vine") {
-      return `
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path ${common} d="M26 56c0-12 18-12 18-24 0-6-4-10-10-10-6 0-10 4-10 10"/>
-          <path ${common} d="M22 26c-4 2-6 6-6 10"/>
-          <path ${common} d="M40 20c4-2 8-2 12 0"/>
-          <path ${common} d="M18 38c4 0 6 2 8 6"/>
-          <path ${common} d="M44 34c-4 0-6 2-8 6"/>
-        </svg>
-      `;
-    }
-
-    if (kind === "cliff") {
-      return `
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path ${common} d="M18 54V18l10 10 8-12 10 10v28"/>
-          <path ${common} d="M14 54h36"/>
-        </svg>
-      `;
-    }
-
-    if (kind === "valley") {
-      return `
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path ${common} d="M10 50l14-24 10 18 8-14 12 20"/>
-          <path ${common} d="M10 50h44"/>
-        </svg>
-      `;
-    }
-
-    return `
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <circle ${common} cx="32" cy="32" r="18"/>
-      </svg>
-    `;
+    // One 64px drawing grid; inherit the existing flashcard's blue ink.
+    const drawings = {
+      fruit: `
+        <path d="M29 17c-1 9-5 15-10 19M29 17c7 4 12 10 15 19"/>
+        <path d="M29 17c2-8 10-10 19-8-3 8-10 12-19 8Z"/>
+        <path d="M30 16l10-3"/>
+        <path d="M20 34c-5-3-12 1-12 8 0 8 5 13 11 13s11-5 11-13c0-7-5-10-10-8Z"/>
+        <path d="M44 34c-5-3-11 1-11 8 0 8 5 13 11 13s12-5 12-13c0-7-6-10-12-8Z"/>
+        <path d="M13 41c0-2 1-3 3-4M38 41c0-2 1-3 3-4"/>
+      `,
+      bear: `
+        <path d="M16 22c-7-1-8-8-4-12 4-4 11-2 12 4M40 14c1-6 8-8 12-4 4 4 3 11-4 12"/>
+        <path d="M15 23c2-7 8-11 17-11s15 4 17 11c4 4 6 9 6 14 0 12-9 20-23 20S9 49 9 37c0-5 2-10 6-14Z"/>
+        <path d="M17 17l2 2M47 17l-2 2"/>
+        <ellipse cx="32" cy="41" rx="11" ry="9"/>
+        <path d="m28 37 4 4 4-4ZM32 41v4m-5 0c2 3 8 3 10 0"/>
+        <circle cx="23" cy="29" r="1.8" fill="currentColor" stroke="none"/>
+        <circle cx="41" cy="29" r="1.8" fill="currentColor" stroke="none"/>
+      `,
+      dragon: `
+        <path d="m31 17-4-8 8 4m6 3 4-8 2 10"/>
+        <path d="M31 18c3-4 9-5 14-2l3 4 8 2-2 8-9 1c-6 1-11 5-11 9 0 4 5 5 8 3 5-3 11 0 11 5 0 6-7 9-15 9-14 0-24-7-24-17 0-8 6-14 14-18"/>
+        <path d="M29 24c-7 6-8 11-6 16 2 6 9 9 16 9M19 29l-6-1 2 6-6 3 6 4M34 32l-6-2m3 5-7 1"/>
+        <path d="m48 30 6 4 3-1M32 46l-5 7-5 1m5-1 1 4"/>
+        <circle cx="43" cy="23" r="1.6" fill="currentColor" stroke="none"/>
+      `,
+      moss: `
+        <path d="M8 47c0-4 3-7 7-7 1-5 6-8 10-6 4-5 11-4 14 1 6-2 11 2 12 7 4 0 6 2 6 5"/>
+        <path d="M8 47c3 8 43 8 49 0M14 47l3-4m6 6 3-4m8 5 2-4m10 2 2-3"/>
+        <path d="M18 36V23m0 6-6-5m6 2 5-5M31 31V14m0 8-6-5m6 2 6-5M44 36V23m0 6-5-5m5 2 6-5"/>
+        <path d="M28 12c1-4 6-5 9-2-1 4-5 5-9 2ZM14 21c-1-4 2-7 6-6 2 4-1 7-6 6ZM43 20c1-4 6-5 9-2-1 4-5 5-9 2Z"/>
+      `,
+      river: `
+        <path d="M29 8c-11 10 15 13 9 22-7 9-29 10-28 26M37 8c-5 8 16 13 11 23-4 10-24 15-25 25"/>
+        <path d="M30 19h6m3 13h5M23 42h9m-14 9h8"/>
+        <path d="M11 20v-6m0 4-4-3m4 1 4-4M52 49v-7m0 3-4-3m4 1 4-4"/>
+      `,
+      evening: `
+        <path d="M8 39h48M14 47h36M22 54h20"/>
+        <path d="M18 39a14 14 0 0 1 28 0"/>
+        <path d="M32 17v-6M17 23l-4-4M47 23l4-4M10 32H5m49 0h5"/>
+        <path d="M25 34c2-3 5-4 8-4"/>
+      `,
+      cloud: `
+        <path d="M18 39h29c7 0 11-4 11-10s-5-11-11-11c-2 0-4 0-6 1-3-8-11-11-18-8-6 2-9 7-9 13-6 0-10 3-10 8s5 7 14 7Z"/>
+        <path d="M14 32c7 3 29 3 35 0"/>
+        <path d="m20 46-3 7m15-7-3 7m15-7-3 7"/>
+      `,
+      wind: `
+        <path d="M7 23h31c7 0 10-4 8-8-2-5-9-5-11-1"/>
+        <path d="M5 33h43c9 0 12-6 9-10-2-3-6-4-9-2"/>
+        <path d="M9 43h20c6 0 10 3 9 7-1 5-7 7-11 3"/>
+        <path d="M45 45c4-1 9 0 12 6-6 2-11 0-12-6Zm0 0 8 5"/>
+      `,
+      bud: `
+        <path d="M32 8c-8 7-14 14-14 22 0 9 6 14 14 14s14-5 14-14c0-8-6-15-14-22Z"/>
+        <path d="M32 8c6 12 7 24 0 36M18 25c7 4 11 10 14 19m14-19c-5 4-9 10-14 19M32 44v13"/>
+        <path d="M32 53c-3-7-9-10-16-8 2 7 8 10 16 8Zm0-4c4-6 9-8 15-6-2 6-7 9-15 6Z"/>
+      `,
+      vine: `
+        <path d="M26 57c-4-9-1-16 5-23 5-6 7-13 5-26"/>
+        <path d="M35 19c3-9 9-12 18-10-1 9-8 14-18 10Zm-5 17c-10 0-16-5-16-14 9-1 16 5 16 14Zm-5 16c6-10 13-13 23-10-3 10-11 14-23 10Z"/>
+        <path d="m35 19 10-6M30 36l-9-8m4 24 14-6M34 28c6 1 13-2 13-7"/>
+        <path d="M27 43c-6 1-11-1-11-5 0-3 4-4 5-1"/>
+      `,
+      cliff: `
+        <path d="M7 12h29l5 5-4 7 2 10-7 7 2 14H7"/>
+        <path d="M7 23h16l6-5m-14 5 4 10-4 11m4-11h12m-16 11 9 5-2 6"/>
+        <path d="m41 48 5-6 5 7m-13 6h20M7 7h17"/>
+      `,
+      valley: `
+        <path d="M5 12 19 26l12 18L45 24 59 10M5 31l12 5 14 8 17-7 11-9"/>
+        <path d="m13 20-2 13m11-2-1 7m30-20 1 16M31 44c-9 4 9 7 1 13M5 57h19m17 0h18"/>
+      `
+    };
+    const drawing = drawings[kind] || drawings.fruit;
+    return `<svg viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${drawing}</svg>`;
   }
 
   function renderRound1Card() {
@@ -401,7 +342,9 @@ document.addEventListener("DOMContentLoaded", () => {
     stageR1.classList.add("p08-hidden");
     stageR2.classList.remove("p08-hidden");
     window.scrollTo({ top: 0, behavior: "smooth" });
-    buildQuiz();
+    // Reviewing the learning cards must not erase an existing quiz attempt.
+    if (!quizOrder.length) buildQuiz();
+    else setHeaderRound2(checked ? grid.querySelectorAll(".p08-qCard.is-correct").length : null);
   }
 
   function backToRound1() {
@@ -502,6 +445,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       input.disabled = false;
       badge.textContent = "Not checked";
+      // The hidden result shares a grid cell; remove stale content on editing.
+      card.querySelector("[data-backBody]").replaceChildren();
 
       card.classList.remove("is-flipped");
       card.classList.remove("is-correct", "is-wrong");

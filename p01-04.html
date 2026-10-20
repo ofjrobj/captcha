@@ -5,7 +5,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Aristotle — Connect the Dots</title>
+  <link rel="stylesheet" href="game-ui.css?v=6610e8156f" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="p04-game.css?v=30bdf1af65" />
 </head>
 
 <body class="p04-body">
@@ -18,13 +20,13 @@
 
     <header class="p04-top">
       <div class="p04-meta">
-        <div class="p04-pill" id="p04Progress">Dot 0/0</div>
-        <div class="p04-pill" id="p04Timer">Time 00:00.0</div>
+        <div class="p04-pill"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="17" r="2.5"/><circle cx="19" cy="6" r="2.5"/><path d="m7 15 4-7 5-1"/></svg><span id="p04Progress">Dot 0/0</span></div>
+        <div class="p04-pill"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M9 2h6m-3 3v-3m0 7v5l3 2"/></svg><span id="p04Timer">Time 00:00.0</span></div>
       </div>
 
       <div class="p04-actions">
-        <button class="p04-btn" id="p04StartBtn">Start</button>
-        <button class="p04-btn" id="p04TryBtn" disabled>Try again</button>
+        <button class="p04-btn p04-start" id="p04StartBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 10 7-10 7Z" fill="currentColor" stroke="none"/></svg>Start</button>
+        <button class="p04-btn" id="p04TryBtn" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8a8 8 0 1 1-1 8M4 3v6h6"/></svg>Try again</button>
         <button class="p04-btn" id="p04SkipBtn">Skip</button>
         <button class="p04-btn p04-primary" id="p04VerifyBtn" disabled>Verify</button>
       </div>
@@ -34,13 +36,16 @@
       <div class="p04-stage" id="p04Stage">
 
         <div class="p04-canvas">
-          <svg id="p04Svg" viewBox="0 0 2048 1895" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="p04SvgTitle">
+          <svg id="p04Svg" viewBox="310 80 1640 1740" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="p04SvgTitle">
             <title id="p04SvgTitle">Connect the dots</title>
             <g id="p04Lines"></g>
             <g id="p04Dots"></g>
           </svg>
 
-          <div class="p04-hint" id="p04Hint">Press Start to begin.</div>
+        </div>
+        <div class="p04-board-status">
+          <div class="p04-hint" id="p04Hint" role="status" aria-live="polite">Press Start to begin.</div>
+          <progress class="p04-track" id="p04Track" value="0" max="195" aria-label="Dots connected"></progress>
         </div>
 
         <section class="p04-letters" aria-label="Quote builder">
@@ -58,6 +63,6 @@
 
   </main>
 
-  <script src="p01-04.js"></script>
+  <script src="p01-04.js?v=1761e9c896"></script>
 </body>
 </html>

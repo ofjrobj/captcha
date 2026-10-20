@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 260" fill="none">
+  <defs>
+    <g id="fig">
+      <path d="M0-35c0-7 3-11 9-14" stroke="#5e8fde" stroke-width="5" stroke-linecap="round"/>
+      <path d="M-6-35c0 7-14 11-22 21C-38-4-40 9-35 23c5 16 18 24 35 25 17-1 30-9 35-25 5-14 3-27-7-37C20-24 6-28 6-35Z" fill="#5e8fde"/>
+      <path d="M0-24C-7-15-22-10-25 5c-5 16 5 30 25 33 20-3 30-17 25-33C22-10 7-15 0-24Z" fill="#fff"/>
+      <g fill="#5e8fde">
+        <circle cx="0" cy="-7" r="2.8"/>
+        <circle cx="-10" cy="4" r="2.8"/>
+        <circle cx="10" cy="4" r="2.8"/>
+        <circle cx="0" cy="12" r="2.8"/>
+        <circle cx="-11" cy="21" r="2.8"/>
+        <circle cx="11" cy="21" r="2.8"/>
+        <circle cx="0" cy="29" r="2.8"/>
+      </g>
+    </g>
+    <g id="flower" fill="#5e8fde">
+      <ellipse cy="-17" rx="15" ry="21"/>
+      <ellipse cy="-17" rx="15" ry="21" transform="rotate(72)"/>
+      <ellipse cy="-17" rx="15" ry="21" transform="rotate(144)"/>
+      <ellipse cy="-17" rx="15" ry="21" transform="rotate(216)"/>
+      <ellipse cy="-17" rx="15" ry="21" transform="rotate(288)"/>
+      <circle r="6" fill="#fff"/>
+    </g>
+    <g id="equals" stroke="#5e8fde" stroke-width="3.5">
+      <path d="M-8-4H8M-8 4H8"/>
+    </g>
+  </defs>
+  <use href="#fig" x="122" y="66"/>
+  <use href="#equals" x="180" y="66"/>
+  <use href="#flower" x="238" y="66"/>
+  <use href="#flower" x="122" y="192"/>
+  <use href="#equals" x="180" y="192"/>
+  <path d="m184 183-8 18" stroke="#5e8fde" stroke-width="3.5"/>
+  <use href="#fig" x="238" y="192"/>
+</svg>

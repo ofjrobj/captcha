@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const verifyBtn = document.getElementById("p04VerifyBtn");
 
   const progressEl = document.getElementById("p04Progress");
+  const progressTrack = document.getElementById("p04Track");
   const timerEl = document.getElementById("p04Timer");
   const hintEl = document.getElementById("p04Hint");
   const quoteEl = document.getElementById("p04Quote");
@@ -24,6 +25,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const DOT_R = 12;
   const SHOW_NUMBERS = true;
+  let animationEpoch = 0;
+  let morphRaf = 0;
+  let morphResolve = null;
+  const pendingTimeouts = new Map();
+
+  function waitFor(ms) {
+    return new Promise((resolve) => {
+      const id = window.setTimeout(() => { pendingTimeouts.delete(id); resolve(true); }, ms);
+      pendingTimeouts.set(id, resolve);
+    });
+  }
+
+  function cancelAnimations() {
+    animationEpoch += 1;
+    for (const [id, resolve] of pendingTimeouts) { window.clearTimeout(id); resolve(false); }
+    pendingTimeouts.clear();
+    cancelAnimationFrame(morphRaf);
+    morphRaf = 0;
+    if (morphResolve) morphResolve(false);
+    morphResolve = null;
+  }
 
   const QUOTE =
     "The essence of a thing is what it is said to be in virtue of itself, and not in virtue of anything else.";
@@ -85,6 +107,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function setProgress() {
+    if (progressTrack) {
+      progressTrack.max = TOTAL;
+      progressTrack.value = expectedIdx;
+    }
     if (!progressEl) return;
     progressEl.textContent = `Dot ${expectedIdx}/${TOTAL}`;
   }
@@ -139,6 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let builtSpans = [];
   let poolLetters = [];
+  let poolTokens = [];
   let revealedLetters = 0;
 
   function shuffle(arr) {
@@ -154,16 +181,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
     builtEl.innerHTML = "";
     builtSpans = [];
+    let word = null;
 
     for (let i = 0; i < quoteChars.length; i++) {
       const ch = quoteChars[i];
       const s = document.createElement("span");
+      if (ch === " ") {
+        s.className = "p04-space";
+        s.textContent = " ";
+        builtEl.appendChild(s);
+        builtSpans.push(s);
+        word = null;
+        continue;
+      }
+      if (!word) {
+        word = document.createElement("span");
+        word.className = "p04-word";
+        builtEl.appendChild(word);
+      }
       s.className = "ch";
 
       if (!/[A-Za-z]/.test(ch)) {
-        if (ch === " ") {
-          s.textContent = "\u00A0";
-        } else if (LATE_PUNCT.has(ch)) {
+        if (LATE_PUNCT.has(ch)) {
           // 콤마/마침표는 진행 중 숨김, 완료 시 노출
           s.textContent = ch;
           s.classList.add("is-hidden-punct");
@@ -175,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
         s.classList.add("is-hidden"); // 글자는 점 대신 숨김
       }
 
-      builtEl.appendChild(s);
+      word.appendChild(s);
       builtSpans.push(s);
     }
   }
@@ -185,7 +224,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     poolLetters = letterPositions.map((idx) => quoteChars[idx].toLowerCase());
     shuffle(poolLetters);
-    poolEl.textContent = poolLetters.join("");
+    poolEl.innerHTML = "";
+    poolTokens = poolLetters.map((letter) => {
+      const token = document.createElement("span");
+      token.className = "p04-loose-letter";
+      token.textContent = letter;
+      poolEl.appendChild(token);
+      return token;
+    });
   }
 
   function revealNextLetter() {
@@ -197,8 +243,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const target = quoteChars[pos].toLowerCase();
     const removeIdx = poolLetters.indexOf(target);
-    if (removeIdx !== -1) poolLetters.splice(removeIdx, 1);
-    if (poolEl) poolEl.textContent = poolLetters.join("");
+    if (removeIdx !== -1) {
+      poolLetters.splice(removeIdx, 1);
+      const [token] = poolTokens.splice(removeIdx, 1);
+      if (poolEl && token) poolEl.removeChild(token);
+    }
 
     revealedLetters += 1;
   }
@@ -265,21 +314,45 @@ document.addEventListener("DOMContentLoaded", () => {
     setPathFromPoints(pathPoints);
   }
 
-  function setNextGuide() {
+  function sizeNextDot() {
+    const scale = Math.abs(svg.getScreenCTM()?.a) || 1;
     for (let i = 0; i < dotNodes.length; i++) {
-      dotNodes[i].g.classList.remove("is-next");
-    }
-    if (expectedIdx < TOTAL && dotNodes[expectedIdx]) {
-      dotNodes[expectedIdx].g.classList.add("is-next");
-      setHint(`Next: Dot ${expectedIdx + 1}.`);
+      const node = dotNodes[i];
+      const isNext = i === expectedIdx && !done;
+      const isUpcoming = !done && i > expectedIdx && i <= expectedIdx + 2;
+      node.c.setAttribute("r", String((isNext ? 6 : isUpcoming ? 2.75 : 1.8) / scale));
+      if (node.t) {
+        const nextPoint = DINO_DOTS[i + 1];
+        const crowdedRight = isNext && nextPoint && nextPoint[0] > DINO_DOTS[i][0] &&
+          Math.hypot(nextPoint[0] - DINO_DOTS[i][0], nextPoint[1] - DINO_DOTS[i][1]) * scale < 32;
+        const onLeft = DINO_DOTS[i][0] > 1650 || crowdedRight;
+        node.t.style.fontSize = `${(isNext ? 13 : isUpcoming ? 9 : 6) / scale}px`;
+        node.t.style.strokeWidth = `${(isNext ? 4 : 2) / scale}px`;
+        node.t.setAttribute("text-anchor", onLeft ? "end" : "start");
+        node.t.setAttribute("x", String(DINO_DOTS[i][0] + (onLeft ? -1 : 1) * (isNext ? 11 : 5) / scale));
+      }
     }
   }
 
-  function shakeStage() {
+  function setNextGuide() {
+    for (let i = 0; i < dotNodes.length; i++) {
+      dotNodes[i].g.classList.toggle("is-next", i === expectedIdx && !done);
+      dotNodes[i].g.classList.toggle("is-upcoming", !done && i > expectedIdx && i <= expectedIdx + 2);
+    }
+    if (expectedIdx < TOTAL && dotNodes[expectedIdx]) {
+      // Bring the next label above the dense original dot field.
+      dotsLayer.appendChild(dotNodes[expectedIdx].g);
+      setHint(`Next: Dot ${expectedIdx + 1}.`);
+    }
+    sizeNextDot();
+  }
+
+  async function shakeStage() {
+    const epoch = animationEpoch;
     stage.classList.remove("is-shake");
     stage.offsetHeight;
     stage.classList.add("is-shake");
-    window.setTimeout(() => stage.classList.remove("is-shake"), 280);
+    if (await waitFor(280) && epoch === animationEpoch) stage.classList.remove("is-shake");
   }
 
   function markDotUsed(idx) {
@@ -301,6 +374,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     verifyBtn.disabled = false;
     tryBtn.disabled = false;
+    startBtn.disabled = true;
+    stopDragging();
+    sizeNextDot();
 
     // 문장 전부 공개 후, 최종 가독성 텍스트로 정리
     revealAllRemaining();
@@ -309,9 +385,10 @@ document.addEventListener("DOMContentLoaded", () => {
     setHint("Complete.");
     setProgress();
 
-    window.setTimeout(() => {
-      playMorphSequence().catch(() => {});
-    }, 2000);
+    const epoch = animationEpoch;
+    waitFor(2000).then((active) => {
+      if (active && epoch === animationEpoch && done) playMorphSequence(epoch).catch(() => {});
+    });
   }
 
   function connectToDot(idx) {
@@ -332,7 +409,9 @@ document.addEventListener("DOMContentLoaded", () => {
     expectedIdx += 1;
     dotsConnectedCount += 1;
 
-    if (dotsConnectedCount % 3 === 0) revealNextLetter();
+    // Let the sentence emerge evenly across all 195 dots.
+    const targetLetters = Math.ceil(expectedIdx / TOTAL * letterPositions.length);
+    while (revealedLetters < targetLetters) revealNextLetter();
 
     setProgress();
 
@@ -400,44 +479,53 @@ document.addEventListener("DOMContentLoaded", () => {
         g.appendChild(t);
       }
 
-      g.addEventListener("pointerdown", (e) => {
-        e.preventDefault();
-        if (!started || done) return;
-
-        isDragging = true;
-        capturedPointerId = e.pointerId;
-        try { stage.setPointerCapture(capturedPointerId); } catch {}
-
-        connectToDot(i);
-      });
-
       dotsLayer.appendChild(g);
       dotNodes.push({ g, c, t });
     }
   }
 
   function stopDragging() {
-    if (capturedPointerId != null) {
-      try { stage.releasePointerCapture(capturedPointerId); } catch {}
-    }
+    const pointerId = capturedPointerId;
     capturedPointerId = null;
     isDragging = false;
+    if (pointerId != null) {
+      try { stage.releasePointerCapture(pointerId); } catch {}
+    }
   }
 
-  stage.addEventListener("pointermove", (e) => {
-    if (!started || done) return;
-    if (!isDragging) return;
-
+  function hitTarget(e) {
     const p = clientToSvgPoint(e.clientX, e.clientY);
-    const idx = findNearestDotIndex(p.x, p.y, Math.max(22, DOT_R * 2.8));
-    if (idx !== -1) connectToDot(idx);
+    const scale = Math.abs(svg.getScreenCTM()?.a) || 1;
+    return findNearestDotIndex(p.x, p.y, Math.max(DOT_R * 2.8, 22 / scale));
+  }
+
+  svg.addEventListener("pointerdown", (e) => {
+    if (!started || done || !e.isPrimary) return;
+    e.preventDefault();
+    const idx = hitTarget(e);
+    if (idx === -1) {
+      shakeStage();
+      setHint(`Wrong dot. Click Dot ${expectedIdx + 1}.`);
+      return;
+    }
+    isDragging = true;
+    capturedPointerId = e.pointerId;
+    try { stage.setPointerCapture(e.pointerId); } catch {}
+    connectToDot(idx);
   });
 
+  stage.addEventListener("pointermove", (e) => {
+    if (!started || done || !isDragging || e.pointerId !== capturedPointerId) return;
+    const idx = hitTarget(e);
+    if (idx !== -1) connectToDot(idx);
+  });
   stage.addEventListener("pointerup", stopDragging);
   stage.addEventListener("pointercancel", stopDragging);
-  stage.addEventListener("pointerleave", stopDragging);
+  stage.addEventListener("lostpointercapture", stopDragging);
+  window.addEventListener("resize", sizeNextDot);
 
   function resetGame() {
+    cancelAnimations();
     started = false;
     done = false;
 
@@ -453,6 +541,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     verifyBtn.disabled = true;
     tryBtn.disabled = true;
+    startBtn.disabled = false;
 
     if (quoteEl) quoteEl.hidden = true;
 
@@ -470,7 +559,6 @@ document.addEventListener("DOMContentLoaded", () => {
     buildPool();
 
     revealedLetters = 0;
-    revealNextLetter();
 
     setProgress();
     setNextGuide();
@@ -483,6 +571,7 @@ document.addEventListener("DOMContentLoaded", () => {
     done = false;
 
     stage.classList.add("is-started");
+    startBtn.disabled = true;
     tryBtn.disabled = false;
     verifyBtn.disabled = true;
 
@@ -528,7 +617,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setHint("Not completed yet.");
       return;
     }
-    localStorage.setItem("p01-04-verified", "1");
+    try { localStorage.setItem("p01-04-verified", "1"); } catch {}
     setHint("Verified.");
     if (quoteEl) quoteEl.hidden = false;
   });
@@ -687,11 +776,7 @@ document.addEventListener("DOMContentLoaded", () => {
     [-0.78, 0.06],[-0.95,-0.10],
   ];
 
-  function delay(ms) {
-    return new Promise((r) => window.setTimeout(r, ms));
-  }
-
-  async function playMorphSequence() {
+  async function playMorphSequence(epoch) {
     const bbox = boundsOf(DINO_DOTS);
 
     const crow = makeFromTemplate(TOTAL, bbox, CROW_TEMPLATE, 0.92, 0, -0.04);
@@ -701,15 +786,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const lizard = makeFromTemplate(TOTAL, bbox, LIZARD_TEMPLATE, 0.92, 0, 0.02);
     const human = makeHumanPoints(TOTAL, bbox);
 
-    await morphTo(crow, 700);    await delay(250);
-    await morphTo(flower, 700);  await delay(250);
-    await morphTo(dog, 700);     await delay(250);
-    await morphTo(hand, 700);    await delay(250);
-    await morphTo(lizard, 700);  await delay(250);
-    await morphTo(human, 850);
+    for (const points of [crow, flower, dog, hand, lizard, human]) {
+      if (epoch !== animationEpoch || !done) return;
+      if (!await morphTo(points, points === human ? 850 : 700, epoch)) return;
+      if (!await waitFor(250)) return;
+    }
   }
 
-  function morphTo(targetPoints, durationMs) {
+  function morphTo(targetPoints, durationMs, epoch) {
     const from = dotNodes.map((n, i) => {
       const cx = Number(n.c.getAttribute("cx") || String(DINO_DOTS[i][0]));
       const cy = Number(n.c.getAttribute("cy") || String(DINO_DOTS[i][1]));
@@ -717,10 +801,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     return new Promise((resolve) => {
+      morphResolve = resolve;
       const t0 = performance.now();
       let frameCount = 0;
 
       function frame(now) {
+        if (epoch !== animationEpoch || !done) { morphResolve = null; resolve(false); return; }
         const t = Math.min(1, (now - t0) / durationMs);
         const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 
@@ -742,11 +828,11 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        if (t < 1) requestAnimationFrame(frame);
-        else resolve();
+        if (t < 1) morphRaf = requestAnimationFrame(frame);
+        else { morphRaf = 0; morphResolve = null; resolve(true); }
       }
 
-      requestAnimationFrame(frame);
+      morphRaf = requestAnimationFrame(frame);
     });
   }
 

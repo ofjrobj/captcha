@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const bubble = document.createElement("div");
     bubble.id = "p01InfoBubble";
     bubble.className = "p01-infobubble";
-    bubble.textContent = "이미지를 클릭하세요.";
+    bubble.textContent = "Click the images.";
 
     footer.appendChild(bubble);
   }
@@ -132,8 +132,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const p = document.createElement("p");
     p.className = "p01-end-text";
-    p.textContent =
-      "Funny thing is, we’ve been looking at photos this whole time — not real flowers. Just images of flowers, as you already know.";
+    [
+      ["p01-end-lead", "Funny thing is, "],
+      ["p01-end-thought", "we’ve been looking at photos this whole time — not real flowers. "],
+      ["p01-end-conclusion", "Just images of flowers, as you already know."]
+    ].forEach(([className, text]) => {
+      const line = document.createElement("span");
+      line.className = className;
+      line.textContent = text;
+      p.appendChild(line);
+    });
 
     inner.appendChild(p);
     end.appendChild(inner);
@@ -144,8 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
     reset.className = "p01-end-reset";
     reset.setAttribute("aria-label", "refresh");
 
-    const icon = document.createElement("span");
-    icon.textContent = "↻";
+    const icon = resetBtn.querySelector("svg").cloneNode(true);
     reset.appendChild(icon);
 
     document.body.appendChild(end);

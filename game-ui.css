@@ -1,0 +1,22 @@
+/* Shared UI measurements for the five games. The CAPTCHA does not load this file. */
+:root {
+  --game-accent: #4a90e2;
+  --game-line: #c6daf3;
+  --game-line-soft: #e2ebf7;
+  --game-radius-panel: 12px;
+  --game-radius-control: 8px;
+  --game-radius-paper: 6px;
+  --game-title-size: clamp(28px, 3.6vw, 40px);
+  --game-body-size: 14px;
+  --game-caption-size: 12px;
+  --game-control-size: 14px;
+  --game-leading: 1.55;
+  --game-title-leading: 1.15;
+  --game-tracking: -.02em;
+  --game-space-1: 4px;
+  --game-space-2: 8px;
+  --game-space-3: 12px;
+  --game-space-4: 16px;
+  --game-space-5: 24px;
+  --game-space-6: 32px;
+}

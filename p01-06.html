@@ -1,14 +1,18 @@
 <!doctype html>
 <html lang="en-GB">
-
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>How to Prove You Are Human</title>
+<link rel="stylesheet" href="game-ui.css?v=6610e8156f" />
 <style>
     :root {
         --blue: #4a90e2;
         --paper: #ffffff;
-        --runner: #d4ce25;
+        --runner: #4a90e2;
         --danger: #d53974;
-        --ui-border: #4a90e2;
-        --ui-border-strong: rgba(74, 144, 226, 0.45);
+        --ui-border: var(--game-line);
+        --ui-border-strong: var(--game-line);
     }
 
     * {
@@ -25,6 +29,8 @@
         background: var(--paper);
         color: var(--blue);
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        font-size: var(--game-body-size);
+        line-height: var(--game-leading);
     }
 
     .wrap {
@@ -328,6 +334,126 @@
             width: min(360px, 78vw);
         }
     }
+
+    /* Printed paper spans the same width as the game panel. */
+    .receiptCard {
+        --receipt-paper:#ffffff;
+        width:100%;
+        margin:var(--game-space-5) auto var(--game-space-5);
+        padding-top:10px;
+        border:1px solid var(--game-line);
+        border-bottom:0;
+        border-radius:0;
+        background:var(--receipt-paper);
+        overflow:visible;
+        position:relative;
+        box-shadow:0 3px 6px rgba(74,144,226,.025), 0 10px 24px rgba(74,144,226,.065);
+        color:#3e78b6;
+    }
+    .receiptCard::before {
+        content:"";
+        position:absolute;
+        top:-4px; left:8px; right:8px; height:8px;
+        background:radial-gradient(circle, #fff 2.5px, rgba(74,144,226,.2) 2.75px, transparent 3.25px) 0 0 / 12px 8px;
+    }
+    .receiptHeader {
+        padding:var(--game-space-4) var(--game-space-5);
+        margin:0 var(--game-space-4);
+        border-bottom:1px dashed var(--game-line);
+        font-family:inherit;
+        text-align:center;
+        color:#3e78b6;
+        font-size:12px;
+        line-height:1.65;
+        font-weight:600;
+        letter-spacing:.07em;
+    }
+    .receiptBody { min-height:72px; padding:var(--game-space-3) var(--game-space-5) var(--game-space-5); font-family:inherit; color:#3e78b6; font-size:var(--game-body-size); line-height:var(--game-leading); }
+    .receiptCard .line { gap:var(--game-space-2); padding:var(--game-space-3) 0; border-color:var(--game-line-soft); }
+    .receiptCard .ico { width:15px; height:15px; flex-basis:15px; margin-top:2px; color:var(--blue); }
+    .receiptCard .txt { color:#3e78b6; }
+    .receiptCard .line.is-printed { animation:receiptPrint .42s ease-out both; }
+    .receiptZig {
+        position:absolute; top:100%; left:-1px; right:-1px;
+        height:12px; border:0;
+        background:linear-gradient(135deg, var(--receipt-paper) 25%, transparent 25%) -6px 0 / 12px 12px,
+                   linear-gradient(225deg, var(--receipt-paper) 25%, transparent 25%) -6px 0 / 12px 12px;
+        filter:drop-shadow(0 1px 0 rgba(74,144,226,.2));
+    }
+    @keyframes receiptPrint {
+        from { opacity:0; transform:translateY(-5px); clip-path:inset(0 0 100% 0); }
+        to { opacity:1; transform:translateY(0); clip-path:inset(0); }
+    }
+    #gameCanvas { touch-action:none; }
+    .leftMeta { min-width:min(320px, 100%); }
+    .btn:focus-visible { outline:2px solid var(--game-accent); outline-offset:3px; }
+    @media (prefers-reduced-motion:reduce) { .receiptCard .line.is-printed { animation:none; } }
+
+    /* A compact HUD in the same blue-and-white language as the illustration. */
+    .wrap { width:100%; max-width:980px; padding:var(--game-space-4) var(--game-space-5) 48px; }
+    .mark { margin:0 0 8px; }
+    .mark img { width:auto; max-width:min(380px, 72vw); height:clamp(112px, 21dvh, 192px); object-fit:contain; }
+    h1 { margin:var(--game-space-2) 0 var(--game-space-5); font-size:var(--game-title-size); line-height:var(--game-title-leading); letter-spacing:var(--game-tracking); text-wrap:balance; }
+    .gameCard { padding:var(--game-space-5); border:1px solid var(--game-line); border-radius:var(--game-radius-panel); box-shadow:0 5px 20px rgba(74,144,226,.035); }
+    .topRow { display:grid; grid-template-columns:minmax(0, 1fr) auto; align-items:start; gap:var(--game-space-5); }
+    .leftMeta { min-width:0; gap:var(--game-space-2); }
+    .gameTitle { font-size:clamp(20px, 2.3vw, 24px); line-height:1.25; font-weight:750; }
+    .gameSub { max-width:51ch; font-size:var(--game-body-size); line-height:var(--game-leading); color:#5b85b1; }
+    .rightMeta { display:grid; grid-template-columns:auto auto; align-items:center; gap:var(--game-space-3) var(--game-space-2); }
+    .roundPill { grid-column:1 / -1; justify-self:end; min-height:32px; padding:8px 12px; border-width:1px; border-color:var(--game-line); border-radius:var(--game-radius-control); font-size:var(--game-caption-size); line-height:1.3; font-weight:750; letter-spacing:.1em; background:rgba(74,144,226,.055); }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:var(--game-space-2); min-height:44px; height:auto; padding:12px 16px; border-width:1px; border-color:var(--game-line); border-radius:var(--game-radius-control); font:650 var(--game-control-size)/1.35 system-ui, -apple-system, Segoe UI, sans-serif; white-space:nowrap; }
+    .btn:not(:disabled):hover { background:rgba(74,144,226,.07); }
+    .btnPrimary:not(:disabled):hover { background:#3b80d1; }
+    .btnPrimary { border-color:var(--blue); box-shadow:0 3px 8px rgba(74,144,226,.14); }
+    .btn[disabled] { opacity:.42; box-shadow:none; }
+    .btnIcon { display:block; width:15px; height:15px; flex:0 0 15px; }
+    #btnReset { grid-column:1 / -1; }
+    .chanceRow { display:flex; align-items:center; gap:var(--game-space-3); margin-top:var(--game-space-2); }
+    .chances { gap:4px; margin:0; padding:0; border:0; border-radius:0; background:transparent; }
+    .life { width:12px; height:16px; border-radius:3px; border:1px solid rgba(74,144,226,.75); background:var(--blue); transition:background .16s, opacity .16s; }
+    .life.used { position:relative; background:rgba(74,144,226,.025); border-color:rgba(74,144,226,.22); }
+    .life.used::after { content:""; position:absolute; left:2px; right:2px; top:7px; height:1px; background:rgba(74,144,226,.3); transform:rotate(-45deg); }
+    .chanceCount { font-size:12px; line-height:1; font-weight:600; letter-spacing:.035em; font-variant-numeric:tabular-nums; color:#6792bf; }
+    .stageWrap { margin-top:var(--game-space-4); border:1px solid var(--game-line); border-radius:var(--game-radius-panel); }
+    canvas { height:clamp(220px, calc(100dvh - 390px), 360px); }
+    .note { margin-top:var(--game-space-3); min-height:22px; font-size:var(--game-caption-size); line-height:var(--game-leading); color:#678bb1; }
+    .receiptHeader { color:var(--blue); font-size:var(--game-body-size); line-height:var(--game-leading); letter-spacing:.025em; font-weight:650; }
+    .receiptNumber { font-variant-numeric:tabular-nums; color:var(--blue); }
+    @media(max-width:600px) {
+        .wrap { padding:12px 16px 36px; }
+        .mark img { height:clamp(100px, 18dvh, 150px); max-width:72vw; }
+        h1 { margin-bottom:var(--game-space-4); }
+        .gameCard { padding:var(--game-space-4); }
+        .topRow { grid-template-columns:minmax(0, 1fr); gap:16px; }
+        .gameSub { max-width:none; }
+        .rightMeta { display:flex; align-items:center; justify-content:flex-start; flex-wrap:wrap; gap:8px; }
+        .roundPill { margin-right:auto; padding:8px; min-height:32px; }
+        .btn { padding:12px; }
+        .stageWrap { margin-top:var(--game-space-4); }
+        canvas { height:clamp(220px, calc(100dvh - 430px), 320px); }
+        .note { font-size:12px; }
+        .receiptCard { margin-top:24px; }
+    }
+    @media(max-width:360px) {
+        .rightMeta { display:grid; grid-template-columns:1fr 1fr; }
+        .roundPill { grid-column:1 / -1; justify-self:start; margin-right:0; }
+        .btn { width:100%; }
+        .gameCard { padding:var(--game-space-3); }
+        .chanceRow { gap:8px; }
+        .chances { gap:4px; }
+    }
+    @media(max-height:650px) and (min-width:601px) {
+        .wrap { padding-top:10px; }
+        .mark img { height:96px; }
+        .mark { margin-bottom:4px; }
+        h1 { margin-bottom:var(--game-space-4); }
+        .gameCard { padding:16px; }
+        .topRow { gap:16px; }
+        .gameTitle { font-size:21px; }
+
+        .stageWrap { margin-top:12px; }
+        canvas { height:clamp(220px, calc(100dvh - 310px), 280px); }
+    }
 </style>
 </head>
 
@@ -344,35 +470,37 @@
             <div class="topRow">
                 <div class="leftMeta">
                     <p class="gameTitle">Prove it by running</p>
-                    <p class="gameSub">Press Space or click to jump. Press Shift or S to duck. Avoid obstacles and keep
-                        going.</p>
+                    <p class="gameSub">Press Space or click to jump. Press Shift or S to duck. On touch screens, tap to jump or swipe down and hold to duck. Avoid obstacles and keep going.</p>
 
                     <!-- chances only -->
-                    <div class="chances" id="chances" aria-label="Chances"></div>
+                    <div class="chanceRow">
+                        <div class="chances" id="chances" role="img" aria-label="Chances"></div>
+                        <span class="chanceCount" id="chanceCount" aria-hidden="true">10 / 10</span>
+                    </div>
                 </div>
 
                 <div class="rightMeta">
                     <div class="roundPill" id="roundPill">ROUND 1</div>
 
-                    <button class="btn btnPrimary" id="btnStart" type="button">Start</button>
-                    <button class="btn" id="btnRetry" type="button" disabled>Try again</button>
-                    <button class="btn is-hidden" id="btnReset" type="button">Reset</button>
+                    <button class="btn btnPrimary" id="btnStart" type="button"><svg class="btnIcon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5 12 8l-7 4.5Z" fill="currentColor"/></svg><span id="btnStartLabel">Start</span></button>
+                    <button class="btn" id="btnRetry" type="button" disabled><svg class="btnIcon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.3 6a5 5 0 1 1-.2 3M3 2v4h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Try again</span></button>
+                    <button class="btn is-hidden" id="btnReset" type="button"><svg class="btnIcon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4.5H9a4 4 0 1 1-3.7 5.5M4 1.5v6L1 4.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Reset</span></button>
                 </div>
             </div>
 
             <div class="stageWrap">
-                <canvas id="gameCanvas" width="980" height="360"></canvas>
+                <canvas id="gameCanvas" width="980" height="360" aria-label="Runner game: tap to jump, swipe down and hold to duck."></canvas>
                 <div class="hitFlash" id="hitFlash" aria-hidden="true"></div>
             </div>
 
-            <div class="note" id="note">
+            <div class="note" id="note" role="status" aria-live="polite">
                 A round ends when you survive long enough. The game stops after each round. Press Start to continue.
             </div>
         </section>
 
         <section class="receiptCard" aria-label="Receipt statements">
             <div class="receiptHeader">Statements printed on receipt</div>
-            <div class="receiptBody" id="receiptBody"></div>
+            <div class="receiptBody" id="receiptBody" role="log" aria-live="polite" aria-relevant="additions"></div>
             <div class="receiptZig" aria-hidden="true"></div>
         </section>
     </div>
@@ -640,12 +768,14 @@
         function renderReceipt(upto) {
             const box = document.getElementById("receiptBody");
             if (!box) return;
-            box.innerHTML = "";
-            for (let i = 0; i < upto; i++) {
+            const count = Math.max(0, Math.min(upto, STATEMENTS.length));
+            if (count < box.children.length) box.innerHTML = "";
+            // Append only the newly earned line, leaving earlier printing in place.
+            for (let i = box.children.length; i < count; i++) {
                 const kind = i % 8;
                 const row = document.createElement("div");
-                row.className = "line";
-                row.innerHTML = `${animalIconSVG(kind)}<div class="txt">${String(i + 1).padStart(3, "0")}. ${STATEMENTS[i]}</div>`;
+                row.className = "line is-printed";
+                row.innerHTML = `${animalIconSVG(kind)}<div class="txt"><span class="receiptNumber">${String(i + 1).padStart(3, "0")}.</span> ${STATEMENTS[i]}</div>`;
                 box.appendChild(row);
             }
         }
@@ -663,11 +793,14 @@
             for (let i = 0; i < MAX_LIVES; i++) {
                 const d = document.createElement("div");
                 d.className = "life";
+                d.setAttribute("aria-hidden", "true");
                 chancesEl.appendChild(d);
             }
         }
         function updateLives() {
             if (!chancesEl) return;
+            chancesEl.setAttribute("aria-label", `${MAX_LIVES - livesUsed} of ${MAX_LIVES} chances remaining`);
+            document.getElementById("chanceCount").textContent = `${MAX_LIVES - livesUsed} / ${MAX_LIVES}`;
             const kids = [...chancesEl.children];
             kids.forEach((k, idx) => {
                 if (idx < livesUsed) k.classList.add("used");
@@ -680,7 +813,7 @@
            - Stops after each round
            - Start for a new attempt
            - Try again only after a fail (same round)
-           - Reset only appears at ROUND 200
+           - Reset appears at ROUND 200 or when all chances are used
            --------------------------- */
         (function initRunner() {
             const canvas = document.getElementById("gameCanvas");
@@ -699,27 +832,40 @@
             const RESET_SHOW_ROUND = 200;
 
             let groundY = 290;
+            let previousWidth = 0;
+            let loopRaf = 0;
+            let flashTimeout = 0;
 
             function fitCanvas() {
+                if (running) pauseRound("Paused after resizing. Press Resume to continue.");
                 const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
                 const cssW = canvas.clientWidth;
                 const cssH = canvas.clientHeight;
+                const oldGround = groundY;
+                const oldPlayerX = player.x;
                 canvas.width = Math.round(cssW * dpr);
                 canvas.height = Math.round(cssH * dpr);
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-                // keep ground near bottom, responsive
-                groundY = Math.round(cssH - 70);
+                // Keep the complete 74px figure and its jump arc inside a short canvas.
+                groundY = Math.round(cssH - Math.min(70, cssH * .19));
+                player.x = Math.min(160, Math.max(40, cssW * .18));
+                player.y += groundY - oldGround;
+                for (const o of obstacles) {
+                    o.y += groundY - oldGround;
+                    o.x = player.x + (o.x - oldPlayerX) * (previousWidth ? cssW / previousWidth : 1);
+                    o.vx = -speedFor(round);
+                }
+                previousWidth = cssW;
+                draw();
             }
             window.addEventListener("resize", fitCanvas);
-            fitCanvas();
 
             // state
             let round = 1;
             let running = false;
             let lastTs = 0;
             let roundTime = 0;
-            let mode = "idle"; // idle | running | failed
+            let mode = "idle"; // idle | running | paused | failed
 
             const gravity = 1600;
             const jumpV = -560;
@@ -736,17 +882,24 @@
 
             let obstacles = [];
             let spawnTimer = 0;
+            let jumpBuffer = 0;
+            let duckRequested = false;
+            let pausedDucking = false;
+            let resumeDuckGrace = 0;
+            let touchGesture = null;
+            const duckKeys = new Set();
 
             // round tuning (this is where you adjust rounds)
             function roundDurationFor(r) {
                 return 6.2 + Math.min(r * 0.05, 3.0);
             }
             function speedFor(r) {
-                return 340 + Math.min(r * 8, 380);
+                const widthScale = Math.max(.48, Math.min(1, canvas.clientWidth / 800));
+                return (340 + Math.min(r * 8, 380)) * widthScale;
             }
             function spawnIntervalFor(r) {
-                const base = 0.92 - Math.min(r * 0.006, 0.35);
-                return Math.max(0.46, base);
+                // Leave enough time to land before another jump/duck decision.
+                return Math.max(.98, 1.22 - Math.min(r * .004, .24));
             }
 
             let shownRound = null;
@@ -759,13 +912,21 @@
                     roundPill.classList.add("glitter");
                 }
 
-                // show Reset only at round 200+
-                if (round >= RESET_SHOW_ROUND) btnReset.classList.remove("is-hidden");
+                // Keep the authored late-round reset, and allow a fresh run after 10 failures.
+                if (round >= RESET_SHOW_ROUND || livesUsed >= MAX_LIVES) btnReset.classList.remove("is-hidden");
                 else btnReset.classList.add("is-hidden");
             }
 
             function setMode(m) {
                 mode = m;
+                document.getElementById("btnStartLabel").textContent = mode === "paused" ? "Resume" : "Start";
+                btnReset.disabled = mode === "running";
+                setRoundLabel();
+                if (mode === "paused") {
+                    btnStart.disabled = false;
+                    btnRetry.disabled = true;
+                    if (note) note.textContent = "Paused. Press Resume to continue this round.";
+                }
                 if (mode === "idle") {
                     btnStart.disabled = (livesUsed >= MAX_LIVES);
                     btnRetry.disabled = true;
@@ -775,15 +936,55 @@
                 if (mode === "running") {
                     btnStart.disabled = true;
                     btnRetry.disabled = true;
-                    if (note) note.textContent = "Running…";
+                    if (note) note.textContent = "Running… Press Esc to pause.";
                 }
                 if (mode === "failed") {
                     btnStart.disabled = true;     // Start disabled after fail
                     btnRetry.disabled = (livesUsed >= MAX_LIVES);
                     if (note) note.textContent = (livesUsed >= MAX_LIVES)
-                        ? "No chances left."
+                        ? "No chances left. Press Reset to start a fresh run."
                         : "You hit an obstacle. Press Try again to restart this round.";
                 }
+            }
+
+            function stopLoop(preservePosture = false) {
+                running = false;
+                cancelAnimationFrame(loopRaf);
+                loopRaf = 0;
+                jumpBuffer = 0;
+                duckRequested = false;
+                duckKeys.clear();
+                if (touchGesture) {
+                    const pointerId = touchGesture.id;
+                    touchGesture = null;
+                    try { canvas.releasePointerCapture(pointerId); } catch {}
+                }
+                if (!preservePosture) {
+                    player.duck = false;
+                    pausedDucking = false;
+                    resumeDuckGrace = 0;
+                }
+            }
+
+            function pauseRound(message) {
+                if (!running) return;
+                pausedDucking = player.duck;
+                stopLoop(true);
+                setMode("paused");
+                if (message && note) note.textContent = message;
+                draw();
+            }
+
+            function resumeRound() {
+                if (mode !== "paused") return;
+                // A released touch/key must not stand the paused figure into a bar.
+                resumeDuckGrace = pausedDucking ? .6 : 0;
+                pausedDucking = false;
+                player.duck = duckRequested || resumeDuckGrace > 0;
+                running = true;
+                lastTs = performance.now();
+                setMode("running");
+                loopRaf = requestAnimationFrame(loop);
             }
 
             function resetRoundState() {
@@ -791,13 +992,21 @@
                 player.y = groundY;
                 player.vy = 0;
                 player.duck = false;
+                player.h = 52;
                 player.onGround = true;
+                duckRequested = false;
+                pausedDucking = false;
+                resumeDuckGrace = 0;
+                jumpBuffer = 0;
                 obstacles = [];
-                spawnTimer = 0;
+                spawnTimer = .55;
                 setRoundLabel();
             }
 
             function fullReset() {
+                stopLoop();
+                window.clearTimeout(flashTimeout);
+                flash.classList.remove("is-on");
                 round = 1;
                 livesUsed = 0;
                 updateLives();
@@ -812,7 +1021,8 @@
                 flash.classList.remove("is-on");
                 void flash.offsetWidth;
                 flash.classList.add("is-on");
-                window.setTimeout(() => {
+                window.clearTimeout(flashTimeout);
+                flashTimeout = window.setTimeout(() => {
                     flash.classList.remove("is-on");
                 }, 140);
             }
@@ -820,14 +1030,14 @@
             function failRound() {
                 livesUsed = Math.min(MAX_LIVES, livesUsed + 1);
                 updateLives();
-                running = false;
+                stopLoop();
                 flashHit();
                 setMode("failed");
                 draw();
             }
 
             function clearRound() {
-                running = false;
+                stopLoop();
                 round += 1;
 
                 // reveal next receipt line (one per cleared round)
@@ -840,21 +1050,17 @@
             }
 
             function startRoundFresh() {
-                if (livesUsed >= MAX_LIVES) return;
+                if (livesUsed >= MAX_LIVES || running) return;
+                stopLoop();
                 resetRoundState();
                 running = true;
                 lastTs = performance.now();
                 setMode("running");
-                requestAnimationFrame(loop);
+                loopRaf = requestAnimationFrame(loop);
             }
 
             function retrySameRound() {
-                if (livesUsed >= MAX_LIVES) return;
-                resetRoundState();
-                running = true;
-                lastTs = performance.now();
-                setMode("running");
-                requestAnimationFrame(loop);
+                startRoundFresh();
             }
 
             // obstacle generator (smaller, varied, jump/duck-able)
@@ -894,7 +1100,9 @@
                 // lowbar (duck)
                 const w = 34 + Math.random() * 30;
                 const h = 12 + Math.random() * 10;
-                const y = groundY - (44 + Math.random() * 16);
+                // Include the original figure's head: ducked height is 52px.
+                const clearance = 58 + Math.random() * 5;
+                const y = groundY - clearance - h;
                 obstacles.push({
                     type, x: canvas.clientWidth + 40,
                     y, w, h,
@@ -902,26 +1110,73 @@
                 });
             }
 
-            // controls
+            // Keep the original keyboard/click controls, plus direct touch gestures.
             function doJump() {
                 if (!running) return;
+                jumpBuffer = .12;
                 if (!player.onGround) return;
                 player.vy = jumpV;
                 player.onGround = false;
+                jumpBuffer = 0;
             }
             function setDuck(on) {
-                if (!running) return;
-                player.duck = on;
+                duckRequested = (running || mode === "paused") && on;
+                if (running) player.duck = duckRequested || resumeDuckGrace > 0;
+            }
+            function syncDuckInput() {
+                setDuck(duckKeys.size > 0 || Boolean(touchGesture && touchGesture.duck));
             }
 
             window.addEventListener("keydown", (e) => {
-                if (e.code === "Space") { e.preventDefault(); doJump(); }
-                if (e.key === "Shift" || e.key.toLowerCase() === "s") { setDuck(true); }
+                // OS shortcuts (including macOS screenshots) are not game input.
+                // Clear a Shift pressed before Command as well as Command-first chords.
+                if (e.metaKey || e.ctrlKey || e.altKey || /^(Meta|Control|Alt)/.test(e.code)) {
+                    duckKeys.clear();
+                    syncDuckInput();
+                    return;
+                }
+                if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+                if (e.code === "Escape") { if (running) { e.preventDefault(); pauseRound(); } return; }
+                if (!running) return;
+                if (e.code === "Space" || e.code === "ArrowUp") {
+                    e.preventDefault(); if (!e.repeat) doJump();
+                }
+                if (["ShiftLeft", "ShiftRight", "KeyS", "ArrowDown"].includes(e.code)) {
+                    e.preventDefault(); duckKeys.add(e.code); syncDuckInput();
+                }
             });
             window.addEventListener("keyup", (e) => {
-                if (e.key === "Shift" || e.key.toLowerCase() === "s") { setDuck(false); }
+                if (duckKeys.delete(e.code)) syncDuckInput();
             });
-            canvas.addEventListener("pointerdown", () => doJump());
+            canvas.addEventListener("pointerdown", (e) => {
+                if (!running || !e.isPrimary) return;
+                e.preventDefault();
+                if (e.pointerType === "mouse") { doJump(); return; }
+                touchGesture = { id:e.pointerId, x:e.clientX, y:e.clientY, duck:false };
+                try { canvas.setPointerCapture(e.pointerId); } catch {}
+            });
+            canvas.addEventListener("pointermove", (e) => {
+                if (!touchGesture || e.pointerId !== touchGesture.id) return;
+                if (e.clientY - touchGesture.y >= 16) {
+                    touchGesture.duck = true;
+                    syncDuckInput();
+                }
+            });
+            function endTouch(e, cancelled = false) {
+                if (!touchGesture || e.pointerId !== touchGesture.id) return;
+                const gesture = touchGesture;
+                touchGesture = null;
+                syncDuckInput();
+                try { canvas.releasePointerCapture(e.pointerId); } catch {}
+                if (!cancelled && !gesture.duck && Math.hypot(e.clientX - gesture.x, e.clientY - gesture.y) < 20) doJump();
+            }
+            canvas.addEventListener("pointerup", e => endTouch(e));
+            canvas.addEventListener("pointercancel", e => endTouch(e, true));
+            canvas.addEventListener("lostpointercapture", e => endTouch(e, true));
+            window.addEventListener("blur", () => pauseRound("Paused while you were away. Press Resume to continue."));
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden) pauseRound("Paused while you were away. Press Resume to continue.");
+            });
 
             function rectsOverlap(a, b) {
                 return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
@@ -940,7 +1195,16 @@
                 // player physics
                 const baseH = 52;
                 const duckH = 30;
+                if (resumeDuckGrace > 0) {
+                    resumeDuckGrace = Math.max(0, resumeDuckGrace - dt);
+                    const standingBox = { x:player.x - player.w / 2, y:player.y - baseH - 20, w:player.w, h:baseH + 20 };
+                    const barOverhead = obstacles.some(o => o.type === "lowbar" && rectsOverlap(standingBox,
+                        { x:o.x + o.vx * dt, y:o.y, w:o.w, h:o.h }));
+                    if (resumeDuckGrace === 0 && barOverhead) resumeDuckGrace = .05;
+                }
+                player.duck = duckRequested || resumeDuckGrace > 0;
                 player.h = player.duck ? duckH : baseH;
+                jumpBuffer = Math.max(0, jumpBuffer - dt);
 
                 if (!player.onGround) {
                     player.vy += gravity * dt;
@@ -955,21 +1219,23 @@
                     player.vy = 0;
                 }
 
+                if (player.onGround && jumpBuffer > 0) doJump();
+
                 // obstacles move
                 for (const o of obstacles) o.x += o.vx * dt;
                 obstacles = obstacles.filter(o => o.x + o.w > -80);
 
                 // collision boxes
                 const pBox = {
-                    x: player.x - player.w / 2,
-                    y: player.y - player.h,
-                    w: player.w,
-                    h: player.h
+                    x: player.x - player.w / 2 + 2,
+                    y: player.y - player.h - 18,
+                    w: player.w - 4,
+                    h: player.h + 16
                 };
 
                 for (const o of obstacles) {
                     if (o.type === "tri") {
-                        const b = { x: o.x, y: o.y - o.h, w: o.w, h: o.h };
+                        const b = { x:o.x + 4, y:o.y - o.h + 4, w:o.w - 8, h:o.h - 4 };
                         if (rectsOverlap(pBox, b)) {
                             failRound();
                             break;
@@ -1003,11 +1269,6 @@
                 ctx.lineTo(w, groundY);
                 ctx.stroke();
 
-                // subtle border inside stage
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = "rgba(74,144,226,0.18)";
-                ctx.strokeRect(8, 8, w - 16, h - 16);
-
                 // obstacles
                 ctx.fillStyle = "rgba(74,144,226,0.75)";
                 ctx.lineWidth = 2;
@@ -1026,40 +1287,116 @@
                     ctx.fill();
                 }
 
-                // runner (stick figure)
-                ctx.strokeStyle = "rgba(212,206,37,0.98)";
-                ctx.fillStyle = "rgba(212,206,37,0.98)";
-                ctx.lineWidth = 4;
+                drawHuman();
+            }
 
-                const headR = 10;
-                const headX = player.x;
-                const headY = player.y - player.h - 12;
+            function drawHuman() {
+                const cycle = (roundTime * 1.65) % 1;
+                const phase = cycle * Math.PI * 2;
+                const inStride = (mode === "running" || mode === "paused" || mode === "failed") && player.onGround;
+                const airborne = !player.onGround;
+                const blue = "#4a90e2";
+                ctx.save();
+                ctx.translate(player.x, player.y);
 
-                ctx.beginPath();
-                ctx.arc(headX, headY, headR, 0, Math.PI * 2);
-                ctx.fill();
+                // Filled, tapered limbs echo the silhouettes in the header illustration.
+                function limb(a, b, c, upper = 7, lower = 5, alpha = 1) {
+                    ctx.globalAlpha = alpha;
+                    ctx.fillStyle = blue;
+                    function bone(from, to, startWidth, endWidth) {
+                        const dx = to[0] - from[0], dy = to[1] - from[1];
+                        const length = Math.hypot(dx, dy) || 1;
+                        const nx = -dy / length, ny = dx / length;
+                        ctx.beginPath();
+                        ctx.moveTo(from[0] + nx * startWidth / 2, from[1] + ny * startWidth / 2);
+                        ctx.lineTo(to[0] + nx * endWidth / 2, to[1] + ny * endWidth / 2);
+                        ctx.lineTo(to[0] - nx * endWidth / 2, to[1] - ny * endWidth / 2);
+                        ctx.lineTo(from[0] - nx * startWidth / 2, from[1] - ny * startWidth / 2);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.arc(to[0], to[1], endWidth / 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    bone(a, b, upper, lower + 1);
+                    bone(b, c, lower + 1, lower);
+                    ctx.globalAlpha = 1;
+                }
 
-                const bodyTopY = headY + headR + 6;
-                const bodyBottomY = player.y - 10;
-                ctx.beginPath();
-                ctx.moveTo(headX, bodyTopY);
-                ctx.lineTo(headX, bodyBottomY);
-                ctx.stroke();
+                // Solve a fixed-length leg with the knee bending forward.
+                // The old independent knee/ankle oscillation bent one knee backwards.
+                function kneeBetween(hip, ankle) {
+                    const dx = ankle[0] - hip[0], dy = ankle[1] - hip[1];
+                    const distance = Math.max(.001, Math.hypot(dx, dy));
+                    const bend = Math.sqrt(Math.max(0, 20 * 20 - distance * distance / 4));
+                    return [(hip[0] + ankle[0]) / 2 + dy / distance * bend,
+                            (hip[1] + ankle[1]) / 2 - dx / distance * bend];
+                }
+                function strideFoot(offset) {
+                    const t = (cycle + offset) % 1;
+                    // Stance: planted foot travels backwards. Recovery: lift and swing forward.
+                    if (t < .56) return [17 - 34 * t / .56, -3];
+                    const recovery = (t - .56) / .44;
+                    return [-17 + 17 * (1 - Math.cos(recovery * Math.PI)),
+                            -3 - 18 * Math.sin(recovery * Math.PI)];
+                }
 
-                const legY = player.y - 2;
-                ctx.beginPath();
-                ctx.moveTo(headX, bodyBottomY);
-                ctx.lineTo(headX - 14, legY);
-                ctx.moveTo(headX, bodyBottomY);
-                ctx.lineTo(headX + 14, legY);
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.moveTo(headX, bodyTopY + 10);
-                ctx.lineTo(headX - 14, bodyTopY + 22);
-                ctx.moveTo(headX, bodyTopY + 10);
-                ctx.lineTo(headX + 14, bodyTopY + 22);
-                ctx.stroke();
+                if (player.duck && !airborne) {
+                    // Deep crouch: head and shoulders stay below the established duck box.
+                    limb([-7, -22], [-17, -12], [-3, -3], 8, 5, .62);
+                    limb([0, -23], [11, -13], [3, -3], 9, 6);
+                    limb([1, -34], [15, -27], [17, -20], 6, 4, .62);
+                    ctx.fillStyle = blue;
+                    ctx.beginPath();
+                    ctx.moveTo(-13, -24);
+                    ctx.quadraticCurveTo(-10, -32, -1, -37);
+                    ctx.quadraticCurveTo(4, -39, 9, -33);
+                    ctx.lineTo(5, -21);
+                    ctx.quadraticCurveTo(-3, -16, -13, -24);
+                    ctx.fill();
+                    limb([4, -33], [15, -24], [9, -21], 7, 4);
+                    ctx.beginPath();
+                    ctx.ellipse(10, -43, 7, 8, -.15, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    const lean = inStride || airborne ? 4 : 0;
+                    const bob = inStride ? Math.sin(phase * 2) * 1.1 : 0;
+                    const hip = [-2, -35 + bob];
+                    const farFoot = airborne ? [-15, -15] : inStride ? strideFoot(.5) : [-7, -3];
+                    const nearFoot = airborne ? [16, -8] : inStride ? strideFoot(0) : [7, -3];
+                    limb(hip, kneeBetween(hip, farFoot), farFoot, 9, 5, .62);
+                    limb(hip, kneeBetween(hip, nearFoot), nearFoot, 10, 6);
+                    function arm(offset, alpha) {
+                        const angle = airborne ? (offset ? -.8 : .8) : inStride ? -.75 * Math.cos(phase + offset) : -.12;
+                        const shoulder = [lean, -53 + bob];
+                        const elbow = [shoulder[0] + Math.sin(angle) * 13, shoulder[1] + Math.cos(angle) * 13];
+                        const bend = inStride || airborne ? 1.65 : .2;
+                        const hand = [elbow[0] + Math.sin(angle + bend) * 12, elbow[1] + Math.cos(angle + bend) * 12];
+                        limb(shoulder, elbow, hand, 6.5, 4, alpha);
+                    }
+                    arm(Math.PI, .62);
+                    ctx.fillStyle = blue;
+                    ctx.beginPath();
+                    ctx.moveTo(lean - 7, -54 + bob);
+                    ctx.quadraticCurveTo(lean, -58 + bob, lean + 7, -52 + bob);
+                    ctx.lineTo(5, -35 + bob);
+                    ctx.quadraticCurveTo(4, -29 + bob, -7, -32 + bob);
+                    ctx.lineTo(-8, -40 + bob);
+                    ctx.closePath();
+                    ctx.fill();
+                    arm(0, 1);
+                    ctx.beginPath();
+                    ctx.moveTo(lean - 3, -59 + bob);
+                    ctx.lineTo(lean + 4, -59 + bob);
+                    ctx.lineTo(lean + 5, -52 + bob);
+                    ctx.lineTo(lean - 4, -52 + bob);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.ellipse(lean + 1, -65 + bob, 7.5, 8.5, .08, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
             }
 
             function loop(ts) {
@@ -1070,12 +1407,12 @@
                 update(dt);
                 draw();
 
-                if (running) requestAnimationFrame(loop);
+                if (running) loopRaf = requestAnimationFrame(loop);
             }
 
             btnStart.addEventListener("click", () => {
-                if (mode !== "idle") return;
-                startRoundFresh();
+                if (mode === "paused") { resumeRound(); return; }
+                if (mode === "idle") startRoundFresh();
             });
 
             btnRetry.addEventListener("click", () => {
@@ -1084,11 +1421,11 @@
             });
 
             btnReset.addEventListener("click", () => {
-                // Only visible at round 200, per requirement
                 fullReset();
             });
 
             // init
+            fitCanvas();
             initLives();
             updateLives();
             setRoundLabel();
