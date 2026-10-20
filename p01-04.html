@@ -6,62 +6,31 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Aristotle — Connect the Dots</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    .p04-top { gap: 12px; }
-    .p04-meta, .p04-actions { flex-wrap: wrap; }
-    .p04-actions { margin-left: 0; }
-    .p04-btn { min-height: var(--ui-control-height, 44px); height: auto; font-size: 14px; border-radius: var(--ui-radius, 12px); padding: 10px 14px; }
-    .p04-pill { font-size: 13px; padding: 8px 12px; font-variant-numeric: tabular-nums; }
-    .p04-stage { border-radius: var(--ui-card-radius, 18px); }
-    .p04-view-tools { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
-    .p04-view-tools p { font-size: 13px; line-height: 1.5; margin: 0; }
-    .p04-meter { width: 100%; height: 5px; border: 0; display: block; appearance: none; background: #eaf0fa; }
-    .p04-meter::-webkit-progress-bar { background: #eaf0fa; }
-    .p04-meter::-webkit-progress-value { background: var(--ui-blue, #5e8fde); }
-    .p04-meter::-moz-progress-bar { background: var(--ui-blue, #5e8fde); }
-    .p04-dot text { display: none; stroke-width: 5px; stroke-linejoin: round; }
-    .p04-dot.is-upcoming text, .p04-dot.is-next text { display: block; }
-    .p04-dot.is-upcoming text { fill: #67748a; }
-    .p04-dot.is-next text { fill: #ad2a59; }
-    .p04-dot.is-next circle { stroke: #fff; stroke-width: 3px; vector-effect: non-scaling-stroke; }
-    .p04-hint { position: static; margin: 0; border: 0; border-top: 1px solid #e6edf8; border-radius: 0; font-size: 14px; line-height: 1.5; padding: 12px 16px; }
-    .p04-pool { min-height: 0; }
-    .p04-pool.is-hidden { display: none; }
-    .p04-quote { margin-inline: 0; }
-    @media (max-width: 520px) { .p04-meta, .p04-actions { width: 100%; } .p04-actions .p04-btn { flex: 1; } .p04-actions { gap: 6px; } }
-  </style>
-  <link rel="stylesheet" href="common.css" />
-  <script src="common.js" defer></script>
 </head>
 
-<body class="p04-body" data-activity="4">
+<body class="p04-body">
   <main class="p04-page">
 
     <section class="p04-text">
       <h1 class="p04-title"># <strong>Aristotle's Essentialism</strong></h1>
-      <p class="p04-instruction">Connect the dots in order to reveal a shape and a thought. Tap the pink dot, or drag from one dot to the next.</p>
+      <p class="p04-instruction">Drag across dots, or click dots to connect.</p>
     </section>
 
     <header class="p04-top">
       <div class="p04-meta">
-        <div class="p04-pill" id="p04Progress">Dots 0/195</div>
+        <div class="p04-pill" id="p04Progress">Dot 0/0</div>
         <div class="p04-pill" id="p04Timer">Time 00:00.0</div>
       </div>
 
       <div class="p04-actions">
         <button class="p04-btn" id="p04StartBtn">Start</button>
         <button class="p04-btn" id="p04TryBtn" disabled>Try again</button>
-        <button class="p04-btn" id="p04SkipBtn">Preview</button>
+        <button class="p04-btn" id="p04SkipBtn">Skip</button>
         <button class="p04-btn p04-primary" id="p04VerifyBtn" disabled>Verify</button>
       </div>
     </header>
 
-    <div class="p04-view-tools">
-      <button class="p04-btn" id="p04FocusBtn" type="button" aria-pressed="false">Focus view</button>
-      <p>Pink = next dot · Nearby numbers show what comes next.</p>
-    </div>
     <section class="p04-stage-wrap">
-      <progress class="p04-meter" id="p04Meter" value="0" max="195" aria-label="Dots connected"></progress>
       <div class="p04-stage" id="p04Stage">
 
         <div class="p04-canvas">
@@ -71,7 +40,7 @@
             <g id="p04Dots"></g>
           </svg>
 
-          <div class="p04-hint" id="p04Hint" role="status" aria-live="polite">Press Start to begin.</div>
+          <div class="p04-hint" id="p04Hint">Press Start to begin.</div>
         </div>
 
         <section class="p04-letters" aria-label="Quote builder">

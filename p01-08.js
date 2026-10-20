@@ -132,15 +132,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const clearBtn = document.getElementById("p08ClearBtn");
   const backBtn = document.getElementById("p08BackBtn");
   const grid = document.getElementById("p08Grid");
-  const quizBtn = document.getElementById("p08QuizBtn");
-  const reviewBtn = document.getElementById("p08ReviewBtn");
-  const summary = document.getElementById("p08Summary");
 
   let r1Index = 0;
   let quizOrder = [];
   let checked = false;
-  let lastScore = 0;
-  let reviewing = false;
 
   function escapeHtml(s) {
     return String(s)
@@ -154,17 +149,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function setHeaderRound1() {
     roundLabel.textContent = "ROUND 1";
     subEl.textContent = "Learn with flashcards. Click the card to flip.";
-    progressEl.textContent = `${r1Index + 1} / ${WORDS.length}`;
-    quizBtn.textContent = quizOrder.length ? "Resume quiz" : "Start quiz";
+    progressEl.textContent = `${r1Index + 1}/${WORDS.length}`;
   }
 
   function setHeaderRound2(score = null) {
     roundLabel.textContent = "ROUND 2";
     subEl.textContent = 'Type each answer in Hangul, then press “Check answers”.';
-    const answered = Array.from(grid.querySelectorAll("input")).filter(input => normaliseHangul(input.value)).length;
-    progressEl.textContent = score === null ? `${answered} / ${WORDS.length} answered` : `${score} / ${WORDS.length} correct`;
-    checkBtn.disabled = score !== null || answered === 0;
-    if (score !== null) subEl.textContent = "Review the meanings below, or edit your answers and try again.";
+    progressEl.textContent = score === null ? `0/${WORDS.length}` : `${score}/${WORDS.length}`;
   }
 
   function getIconSvg(kind) {
@@ -326,11 +317,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     prevBtn.disabled = (r1Index === 0);
     nextBtn.disabled = false;
-    nextBtn.setAttribute("aria-label", r1Index === WORDS.length - 1 ? "Open quiz" : "Next card");
 
     r1Card.classList.remove("is-flipped");
-    r1Card.setAttribute("aria-pressed", "false");
-    r1Card.setAttribute("aria-label", `${item.hangul}, ${item.roman}. Reveal meaning`);
     setHeaderRound1();
   }
 
@@ -363,12 +351,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function buildQuiz() {
     checked = false;
-    lastScore = 0;
-    reviewing = false;
-    summary.hidden = true;
-    reviewBtn.hidden = true;
-    editBtn.disabled = true;
-    checkBtn.disabled = false;
     grid.innerHTML = "";
 
     quizOrder = shuffle([...Array(WORDS.length)].map((_, i) => i));
@@ -419,8 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
     stageR1.classList.add("p08-hidden");
     stageR2.classList.remove("p08-hidden");
     window.scrollTo({ top: 0, behavior: "smooth" });
-    if (!quizOrder.length) buildQuiz();
-    else setHeaderRound2(checked ? lastScore : null);
+    buildQuiz();
   }
 
   function backToRound1() {
@@ -507,29 +488,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     checked = true;
-    lastScore = correct;
     setHeaderRound2(correct);
-    checkBtn.disabled = true;
-    editBtn.disabled = false;
-    reviewBtn.hidden = correct === WORDS.length;
-    const answered = cards.filter(card => normaliseHangul(card.querySelector("input").value)).length;
-    summary.hidden = false;
-    summary.textContent = correct === WORDS.length
-      ? `All ${WORDS.length} words remembered. Round complete!`
-      : `${correct} of ${WORDS.length} correct · ${WORDS.length - answered} unanswered. Review the missed words, then try again.`;
-    if (answered === WORDS.length) window.CaptchaProgress?.complete('8');
-    summary.focus({ preventScroll: true });
-    summary.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function editAnswers() {
     checked = false;
-    reviewing = false;
-    summary.hidden = true;
-    reviewBtn.hidden = true;
-    reviewBtn.textContent = "Review missed words";
-    checkBtn.disabled = false;
-    editBtn.disabled = true;
     setHeaderRound2(null);
 
     const cards = Array.from(grid.querySelectorAll(".p08-qCard"));
@@ -537,7 +500,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const input = card.querySelector("input");
       const badge = card.querySelector("[data-badge]");
 
-      card.hidden = false;
       input.disabled = false;
       badge.textContent = "Not checked";
 
@@ -545,7 +507,6 @@ document.addEventListener("DOMContentLoaded", () => {
       card.classList.remove("is-correct", "is-wrong");
       card.classList.add("is-noanswer");
     });
-    grid.querySelector("input")?.focus({ preventScroll: true });
   }
 
   function clearAnswers() {
@@ -573,7 +534,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function toggleFlip() {
     r1Card.classList.toggle("is-flipped");
-    r1Card.setAttribute("aria-pressed", String(r1Card.classList.contains("is-flipped")));
   }
 
   r1Card.addEventListener("click", toggleFlip);
@@ -600,15 +560,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   restartBtn.addEventListener("click", restartAll);
-  quizBtn.addEventListener("click", enterRound2);
-  grid.addEventListener("input", () => { if (!checked) setHeaderRound2(null); });
-  reviewBtn.addEventListener("click", () => {
-    reviewing = !reviewing;
-    grid.querySelectorAll(".p08-qCard").forEach(card => {
-      card.hidden = reviewing && card.classList.contains("is-correct");
-    });
-    reviewBtn.textContent = reviewing ? "Show all words" : "Review missed words";
-  });
 
   checkBtn.addEventListener("click", checkAnswers);
   editBtn.addEventListener("click", editAnswers);

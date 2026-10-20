@@ -24,31 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const DOT_R = 12;
   const SHOW_NUMBERS = true;
-  const focusBtn = document.getElementById("p04FocusBtn");
-  const meterEl = document.getElementById("p04Meter");
-  let focusedView = false;
-  let previewOnly = false;
-  let animationEpoch = 0;
-  let morphRaf = 0;
-  let morphResolve = null;
-  const pendingTimeouts = new Map();
-
-  function waitFor(ms) {
-    return new Promise((resolve) => {
-      const id = window.setTimeout(() => { pendingTimeouts.delete(id); resolve(true); }, ms);
-      pendingTimeouts.set(id, resolve);
-    });
-  }
-
-  function cancelAnimations() {
-    animationEpoch += 1;
-    for (const [id, resolve] of pendingTimeouts) { window.clearTimeout(id); resolve(false); }
-    pendingTimeouts.clear();
-    cancelAnimationFrame(morphRaf);
-    morphRaf = 0;
-    if (morphResolve) morphResolve(false);
-    morphResolve = null;
-  }
 
   const QUOTE =
     "The essence of a thing is what it is said to be in virtue of itself, and not in virtue of anything else.";
@@ -111,8 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setProgress() {
     if (!progressEl) return;
-    progressEl.textContent = `Dots ${expectedIdx} / ${TOTAL}`;
-    if (meterEl) meterEl.value = expectedIdx;
+    progressEl.textContent = `Dot ${expectedIdx}/${TOTAL}`;
   }
 
   // Timer
@@ -291,46 +265,21 @@ document.addEventListener("DOMContentLoaded", () => {
     setPathFromPoints(pathPoints);
   }
 
-  function updateView() {
-    if (focusedView && !done && expectedIdx < TOTAL && !isDragging) {
-      const [x, y] = DINO_DOTS[expectedIdx];
-      const width = 860, height = width * 1895 / 2048;
-      const left = Math.max(0, Math.min(2048 - width, x - width / 2));
-      const top = Math.max(0, Math.min(1895 - height, y - height / 2));
-      svg.setAttribute("viewBox", `${left} ${top} ${width} ${height}`);
-    } else if (!focusedView || done) svg.setAttribute("viewBox", "0 0 2048 1895");
-    // SVG labels and the next dot keep their screen size on small displays.
-    const scale = svg.getScreenCTM()?.a || 1;
-    for (let i = 0; i < dotNodes.length; i++) {
-      const node = dotNodes[i];
-      node.c.setAttribute("r", String(i === expectedIdx && !done ? Math.max(DOT_R, 7 / scale) : DOT_R));
-      if (node.t) {
-        node.t.style.fontSize = `${(i === expectedIdx ? 15 : 12) / scale}px`;
-        node.t.style.strokeWidth = `${3 / scale}px`;
-        node.t.setAttribute("x", String(DINO_DOTS[i][0] + 12 / scale));
-      }
-    }
-  }
-
   function setNextGuide() {
     for (let i = 0; i < dotNodes.length; i++) {
-      dotNodes[i].g.classList.toggle("is-next", i === expectedIdx && !done);
-      dotNodes[i].g.classList.toggle("is-upcoming", i > expectedIdx && i <= expectedIdx + 2 && !done);
+      dotNodes[i].g.classList.remove("is-next");
     }
-    // Lift the current target above crowded dots so it remains legible.
     if (expectedIdx < TOTAL && dotNodes[expectedIdx]) {
-      dotsLayer.appendChild(dotNodes[expectedIdx].g);
-      setHint(`Next: Dot ${expectedIdx + 1} of ${TOTAL}.`);
+      dotNodes[expectedIdx].g.classList.add("is-next");
+      setHint(`Next: Dot ${expectedIdx + 1}.`);
     }
-    updateView();
   }
 
-  async function shakeStage() {
-    const epoch = animationEpoch;
+  function shakeStage() {
     stage.classList.remove("is-shake");
     stage.offsetHeight;
     stage.classList.add("is-shake");
-    if (await waitFor(280) && epoch === animationEpoch) stage.classList.remove("is-shake");
+    window.setTimeout(() => stage.classList.remove("is-shake"), 280);
   }
 
   function markDotUsed(idx) {
@@ -350,24 +299,19 @@ document.addEventListener("DOMContentLoaded", () => {
     stage.classList.add("is-complete");
     stage.classList.remove("is-started");
 
-    verifyBtn.disabled = previewOnly;
+    verifyBtn.disabled = false;
     tryBtn.disabled = false;
-    startBtn.disabled = false;
-    skipBtn.disabled = false;
-    stopDragging();
-    updateView();
 
     // 문장 전부 공개 후, 최종 가독성 텍스트로 정리
     revealAllRemaining();
     showFinalCleanText();
 
-    setHint(previewOnly ? "Preview complete. Press Start to connect the dots yourself." : "All dots connected. Press Verify to finish.");
+    setHint("Complete.");
     setProgress();
 
-    const epoch = animationEpoch;
-    waitFor(2000).then((active) => {
-      if (active && epoch === animationEpoch && done) playMorphSequence(epoch).catch(() => {});
-    });
+    window.setTimeout(() => {
+      playMorphSequence().catch(() => {});
+    }, 2000);
   }
 
   function connectToDot(idx) {
@@ -388,8 +332,7 @@ document.addEventListener("DOMContentLoaded", () => {
     expectedIdx += 1;
     dotsConnectedCount += 1;
 
-    const targetLetters = Math.ceil(expectedIdx / TOTAL * letterPositions.length);
-    while (revealedLetters < targetLetters) revealNextLetter();
+    if (dotsConnectedCount % 3 === 0) revealNextLetter();
 
     setProgress();
 
@@ -457,65 +400,44 @@ document.addEventListener("DOMContentLoaded", () => {
         g.appendChild(t);
       }
 
+      g.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        if (!started || done) return;
+
+        isDragging = true;
+        capturedPointerId = e.pointerId;
+        try { stage.setPointerCapture(capturedPointerId); } catch {}
+
+        connectToDot(i);
+      });
+
       dotsLayer.appendChild(g);
       dotNodes.push({ g, c, t });
     }
   }
 
   function stopDragging() {
-    const pointerId = capturedPointerId;
-    const wasDragging = isDragging;
+    if (capturedPointerId != null) {
+      try { stage.releasePointerCapture(capturedPointerId); } catch {}
+    }
     capturedPointerId = null;
     isDragging = false;
-    if (pointerId != null) {
-      try { stage.releasePointerCapture(pointerId); } catch {}
-    }
-    // Recenter only once the gesture has ended; moving the target beneath a
-    // captured pointer could otherwise connect dots without a real movement.
-    if (wasDragging && focusedView) updateView();
   }
-
-  function hitTarget(e) {
-    const p = clientToSvgPoint(e.clientX, e.clientY);
-    const scale = svg.getScreenCTM()?.a || 1;
-    return findNearestDotIndex(p.x, p.y, Math.max(DOT_R * 2.8, 24 / scale));
-  }
-
-  svg.addEventListener("pointerdown", (e) => {
-    if (!started || done || !e.isPrimary) return;
-    e.preventDefault();
-    const idx = hitTarget(e);
-    if (idx === -1) {
-      setHint(`Look for the pink dot: ${expectedIdx + 1}. Use Focus view for a closer look.`);
-      return;
-    }
-    isDragging = true;
-    capturedPointerId = e.pointerId;
-    try { stage.setPointerCapture(e.pointerId); } catch {}
-    connectToDot(idx);
-  });
 
   stage.addEventListener("pointermove", (e) => {
-    if (!started || done || !isDragging || e.pointerId !== capturedPointerId) return;
-    const idx = hitTarget(e);
+    if (!started || done) return;
+    if (!isDragging) return;
+
+    const p = clientToSvgPoint(e.clientX, e.clientY);
+    const idx = findNearestDotIndex(p.x, p.y, Math.max(22, DOT_R * 2.8));
     if (idx !== -1) connectToDot(idx);
   });
+
   stage.addEventListener("pointerup", stopDragging);
   stage.addEventListener("pointercancel", stopDragging);
-  stage.addEventListener("lostpointercapture", stopDragging);
-  focusBtn?.addEventListener("click", () => {
-    focusedView = !focusedView;
-    focusBtn.setAttribute("aria-pressed", String(focusedView));
-    focusBtn.textContent = focusedView ? "Full view" : "Focus view";
-    updateView();
-  });
-  window.addEventListener("resize", updateView);
+  stage.addEventListener("pointerleave", stopDragging);
 
   function resetGame() {
-    cancelAnimations();
-    previewOnly = false;
-    startBtn.disabled = false;
-    skipBtn.disabled = false;
     started = false;
     done = false;
 
@@ -557,8 +479,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function startGame() {
-    startBtn.disabled = true;
-    skipBtn.disabled = true;
     started = true;
     done = false;
 
@@ -572,7 +492,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function skipAll() {
     resetGame();
-    previewOnly = true;
 
     started = true;
     stage.classList.add("is-started");
@@ -609,11 +528,8 @@ document.addEventListener("DOMContentLoaded", () => {
       setHint("Not completed yet.");
       return;
     }
-    if (previewOnly) return;
-    try { localStorage.setItem("p01-04-verified", "1"); } catch {}
-    window.CaptchaProgress?.complete("4");
-    setHint("Verified. Your connected shape is complete — return to All flowers whenever you’re ready.");
-    verifyBtn.disabled = true;
+    localStorage.setItem("p01-04-verified", "1");
+    setHint("Verified.");
     if (quoteEl) quoteEl.hidden = false;
   });
 
@@ -771,7 +687,11 @@ document.addEventListener("DOMContentLoaded", () => {
     [-0.78, 0.06],[-0.95,-0.10],
   ];
 
-  async function playMorphSequence(epoch) {
+  function delay(ms) {
+    return new Promise((r) => window.setTimeout(r, ms));
+  }
+
+  async function playMorphSequence() {
     const bbox = boundsOf(DINO_DOTS);
 
     const crow = makeFromTemplate(TOTAL, bbox, CROW_TEMPLATE, 0.92, 0, -0.04);
@@ -781,16 +701,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const lizard = makeFromTemplate(TOTAL, bbox, LIZARD_TEMPLATE, 0.92, 0, 0.02);
     const human = makeHumanPoints(TOTAL, bbox);
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) return;
-    for (const points of [crow, flower, dog, hand, lizard, human]) {
-      if (epoch !== animationEpoch || !done) return;
-      if (!await morphTo(points, points === human ? 850 : 700, epoch)) return;
-      if (!await waitFor(250)) return;
-    }
+    await morphTo(crow, 700);    await delay(250);
+    await morphTo(flower, 700);  await delay(250);
+    await morphTo(dog, 700);     await delay(250);
+    await morphTo(hand, 700);    await delay(250);
+    await morphTo(lizard, 700);  await delay(250);
+    await morphTo(human, 850);
   }
 
-  function morphTo(targetPoints, durationMs, epoch) {
+  function morphTo(targetPoints, durationMs) {
     const from = dotNodes.map((n, i) => {
       const cx = Number(n.c.getAttribute("cx") || String(DINO_DOTS[i][0]));
       const cy = Number(n.c.getAttribute("cy") || String(DINO_DOTS[i][1]));
@@ -798,12 +717,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     return new Promise((resolve) => {
-      morphResolve = resolve;
       const t0 = performance.now();
       let frameCount = 0;
 
       function frame(now) {
-        if (epoch !== animationEpoch || !done) { morphResolve = null; resolve(false); return; }
         const t = Math.min(1, (now - t0) / durationMs);
         const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 
@@ -825,11 +742,11 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        if (t < 1) morphRaf = requestAnimationFrame(frame);
-        else { morphRaf = 0; morphResolve = null; resolve(true); }
+        if (t < 1) requestAnimationFrame(frame);
+        else resolve();
       }
 
-      morphRaf = requestAnimationFrame(frame);
+      requestAnimationFrame(frame);
     });
   }
 

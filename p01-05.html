@@ -6,22 +6,20 @@
   <title>Flower Assembly</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="p05.css" />
-  <link rel="stylesheet" href="common.css" />
-  <script src="common.js" defer></script>
 </head>
 
-<body class="p05-body" data-activity="5">
+<body class="p05-body">
   <main class="p05-sheet" id="p05-sheet">
     <header class="p05-top">
       <div class="p05-meta" aria-label="Meta information">
-        <div class="p05-meta-item"><span class="p05-ico" aria-hidden="true">◷</span><span class="p05-meta-text">2 MIN</span></div>
-        <div class="p05-meta-item"><span class="p05-ico" aria-hidden="true">◇</span><span class="p05-meta-text">1 PERSON</span></div>
-        <div class="p05-meta-item"><span class="p05-ico" aria-hidden="true">✧</span><span class="p05-meta-text">BEGINNER</span></div>
+        <div class="p05-meta-item"><span class="p05-ico">⏱</span><span class="p05-meta-text">2 MIN</span></div>
+        <div class="p05-meta-item"><span class="p05-ico">👤</span><span class="p05-meta-text">1 PERSON</span></div>
+        <div class="p05-meta-item"><span class="p05-ico">✂</span><span class="p05-meta-text">BEGINNER</span></div>
       </div>
+      <button class="p05-btn" id="p05-exit" type="button">EXIT</button>
     </header>
 
     <h1 class="p05-title">Product Assembly Manual: Flower</h1>
-    <p class="p05-intro" id="p05-instructions">Build a flower, one layer at a time. Select a part, then tap its marked position — or drag it into place.</p>
 
     <section class="p05-stage" id="p05-stage" aria-label="Assembly stage">
       <aside class="p05-tray" aria-label="Parts tray">
@@ -30,7 +28,7 @@
             Parts
             <span class="p05-hoverLabel" id="p05-hoverLabel" aria-live="polite"></span>
           </div>
-          <button class="p05-btn" id="p05-reset" type="button">Reset</button>
+          <button class="p05-btn" id="p05-reset" type="button">RESET</button>
         </div>
 
         <div class="p05-stickerfield" id="p05-stickerfield" aria-label="Parts sticker sheet">
@@ -147,8 +145,7 @@
       </aside>
 
       <section class="p05-board-wrap" aria-label="Assembly board and labels">
-        <div class="p05-board" id="p05-board" aria-label="Flower assembly board" aria-describedby="p05-instructions">
-          <div class="p05-board-step" id="p05-board-step">Step 1 of 4 · Protective base</div>
+        <div class="p05-board" id="p05-board">
           <svg class="p05-guide" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
             <g class="g-petal">
               <path d="M500 160 C 640 270, 700 430, 610 575 C 555 670, 545 720, 500 800 C 455 720, 445 670, 390 575 C 300 430, 360 270, 500 160 Z" transform="rotate(0 500 520)"/>
@@ -182,8 +179,7 @@
             <rect class="g-frame" x="140" y="140" width="720" height="720" rx="28"/>
           </svg>
 
-          <div class="p05-board-hint" id="p05-board-hint">Select the sepal to begin.</div>
-          <button type="button" class="p05-target" id="p05-target" aria-label="Place selected part" hidden><span aria-hidden="true">+</span></button>
+          <div class="p05-board-hint">Snap locks the part in place.</div>
 
           <div class="p05-slot" data-slot="sepal" data-x="160" data-y="560" data-w="680" data-h="340" data-z="1"></div>
 
@@ -214,13 +210,8 @@
       </section>
     </section>
 
-    <div class="p05-completion" id="p05-completion" hidden>
-      <div><p class="p05-completion-kicker">ASSEMBLY COMPLETE</p><h2>Your flower is ready.</h2><p>All 11 parts are in place. Keep this bloom, or explore another palette.</p></div>
-      <button class="p05-btn p05-btn-primary" id="p05-next-flower" type="button">Build another flower</button>
-    </div>
-
-    <details class="p05-manual">
-      <summary class="p05-manual-title">Assembly notes · 4 steps</summary>
+    <section class="p05-manual" aria-label="Product assembly manual">
+      <h2 class="p05-manual-title">Product Assembly Manual: Flower</h2>
       <p class="p05-manual-intro">
         This model is based on the reproductive structure of a typical camellia flower. Assemble all components in the order below.
       </p>
@@ -262,7 +253,7 @@
           </ul>
         </article>
       </div>
-    </details>
+    </section>
   </main>
 
   <script>
@@ -277,12 +268,7 @@
       const barEl = document.getElementById("p05-bar");
       const nextEl = document.getElementById("p05-next");
       const resetBtn = document.getElementById("p05-reset");
-      const targetBtn = document.getElementById("p05-target");
-      const completionEl = document.getElementById("p05-completion");
-      const nextFlowerBtn = document.getElementById("p05-next-flower");
-      const boardHint = document.getElementById("p05-board-hint");
-      const boardStep = document.getElementById("p05-board-step");
-      const progressBar = document.querySelector(".p05-bar[role='progressbar']");
+      const exitBtn = document.getElementById("p05-exit");
       const hoverLabelEl = document.getElementById("p05-hoverLabel");
 
       const parts = Array.from(document.querySelectorAll(".p05-sticker[data-part]"));
@@ -295,9 +281,8 @@
       const done = new Set();
       let dragging = null;
       let ghost = null;
-      let selectedPart = null;
-      let pointerStart = null;
-      let suppressClick = false;
+      let wideTimer = null;
+      let loopTimer = null;
       let roundIndex = 0;
 
       const PALETTES = [
@@ -355,7 +340,7 @@
         if (partId === "sepal") return "Sepal";
         if (partId === "stamen") return "Stamen";
         if (partId === "pistil") return "Pistil";
-        if (PETALS.includes(partId)) return "Petal " + (PETALS.indexOf(partId) + 1);
+        if (PETALS.includes(partId)) return "Petal";
         return "Part";
       }
 
@@ -472,6 +457,26 @@
         return { rect: r, side, offsetX, offsetY };
       }
 
+      function slotRectClient(slotEl) {
+        const fit = boardFit();
+        const x = Number(slotEl.dataset.x);
+        const y = Number(slotEl.dataset.y);
+        const w = Number(slotEl.dataset.w);
+        const h = Number(slotEl.dataset.h);
+
+        const left = fit.rect.left + fit.offsetX + (x / 1000) * fit.side;
+        const top  = fit.rect.top  + fit.offsetY + (y / 1000) * fit.side;
+        const width  = (w / 1000) * fit.side;
+        const height = (h / 1000) * fit.side;
+
+        return { left, top, width, height };
+      }
+
+      function slotCenterClient(slotEl) {
+        const r = slotRectClient(slotEl);
+        return { cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
+      }
+
       function clearSlotStates() {
         slots.forEach(s => s.classList.remove("is-active", "is-error"));
       }
@@ -489,40 +494,28 @@
 
       function progressUpdate() {
         const percent = Math.round((done.size / total) * 100);
-        pctEl.textContent = done.size + " / " + total;
+        pctEl.textContent = percent + "%";
         barEl.style.width = percent + "%";
-        progressBar.setAttribute("aria-valuenow", String(percent));
-        progressBar.setAttribute("aria-valuetext", done.size + " of " + total + " parts installed");
+        board.parentElement?.querySelector("[role='progressbar']")?.setAttribute("aria-valuenow", String(percent));
+
         const req = nextRequiredGroup();
-        parts.forEach(part => {
-          part.classList.toggle("is-ready", !done.has(part.dataset.part) && isPartAllowedNow(part.dataset.part));
-        });
         if (!req) {
           nextEl.textContent = "Complete";
-          boardStep.textContent = "11 parts · One flower";
-          setStatus("Assembly complete. Your flower is ready.", false);
-          sheet.classList.add("is-complete");
-          completionEl.hidden = false;
-          labelPanel.setAttribute("aria-hidden", "false");
-          targetBtn.hidden = true;
-          boardHint.textContent = "A flower, assembled by you.";
-          window.CaptchaProgress?.complete('5');
+          setStatus("All components installed. Loading the next flower.", false);
+
+          clearTimeout(loopTimer);
+          loopTimer = setTimeout(() => {
+            roundIndex = (roundIndex + 1) % PALETTES.length;
+            hardReset();
+            applyRoundPalette();
+            setStatus("A new flower has been generated.", false);
+          }, 900);
+
           return;
         }
-        const steps = {
-          sepal: [1, "Protective base", "Select the sepal to begin."],
-          petal: [2, "Corolla", "Choose a petal and place it around the centre."],
-          stamen: [3, "Stamens", "Select the stamen to add the pollen-bearing tips."],
-          pistil: [4, "Pistil", "Add the pistil to complete your flower."]
-        };
-        const [step, title, hint] = steps[req];
-        boardStep.textContent = "Step " + step + " of 4 · " + title;
-        const petalsDone = PETALS.filter(id => done.has(id)).length;
-        nextEl.textContent = req === "petal" ? "Petals " + petalsDone + " / 8" : "Next: " + displayName(req);
-        boardHint.textContent = hint;
-        document.querySelectorAll(".p05-step").forEach((el, index) => {
-          el.classList.toggle("is-current", index === step - 1);
-        });
+
+        if (req === "petal") nextEl.textContent = "Next: Petal";
+        else nextEl.textContent = "Next: " + displayName(req);
       }
 
       const PETAL_D = "M500 160 C 640 270, 700 430, 610 575 C 555 670, 545 720, 500 800 C 455 720, 445 670, 390 575 C 300 430, 360 270, 500 160 Z";
@@ -639,56 +632,26 @@
         return wrap;
       }
 
-      function anchorFor(partId) {
-        if (PETALS.includes(partId)) {
-          const angle = PETAL_ROT[partId] * Math.PI / 180;
-          return { x: 500 + 250 * Math.sin(angle), y: 520 - 250 * Math.cos(angle) };
-        }
-        return { sepal: {x: 500, y: 740}, stamen: {x: 500, y: 350}, pistil: {x: 500, y: 550} }[partId];
-      }
-
       function positionGhost(partId, clientX, clientY) {
         if (!ghost) return;
+
         const fit = boardFit();
-        const anchor = anchorFor(partId);
         ghost.style.width = fit.side + "px";
         ghost.style.height = fit.side + "px";
-        ghost.style.left = (clientX - anchor.x / 1000 * fit.side) + "px";
-        ghost.style.top = (clientY - anchor.y / 1000 * fit.side) + "px";
-      }
 
-      function selectPart(part, keyboard = false) {
-        const partId = part.dataset.part;
-        if (done.has(partId)) return false;
-        if (!isPartAllowedNow(partId)) {
-          const required = nextRequiredGroup();
-          setStatus("Start with " + (required === "petal" ? "a petal" : "the " + displayName(required).toLowerCase()) + ". Follow the highlighted parts.", true);
-          return false;
+        const slotEl = slots.find(s => s.dataset.slot === partId);
+        if (!slotEl) {
+          ghost.style.left = (clientX - fit.side / 2) + "px";
+          ghost.style.top  = (clientY - fit.side / 2) + "px";
+          return;
         }
-        selectedPart = part;
-        parts.forEach(el => {
-          const selected = el === part;
-          el.classList.toggle("is-selected", selected);
-          el.setAttribute("aria-pressed", String(selected));
-        });
-        const anchor = anchorFor(partId);
-        targetBtn.style.left = anchor.x / 10 + "%";
-        targetBtn.style.top = anchor.y / 10 + "%";
-        targetBtn.hidden = false;
-        targetBtn.setAttribute("aria-label", "Place " + displayName(partId).toLowerCase() + " in its marked position");
-        boardHint.textContent = "Place " + displayName(partId).toLowerCase() + " at the + marker.";
-        setStatus(displayName(partId) + " selected. Tap the + marker.", false);
-        if (keyboard) targetBtn.focus({preventScroll: true});
-        return true;
-      }
 
-      function clearSelection() {
-        selectedPart = null;
-        targetBtn.hidden = true;
-        parts.forEach(el => {
-          el.classList.remove("is-selected");
-          el.setAttribute("aria-pressed", "false");
-        });
+        const c = slotCenterClient(slotEl);
+        const left = clientX - (c.cx - (fit.rect.left + fit.offsetX));
+        const top  = clientY - (c.cy - (fit.rect.top  + fit.offsetY));
+
+        ghost.style.left = left + "px";
+        ghost.style.top  = top + "px";
       }
 
       function showGhost(partId, clientX, clientY) {
@@ -736,141 +699,132 @@
       }
 
       function isInsideSlot(partId, clientX, clientY) {
-        const fit = boardFit();
-        const anchor = anchorFor(partId);
-        const x = fit.rect.left + fit.offsetX + anchor.x / 1000 * fit.side;
-        const y = fit.rect.top + fit.offsetY + anchor.y / 1000 * fit.side;
-        // A forgiving ring around the part's own anchor, rather than one shared rectangle.
-        const tolerance = Math.max(28, fit.side * 0.13);
-        return Math.hypot(clientX - x, clientY - y) <= tolerance;
+        const slotEl = slots.find(s => s.dataset.slot === partId);
+        if (!slotEl) return false;
+        const r = slotRectClient(slotEl);
+
+        return (
+          clientX >= r.left &&
+          clientX <= r.left + r.width &&
+          clientY >= r.top &&
+          clientY <= r.top + r.height
+        );
       }
 
-      function placeSelected(clientX, clientY) {
-        if (!selectedPart) return;
-        const part = selectedPart;
-        const partId = part.dataset.part;
-        if (!isPartAllowedNow(partId) || done.has(partId)) return;
-        if (!isInsideSlot(partId, clientX, clientY)) {
-          setStatus("Almost there. Place the part closer to the + marker.", true);
+      function dropAt(clientX, clientY) {
+        if (!dragging) return;
+
+        const partId = dragging.dataset.part;
+
+        clearSlotStates();
+        setStatus("", false);
+
+        if (!isPartAllowedNow(partId)) {
+          const req = nextRequiredGroup();
+          const msg = (req === "petal")
+            ? "Wrong order. Place Petal next."
+            : "Wrong order. Place " + displayName(req) + " next.";
+          setStatus(msg, true);
           shake();
           return;
         }
-        const keyboardPlacement = document.activeElement === targetBtn;
-        done.add(partId);
-        part.classList.add("is-done");
-        part.disabled = true;
-        part.setAttribute("aria-label", displayName(partId) + " · installed");
-        lockPart(partId);
-        clearSelection();
-        setStatus(displayName(partId) + " locked in place.", false);
-        progressUpdate();
-        if (keyboardPlacement) {
-          const nextPart = parts.find(el => !el.disabled && isPartAllowedNow(el.dataset.part));
-          (nextPart || nextFlowerBtn).focus({preventScroll: true});
+
+        if (!isInsideSlot(partId, clientX, clientY)) {
+          setStatus("Misaligned. Place the part inside its guide silhouette.", true);
+          shake();
+          const slotEl = slots.find(s => s.dataset.slot === partId);
+          slotEl?.classList.add("is-error");
+          return;
         }
+
+        done.add(partId);
+        dragging.classList.add("is-done");
+        dragging.setAttribute("disabled", "disabled");
+
+        lockPart(partId);
+        const slotEl = slots.find(s => s.dataset.slot === partId);
+        slotEl?.classList.add("is-active");
+
+        setStatus("Locked in place.", false);
+        progressUpdate();
       }
 
       function onPointerDown(e) {
-        if (e.button !== 0 || !selectPart(e.currentTarget)) return;
-        dragging = e.currentTarget;
-        pointerStart = { x: e.clientX, y: e.clientY, id: e.pointerId };
-        dragging.setPointerCapture?.(e.pointerId);
+        const btn = e.currentTarget;
+        if (btn.classList.contains("is-done")) return;
+        if (sheet.classList.contains("is-complete")) return;
+
+        dragging = btn;
+        btn.classList.add("is-dragging");
+        document.body.style.userSelect = "none";
+        btn.setPointerCapture?.(e.pointerId);
+
+        showGhost(btn.dataset.part, e.clientX, e.clientY);
       }
 
       function onPointerMove(e) {
-        if (!dragging || !pointerStart || e.pointerId !== pointerStart.id) return;
-        if (!ghost && Math.hypot(e.clientX - pointerStart.x, e.clientY - pointerStart.y) > 7) {
-          dragging.classList.add("is-dragging");
-          document.body.style.userSelect = "none";
-          showGhost(dragging.dataset.part, e.clientX, e.clientY);
-        }
-        if (ghost) positionGhost(dragging.dataset.part, e.clientX, e.clientY);
-      }
-
-      function stopDrag() {
-        if (dragging && pointerStart && dragging.hasPointerCapture?.(pointerStart.id)) {
-          dragging.releasePointerCapture(pointerStart.id);
-        }
-        dragging?.classList.remove("is-dragging");
-        dragging = null;
-        pointerStart = null;
-        hideGhost();
-        document.body.style.userSelect = "";
+        if (!dragging || !ghost) return;
+        positionGhost(dragging.dataset.part, e.clientX, e.clientY);
       }
 
       function onPointerUp(e) {
-        if (!dragging || !pointerStart || e.pointerId !== pointerStart.id) return;
-        const wasDrag = !!ghost;
-        stopDrag();
-        if (wasDrag) {
-          suppressClick = true;
-          placeSelected(e.clientX, e.clientY);
-          setTimeout(() => { suppressClick = false; }, 0);
-        }
+        if (!dragging) return;
+
+        dragging.classList.remove("is-dragging");
+        hideGhost();
+        document.body.style.userSelect = "";
+
+        const r = board.getBoundingClientRect();
+        const overBoard = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+        if (overBoard) dropAt(e.clientX, e.clientY);
+
+        dragging = null;
       }
 
       function hardReset() {
-        stopDrag();
-        clearSelection();
         done.clear();
         fixedLayer.innerHTML = "";
-        parts.forEach(part => {
-          part.classList.remove("is-done", "is-dragging");
-          part.disabled = false;
-          part.setAttribute("aria-label", displayName(part.dataset.part));
+        parts.forEach(p => {
+          p.classList.remove("is-done", "is-dragging");
+          p.removeAttribute("disabled");
         });
         clearSlotStates();
         sheet.classList.remove("is-complete", "is-wide");
-        labelPanel.setAttribute("aria-hidden", "true");
-        completionEl.hidden = true;
+        labelPanel?.setAttribute("aria-hidden", "true");
+        clearTimeout(wideTimer);
+        clearTimeout(loopTimer);
+
         progressUpdate();
-        setStatus("Select the sepal to start your flower.", false);
       }
 
       parts.forEach(btn => {
-        const label = document.createElement("span");
-        label.className = "p05-piece-name";
-        label.textContent = displayName(btn.dataset.part);
-        btn.appendChild(label);
-        btn.setAttribute("aria-label", displayName(btn.dataset.part));
-        btn.setAttribute("aria-pressed", "false");
-        btn.style.order = String(ALL.indexOf(btn.dataset.part));
         btn.addEventListener("pointerdown", onPointerDown);
-        btn.addEventListener("click", e => {
-          if (!suppressClick) selectPart(btn, e.detail === 0);
+
+        btn.addEventListener("mouseenter", () => {
+          hoverLabelEl.textContent = displayName(btn.dataset.part);
         });
-        btn.addEventListener("mouseenter", () => { hoverLabelEl.textContent = displayName(btn.dataset.part); });
-        btn.addEventListener("mouseleave", () => { hoverLabelEl.textContent = ""; });
+        btn.addEventListener("mouseleave", () => {
+          hoverLabelEl.textContent = "";
+        });
       });
 
-      board.addEventListener("click", e => {
-        if (!selectedPart || suppressClick) return;
-        if (e.target.closest(".p05-target")) {
-          const fit = boardFit();
-          const anchor = anchorFor(selectedPart.dataset.part);
-          placeSelected(fit.rect.left + fit.offsetX + anchor.x / 1000 * fit.side, fit.rect.top + fit.offsetY + anchor.y / 1000 * fit.side);
-        } else {
-          placeSelected(e.clientX, e.clientY);
-        }
-      });
       window.addEventListener("pointermove", onPointerMove);
       window.addEventListener("pointerup", onPointerUp);
-      window.addEventListener("pointercancel", stopDrag);
-      window.addEventListener("blur", stopDrag);
-      window.addEventListener("keydown", e => {
-        if (e.key === "Escape") {
-          stopDrag();
-          clearSelection();
-          progressUpdate();
-          setStatus("Selection cleared.", false);
+      window.addEventListener("resize", () => {
+        if (dragging && ghost) {
+          const fit = boardFit();
+          ghost.style.width = fit.side + "px";
+          ghost.style.height = fit.side + "px";
         }
       });
-      resetBtn.addEventListener("click", hardReset);
-      nextFlowerBtn.addEventListener("click", () => {
-        roundIndex = (roundIndex + 1) % PALETTES.length;
+
+      resetBtn.addEventListener("click", () => {
         hardReset();
-        applyRoundPalette();
-        parts.find(part => part.dataset.part === "sepal").focus({preventScroll: true});
+        setStatus("", false);
+      });
+
+      exitBtn?.addEventListener("click", () => {
+        window.location.href = "index.html";
       });
 
       applyRoundPalette();

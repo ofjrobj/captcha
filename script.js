@@ -1,68 +1,192 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const progress = window.CaptchaProgress;
-  const ids = ['3', '4', '5', '6', '8'];
-  const grid = document.getElementById('captchaGrid');
-  const tiles = [...grid.querySelectorAll('.tile')];
-  const verify = document.getElementById('verifyBtn');
-  const message = document.getElementById('collectionMessage');
-  const info = document.getElementById('collectionInfo');
-  const infoButton = document.getElementById('infoBtn');
-  const ending = document.getElementById('ending');
-  let timer = null;
-  let verifying = false;
-  function render() {
-    const state = progress.read();
-    tiles.forEach(tile => {
-      const id = tile.dataset.tile;
-      tile.classList.toggle('is-visited', state.visited.includes(id));
-      tile.classList.toggle('is-completed', state.completed.includes(id));
-      if (ids.includes(id)) {
-        if (!tile.dataset.baseLabel) tile.dataset.baseLabel = tile.getAttribute('aria-label');
-        const status = state.completed.includes(id) ? 'Completed' : state.visited.includes(id) ? 'Explored' : 'Not explored';
-        tile.setAttribute('aria-label', `${tile.dataset.baseLabel} — ${status}`);
-      }
-      const badge = tile.querySelector('.tile-status');
-      if (badge) badge.textContent = state.completed.includes(id) ? '✓' : '•';
+document.addEventListener("DOMContentLoaded", () => {
+  const grid = document.getElementById("captchaGrid");
+  if (!grid) return;
+
+  const REQUIRED_TILES = ["3", "4", "5", "6", "8"];
+  const SELECTABLE = new Set(REQUIRED_TILES);
+  const KEY_VISITED = "p01_visited_tiles_v8";
+
+  const tiles = Array.from(document.querySelectorAll(".tile[data-tile]"));
+  const resetBtn = document.getElementById("resetBtn");
+  const verifyBtn = document.getElementById("verifyBtn");
+  const infoBtn = document.querySelector('.icon-btn[aria-label="info"]');
+
+  let verified = false;
+  let endTimer = null;
+
+  // 꽃 사진 타일만 선택 가능하도록 클래스 부여
+  tiles.forEach((tile) => {
+    const id = String(tile.dataset.tile || "");
+    if (SELECTABLE.has(id)) tile.classList.add("is-selectable");
+  });
+
+  ensureInfoBubble();
+  ensureEndScreen();
+
+  const visited = new Set(loadVisited());
+  applyVisitedClasses();
+
+  // 타일 클릭
+  tiles.forEach((tile) => {
+    tile.addEventListener("click", () => {
+      const id = String(tile.dataset.tile || "");
+      if (!id) return;
+
+      document.body.classList.remove("is-info-on");
+
+      // 1,2,7,9는 눌러도 아무 변화 없음
+      if (!SELECTABLE.has(id)) return;
+
+      // 꽃 사진 타일만 방문 기록 저장
+      visited.add(id);
+      persistVisited();
+      tile.classList.add("is-visited");
     });
-    document.getElementById('exploreCount').textContent = `${state.visited.length} / 5 explored`;
-    document.getElementById('completeCount').textContent = state.completed.length ? `${state.completed.length} ${state.completed.length === 1 ? 'activity' : 'activities'} completed` : 'Five ways to see a flower';
-    message.textContent = state.visited.length === 5 ? 'All five explored. Ready to verify?' : state.visited.length ? 'Welcome back. There is more to discover.' : 'Choose a flower to begin.';
-  }
-  tiles.forEach(tile => tile.addEventListener('click', event => {
-    if (verifying) { event.preventDefault(); return; }
-    const id = tile.dataset.tile;
-    if (ids.includes(id)) progress.visit(id);
-    else message.textContent = 'This tile has no activity. Choose one of the five open flowers.';
-  }));
-  infoButton.addEventListener('click', () => {
-    info.hidden = !info.hidden;
-    infoButton.setAttribute('aria-expanded', String(!info.hidden));
   });
-  function unlock() {
-    window.clearTimeout(timer); timer = null; verifying = false;
-    verify.disabled = false; grid.classList.remove('is-verified'); grid.removeAttribute('inert');
+
+  // i 버튼 토글
+  if (infoBtn) {
+    infoBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      document.body.classList.toggle("is-info-on");
+    });
   }
-  function reset() {
-    unlock(); if (ending.open) ending.close(); progress.reset(); render();
-    document.getElementById('resetBtn').focus();
+
+  // 말풍선 바깥 클릭하면 닫기
+  document.addEventListener("click", (e) => {
+    const bubble = document.getElementById("p01InfoBubble");
+    const isClickOnInfo =
+      (infoBtn && infoBtn.contains(e.target)) ||
+      (bubble && bubble.contains(e.target));
+
+    if (!isClickOnInfo) document.body.classList.remove("is-info-on");
+  });
+
+  // VERIFY
+  if (verifyBtn) {
+    verifyBtn.addEventListener("click", () => {
+      if (verified) return;
+
+      const allVisited = REQUIRED_TILES.every((id) => visited.has(id));
+      if (!allVisited) {
+        shakeVerify();
+        return;
+      }
+
+      verified = true;
+      grid.classList.add("is-verified");
+      document.body.classList.remove("is-info-on");
+
+      clearEndTimer();
+      endTimer = window.setTimeout(() => {
+        document.body.classList.add("p01-end-on");
+      }, 3000);
+    });
   }
-  verify.addEventListener('click', () => {
-    if (verifying) return;
-    const remaining = ids.filter(id => !progress.read().visited.includes(id));
-    if (remaining.length) {
-      message.textContent = `Explore ${remaining.length} more ${remaining.length === 1 ? 'flower' : 'flowers'} before you verify. Unvisited tiles have no dot or check.`;
-      grid.querySelector(`[data-tile="${remaining[0]}"]`).focus();
-      return;
+
+  // RESET
+  if (resetBtn) resetBtn.addEventListener("click", resetAll);
+
+  const endResetBtn = document.getElementById("p01EndReset");
+  if (endResetBtn) endResetBtn.addEventListener("click", resetAll);
+
+  function resetAll() {
+    clearEndTimer();
+
+    verified = false;
+    document.body.classList.remove("p01-end-on");
+    document.body.classList.remove("is-info-on");
+    grid.classList.remove("is-verified");
+
+    visited.clear();
+    sessionStorage.removeItem(KEY_VISITED);
+
+    tiles.forEach((t) => t.classList.remove("is-visited"));
+    if (verifyBtn) verifyBtn.classList.remove("is-shake");
+  }
+
+  function ensureInfoBubble() {
+    const footer = document.querySelector(".footer-ui");
+    if (!footer) return;
+
+    if (document.getElementById("p01InfoBubble")) return;
+
+    const bubble = document.createElement("div");
+    bubble.id = "p01InfoBubble";
+    bubble.className = "p01-infobubble";
+    bubble.textContent = "이미지를 클릭하세요.";
+
+    footer.appendChild(bubble);
+  }
+
+  function ensureEndScreen() {
+    if (document.getElementById("p01EndScreen")) return;
+
+    const end = document.createElement("div");
+    end.id = "p01EndScreen";
+    end.className = "p01-end-screen";
+
+    const inner = document.createElement("div");
+    inner.className = "p01-end-inner";
+
+    const p = document.createElement("p");
+    p.className = "p01-end-text";
+    p.textContent =
+      "Funny thing is, we’ve been looking at photos this whole time — not real flowers. Just images of flowers, as you already know.";
+
+    inner.appendChild(p);
+    end.appendChild(inner);
+
+    const reset = document.createElement("button");
+    reset.type = "button";
+    reset.id = "p01EndReset";
+    reset.className = "p01-end-reset";
+    reset.setAttribute("aria-label", "refresh");
+
+    const icon = document.createElement("span");
+    icon.textContent = "↻";
+    reset.appendChild(icon);
+
+    document.body.appendChild(end);
+    document.body.appendChild(reset);
+  }
+
+  function clearEndTimer() {
+    if (endTimer !== null) {
+      window.clearTimeout(endTimer);
+      endTimer = null;
     }
-    verifying = true; verify.disabled = true; grid.setAttribute('inert', ''); grid.classList.add('is-verified');
-    message.textContent = 'A final thought…';
-    timer = window.setTimeout(() => { ending.showModal(); document.getElementById('endReturn').focus(); }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 650);
-  });
-  ending.addEventListener('close', () => { unlock(); render(); verify.focus(); });
-  document.getElementById('endReturn').addEventListener('click', () => ending.close());
-  document.getElementById('resetBtn').addEventListener('click', reset);
-  document.getElementById('endReset').addEventListener('click', reset);
-  window.addEventListener('captcha:progress', render);
-  window.addEventListener('pageshow', () => { if (!ending.open) unlock(); render(); });
-  render();
+  }
+
+  function loadVisited() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(KEY_VISITED) || "[]");
+      if (!Array.isArray(saved)) return [];
+      return saved.map((v) => String(v)).filter((id) => SELECTABLE.has(id));
+    } catch {
+      return [];
+    }
+  }
+
+  function persistVisited() {
+    sessionStorage.setItem(KEY_VISITED, JSON.stringify(Array.from(visited)));
+  }
+
+  function applyVisitedClasses() {
+    tiles.forEach((tile) => {
+      const id = String(tile.dataset.tile || "");
+      if (!id) return;
+
+      if (visited.has(id)) tile.classList.add("is-visited");
+      else tile.classList.remove("is-visited");
+    });
+  }
+
+  function shakeVerify() {
+    if (!verifyBtn) return;
+    verifyBtn.classList.remove("is-shake");
+    void verifyBtn.offsetWidth;
+    verifyBtn.classList.add("is-shake");
+  }
 });
