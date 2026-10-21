@@ -416,6 +416,14 @@
     .chanceCount { font-size:12px; line-height:1; font-weight:600; letter-spacing:.035em; font-variant-numeric:tabular-nums; color:#6792bf; }
     .stageWrap { margin-top:var(--game-space-4); border:1px solid var(--game-line); border-radius:var(--game-radius-panel); }
     canvas { height:clamp(220px, calc(100dvh - 390px), 360px); }
+    .runnerControls { display:flex; gap:var(--game-space-3); margin-top:var(--game-space-3); }
+    .runnerControls .runnerAction { flex:1; min-height:52px; justify-content:center; gap:10px; touch-action:none; user-select:none; }
+    .runnerAction svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+    .runnerAction span { display:flex; gap:12px; align-items:center; }
+    .runnerAction small { font-size:11px; font-weight:500; opacity:.8; }
+    .runnerAction[aria-pressed="true"] { background:var(--game-accent); color:white; border-color:var(--game-accent); }
+    .touchHelp { margin:8px 0 0; color:#678bb1; font-size:var(--game-caption-size); line-height:var(--game-leading); }
+    @media (max-width:520px) { .runnerAction span { flex-direction:column; gap:1px; } .runnerControls { gap:8px; } }
     .note { margin-top:var(--game-space-3); min-height:22px; font-size:var(--game-caption-size); line-height:var(--game-leading); color:#678bb1; }
     .receiptHeader { color:var(--blue); font-size:var(--game-body-size); line-height:var(--game-leading); letter-spacing:.025em; font-weight:650; }
     .receiptNumber { font-variant-numeric:tabular-nums; color:var(--blue); }
@@ -470,7 +478,7 @@
             <div class="topRow">
                 <div class="leftMeta">
                     <p class="gameTitle">Prove it by running</p>
-                    <p class="gameSub">Press Space or click to jump. Press Shift or S to duck. On touch screens, tap to jump or swipe down and hold to duck. Avoid obstacles and keep going.</p>
+                    <p class="gameSub">Jump over ground obstacles. Hold Duck to pass under floating bars. Avoid obstacles and keep going.</p>
 
                     <!-- chances only -->
                     <div class="chanceRow">
@@ -493,6 +501,17 @@
                 <div class="hitFlash" id="hitFlash" aria-hidden="true"></div>
             </div>
 
+            <div class="runnerControls" aria-label="Game controls">
+                <button class="btn runnerAction" id="btnJump" type="button" disabled>
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 16V4m-5 5 5-5 5 5"/></svg>
+                    <span>Jump <small>Space / ↑</small></span>
+                </button>
+                <button class="btn runnerAction" id="btnDuck" type="button" aria-pressed="false" disabled>
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12m-5-5 5 5 5-5"/></svg>
+                    <span>Hold to duck <small>Shift / S / ↓</small></span>
+                </button>
+            </div>
+            <p class="touchHelp">Or tap the game to jump; swipe down and hold to duck.</p>
             <div class="note" id="note" role="status" aria-live="polite">
                 A round ends when you survive long enough. The game stops after each round. Press Start to continue.
             </div>
@@ -822,6 +841,8 @@
             const btnStart = document.getElementById("btnStart");
             const btnRetry = document.getElementById("btnRetry");
             const btnReset = document.getElementById("btnReset");
+            const btnJump = document.getElementById("btnJump");
+            const btnDuck = document.getElementById("btnDuck");
 
             const roundPill = document.getElementById("roundPill");
             const note = document.getElementById("note");
@@ -887,6 +908,8 @@
             let pausedDucking = false;
             let resumeDuckGrace = 0;
             let touchGesture = null;
+            let duckPointerId = null;
+            let duckButtonKey = false;
             const duckKeys = new Set();
 
             // round tuning (this is where you adjust rounds)
@@ -895,11 +918,17 @@
             }
             function speedFor(r) {
                 const widthScale = Math.max(.48, Math.min(1, canvas.clientWidth / 800));
-                return (340 + Math.min(r * 8, 380)) * widthScale;
+                const baseSpeed = (340 + Math.min(r * 8, 380)) * widthScale;
+                // Give the player at least 1.35 seconds after an obstacle first appears.
+                const visibleRunway = Math.max(100, canvas.clientWidth - player.x - 12);
+                return Math.min(baseSpeed, visibleRunway / 1.35);
             }
             function spawnIntervalFor(r) {
-                // Leave enough time to land before another jump/duck decision.
-                return Math.max(.98, 1.22 - Math.min(r * .004, .24));
+                // Even on a narrow screen, leave a full jump plus clearance between decisions.
+                const widthScale = Math.max(.65, Math.min(1, canvas.clientWidth / 520));
+                const clearanceTime = (64 * widthScale + player.w) / speedFor(r);
+                const jumpTime = -2 * jumpV / gravity;
+                return Math.max(1.22 - Math.min(r * .004, .24), jumpTime + clearanceTime + .18);
             }
 
             let shownRound = null;
@@ -921,6 +950,8 @@
                 mode = m;
                 document.getElementById("btnStartLabel").textContent = mode === "paused" ? "Resume" : "Start";
                 btnReset.disabled = mode === "running";
+                btnJump.disabled = mode !== "running";
+                btnDuck.disabled = mode !== "running";
                 setRoundLabel();
                 if (mode === "paused") {
                     btnStart.disabled = false;
@@ -954,6 +985,11 @@
                 jumpBuffer = 0;
                 duckRequested = false;
                 duckKeys.clear();
+                duckButtonKey = false;
+                const pointerId = duckPointerId;
+                duckPointerId = null;
+                if (pointerId !== null) { try { btnDuck.releasePointerCapture(pointerId); } catch {} }
+                btnDuck.setAttribute("aria-pressed", "false");
                 if (touchGesture) {
                     const pointerId = touchGesture.id;
                     touchGesture = null;
@@ -1068,13 +1104,15 @@
                 const r = Math.random();
                 const type =
                     r < 0.55 ? "block" :
-                        r < 0.80 ? "tri" :
+                        (r < 0.80 || round <= 2) ? "tri" :
                             "lowbar";
 
                 const speed = speedFor(round);
+                // Scale width, not height: a slow mobile obstacle must still fit within one jump.
+                const widthScale = Math.max(.65, Math.min(1, canvas.clientWidth / 520));
 
                 if (type === "block") {
-                    const w = 18 + Math.random() * 22;
+                    const w = (18 + Math.random() * 22) * widthScale;
                     const h = 20 + Math.random() * 28;
                     obstacles.push({
                         type, x: canvas.clientWidth + 40,
@@ -1086,7 +1124,7 @@
                 }
 
                 if (type === "tri") {
-                    const w = 22 + Math.random() * 18;
+                    const w = (22 + Math.random() * 18) * widthScale;
                     const h = 18 + Math.random() * 24;
                     obstacles.push({
                         type, x: canvas.clientWidth + 40,
@@ -1098,7 +1136,7 @@
                 }
 
                 // lowbar (duck)
-                const w = 34 + Math.random() * 30;
+                const w = (34 + Math.random() * 30) * widthScale;
                 const h = 12 + Math.random() * 10;
                 // Include the original figure's head: ducked height is 52px.
                 const clearance = 58 + Math.random() * 5;
@@ -1113,7 +1151,7 @@
             // Keep the original keyboard/click controls, plus direct touch gestures.
             function doJump() {
                 if (!running) return;
-                jumpBuffer = .12;
+                jumpBuffer = .16;
                 if (!player.onGround) return;
                 player.vy = jumpV;
                 player.onGround = false;
@@ -1122,9 +1160,10 @@
             function setDuck(on) {
                 duckRequested = (running || mode === "paused") && on;
                 if (running) player.duck = duckRequested || resumeDuckGrace > 0;
+                btnDuck.setAttribute("aria-pressed", String(duckRequested));
             }
             function syncDuckInput() {
-                setDuck(duckKeys.size > 0 || Boolean(touchGesture && touchGesture.duck));
+                setDuck(duckKeys.size > 0 || duckPointerId !== null || duckButtonKey || Boolean(touchGesture && touchGesture.duck));
             }
 
             window.addEventListener("keydown", (e) => {
@@ -1132,10 +1171,12 @@
                 // Clear a Shift pressed before Command as well as Command-first chords.
                 if (e.metaKey || e.ctrlKey || e.altKey || /^(Meta|Control|Alt)/.test(e.code)) {
                     duckKeys.clear();
+                    duckButtonKey = false;
                     syncDuckInput();
                     return;
                 }
                 if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+                if ((e.target === btnJump || e.target === btnDuck) && ["Space", "Enter"].includes(e.code)) return;
                 if (e.code === "Escape") { if (running) { e.preventDefault(); pauseRound(); } return; }
                 if (!running) return;
                 if (e.code === "Space" || e.code === "ArrowUp") {
@@ -1148,6 +1189,42 @@
             window.addEventListener("keyup", (e) => {
                 if (duckKeys.delete(e.code)) syncDuckInput();
             });
+            // Dedicated controls react on press, without waiting for a touch release.
+            btnJump.addEventListener("pointerdown", e => {
+                if (!running || e.isPrimary === false || e.button > 0) return;
+                e.preventDefault();
+                doJump();
+            });
+            btnJump.addEventListener("click", e => {
+                if (e.detail === 0) doJump(); // Keyboard and assistive activation.
+            });
+            btnDuck.addEventListener("pointerdown", e => {
+                if (!running || e.isPrimary === false || e.button > 0) return;
+                e.preventDefault();
+                duckPointerId = e.pointerId;
+                try { btnDuck.setPointerCapture(e.pointerId); } catch {}
+                syncDuckInput();
+            });
+            function releaseDuckButton(e) {
+                if (e.pointerId !== duckPointerId) return;
+                duckPointerId = null;
+                try { btnDuck.releasePointerCapture(e.pointerId); } catch {}
+                syncDuckInput();
+            }
+            for (const event of ["pointerup", "pointercancel", "lostpointercapture"]) btnDuck.addEventListener(event, releaseDuckButton);
+            btnDuck.addEventListener("keydown", e => {
+                if (!running || e.metaKey || e.ctrlKey || e.altKey || !["Space", "Enter"].includes(e.code)) return;
+                e.preventDefault();
+                duckButtonKey = true;
+                syncDuckInput();
+            });
+            btnDuck.addEventListener("keyup", e => {
+                if (!["Space", "Enter"].includes(e.code)) return;
+                e.preventDefault();
+                duckButtonKey = false;
+                syncDuckInput();
+            });
+            btnDuck.addEventListener("blur", () => { duckButtonKey = false; syncDuckInput(); });
             canvas.addEventListener("pointerdown", (e) => {
                 if (!running || !e.isPrimary) return;
                 e.preventDefault();
@@ -1203,7 +1280,7 @@
                     if (resumeDuckGrace === 0 && barOverhead) resumeDuckGrace = .05;
                 }
                 player.duck = duckRequested || resumeDuckGrace > 0;
-                player.h = player.duck ? duckH : baseH;
+                player.h = player.duck && player.onGround ? duckH : baseH;
                 jumpBuffer = Math.max(0, jumpBuffer - dt);
 
                 if (!player.onGround) {
@@ -1225,23 +1302,35 @@
                 for (const o of obstacles) o.x += o.vx * dt;
                 obstacles = obstacles.filter(o => o.x + o.w > -80);
 
-                // collision boxes
+                // Use the visible pose: jumping feet stop 5px above the anchor.
+                // A held duck key must not shrink the upright airborne silhouette.
+                const duckedOnGround = player.duck && player.onGround;
+                const bodyTop = duckedOnGround ? duckH + 18 : baseH + 18;
+                const footBottom = player.onGround ? -2 : -5;
                 const pBox = {
                     x: player.x - player.w / 2 + 2,
-                    y: player.y - player.h - 18,
+                    y: player.y - bodyTop,
                     w: player.w - 4,
-                    h: player.h + 16
+                    h: bodyTop + footBottom
                 };
 
                 for (const o of obstacles) {
                     if (o.type === "tri") {
-                        const b = { x:o.x + 4, y:o.y - o.h + 4, w:o.w - 8, h:o.h - 4 };
-                        if (rectsOverlap(pBox, b)) {
+                        // A triangle is not a solid rectangle: test its sloped edge at
+                        // the lowest point of the body, with a small forgiving inset.
+                        const bodyBottom = Math.min(o.y - 1, pBox.y + pBox.h);
+                        const depth = bodyBottom - (o.y - o.h);
+                        const halfWidth = depth / o.h * o.w / 2;
+                        const centerX = o.x + o.w / 2;
+                        const overlapsSlope = depth > 2 && pBox.y < o.y - 1 &&
+                            pBox.x < centerX + halfWidth - 1 &&
+                            pBox.x + pBox.w > centerX - halfWidth + 1;
+                        if (overlapsSlope) {
                             failRound();
                             break;
                         }
                     } else {
-                        const b = { x: o.x, y: o.y, w: o.w, h: o.h };
+                        const b = { x:o.x + 1.5, y:o.y + 1.5, w:o.w - 3, h:o.h - 3 };
                         if (rectsOverlap(pBox, b)) {
                             failRound();
                             break;
@@ -1276,6 +1365,22 @@
                 for (const o of obstacles) {
                     if (o.type === "block" || o.type === "lowbar") {
                         ctx.fillRect(o.x, o.y, o.w, o.h);
+                        if (o.type === "lowbar") {
+                            // A distinct cue for an obstacle that must be passed underneath.
+                            ctx.save();
+                            const center = o.x + o.w / 2;
+                            ctx.fillStyle = "#4a90e2";
+                            ctx.font = "600 10px system-ui, sans-serif";
+                            ctx.textAlign = "center";
+                            ctx.fillText("DUCK", center, o.y - 17);
+                            ctx.strokeStyle = "#4a90e2";
+                            ctx.lineWidth = 1.5;
+                            ctx.beginPath();
+                            ctx.moveTo(center, o.y - 13); ctx.lineTo(center, o.y - 5);
+                            ctx.moveTo(center - 3, o.y - 8); ctx.lineTo(center, o.y - 5); ctx.lineTo(center + 3, o.y - 8);
+                            ctx.stroke();
+                            ctx.restore();
+                        }
                         continue;
                     }
                     // triangle
@@ -1291,7 +1396,7 @@
             }
 
             function drawHuman() {
-                const cycle = (roundTime * 1.65) % 1;
+                const cycle = (roundTime * 1.8) % 1;
                 const phase = cycle * Math.PI * 2;
                 const inStride = (mode === "running" || mode === "paused" || mode === "failed") && player.onGround;
                 const airborne = !player.onGround;
@@ -1299,53 +1404,55 @@
                 ctx.save();
                 ctx.translate(player.x, player.y);
 
-                // Filled, tapered limbs echo the silhouettes in the header illustration.
-                function limb(a, b, c, upper = 7, lower = 5, alpha = 1) {
+                function bone(a, b, startWidth, endWidth) {
+                    const dx = b[0] - a[0], dy = b[1] - a[1];
+                    const length = Math.hypot(dx, dy) || 1;
+                    const nx = -dy / length, ny = dx / length;
+                    ctx.beginPath();
+                    ctx.moveTo(a[0] + nx * startWidth / 2, a[1] + ny * startWidth / 2);
+                    ctx.lineTo(b[0] + nx * endWidth / 2, b[1] + ny * endWidth / 2);
+                    ctx.lineTo(b[0] - nx * endWidth / 2, b[1] - ny * endWidth / 2);
+                    ctx.lineTo(a[0] - nx * startWidth / 2, a[1] - ny * startWidth / 2);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(b[0], b[1], endWidth / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                function limb(a, b, c, upper, lower, alpha = 1) {
                     ctx.globalAlpha = alpha;
                     ctx.fillStyle = blue;
-                    function bone(from, to, startWidth, endWidth) {
-                        const dx = to[0] - from[0], dy = to[1] - from[1];
-                        const length = Math.hypot(dx, dy) || 1;
-                        const nx = -dy / length, ny = dx / length;
-                        ctx.beginPath();
-                        ctx.moveTo(from[0] + nx * startWidth / 2, from[1] + ny * startWidth / 2);
-                        ctx.lineTo(to[0] + nx * endWidth / 2, to[1] + ny * endWidth / 2);
-                        ctx.lineTo(to[0] - nx * endWidth / 2, to[1] - ny * endWidth / 2);
-                        ctx.lineTo(from[0] - nx * startWidth / 2, from[1] - ny * startWidth / 2);
-                        ctx.closePath();
-                        ctx.fill();
-                        ctx.beginPath();
-                        ctx.arc(to[0], to[1], endWidth / 2, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
                     bone(a, b, upper, lower + 1);
                     bone(b, c, lower + 1, lower);
                     ctx.globalAlpha = 1;
                 }
-
-                // Solve a fixed-length leg with the knee bending forward.
-                // The old independent knee/ankle oscillation bent one knee backwards.
-                function kneeBetween(hip, ankle) {
-                    const dx = ankle[0] - hip[0], dy = ankle[1] - hip[1];
-                    const distance = Math.max(.001, Math.hypot(dx, dy));
-                    const bend = Math.sqrt(Math.max(0, 20 * 20 - distance * distance / 4));
-                    return [(hip[0] + ankle[0]) / 2 + dy / distance * bend,
-                            (hip[1] + ankle[1]) / 2 - dx / distance * bend];
+                function foot(ankle, alpha = 1) {
+                    ctx.globalAlpha = alpha;
+                    ctx.fillStyle = blue;
+                    bone([ankle[0] - 1, ankle[1]], [ankle[0] + 4, ankle[1]], 4, 4);
+                    ctx.globalAlpha = 1;
                 }
-                function strideFoot(offset) {
-                    const t = (cycle + offset) % 1;
-                    // Stance: planted foot travels backwards. Recovery: lift and swing forward.
-                    if (t < .56) return [17 - 34 * t / .56, -3];
-                    const recovery = (t - .56) / .44;
-                    return [-17 + 17 * (1 - Math.cos(recovery * Math.PI)),
-                            -3 - 18 * Math.sin(recovery * Math.PI)];
+                // A running stride: contact, push-off, heel recovery, then knee drive.
+                // Both legs keep their segment lengths, and knees only flex forward.
+                const stride = [[32, 28], [12, 24], [-22, 10], [-35, 52],
+                                [-15, 100], [35, 110], [62, 100], [50, 52]];
+                function legAngles(offset) {
+                    const f = ((cycle + offset) % 1) * stride.length;
+                    const a = stride[Math.floor(f)], b = stride[(Math.floor(f) + 1) % stride.length];
+                    const t = f % 1, blend = t * t * (3 - 2 * t);
+                    return [a[0] + (b[0] - a[0]) * blend, a[1] + (b[1] - a[1]) * blend];
+                }
+                function leg(hip, angles) {
+                    const thigh = angles[0] * Math.PI / 180;
+                    const shin = (angles[0] - angles[1]) * Math.PI / 180;
+                    const knee = [hip[0] + Math.sin(thigh) * 19, hip[1] + Math.cos(thigh) * 19];
+                    return { knee, ankle: [knee[0] + Math.sin(shin) * 19, knee[1] + Math.cos(shin) * 19] };
                 }
 
                 if (player.duck && !airborne) {
-                    // Deep crouch: head and shoulders stay below the established duck box.
-                    limb([-7, -22], [-17, -12], [-3, -3], 8, 5, .62);
-                    limb([0, -23], [11, -13], [3, -3], 9, 6);
-                    limb([1, -34], [15, -27], [17, -20], 6, 4, .62);
+                    limb([-7, -22], [-17, -12], [-3, -3], 8, 5, .55);
+                    limb([0, -23], [11, -13], [3, -3], 9, 5);
+                    limb([1, -34], [15, -27], [17, -20], 6, 4, .55);
                     ctx.fillStyle = blue;
                     ctx.beginPath();
                     ctx.moveTo(-13, -24);
@@ -1354,46 +1461,46 @@
                     ctx.lineTo(5, -21);
                     ctx.quadraticCurveTo(-3, -16, -13, -24);
                     ctx.fill();
-                    limb([4, -33], [15, -24], [9, -21], 7, 4);
+                    limb([4, -33], [15, -24], [9, -21], 6, 4);
                     ctx.beginPath();
                     ctx.ellipse(10, -43, 7, 8, -.15, 0, Math.PI * 2);
                     ctx.fill();
                 } else {
-                    const lean = inStride || airborne ? 4 : 0;
-                    const bob = inStride ? Math.sin(phase * 2) * 1.1 : 0;
-                    const hip = [-2, -35 + bob];
-                    const farFoot = airborne ? [-15, -15] : inStride ? strideFoot(.5) : [-7, -3];
-                    const nearFoot = airborne ? [16, -8] : inStride ? strideFoot(0) : [7, -3];
-                    limb(hip, kneeBetween(hip, farFoot), farFoot, 9, 5, .62);
-                    limb(hip, kneeBetween(hip, nearFoot), nearFoot, 10, 6);
+                    const moving = inStride || airborne;
+                    const bob = inStride ? -Math.sin(phase * 2) * .7 : 0;
+                    const hip = [-3, -37 + bob];
+                    const rise = Math.max(0, Math.min(1, -player.vy / 560));
+                    const nearAngles = airborne ? [40 + rise * 15, 65 + rise * 20] : inStride ? legAngles(0) : [8, 8];
+                    const farAngles = airborne ? [-20 + rise * 5, 70 + rise * 20] : inStride ? legAngles(.5) : [-8, 8];
+                    let near = leg(hip, nearAngles), far = leg(hip, farAngles);
+                    // Soles stay on/above the ground; in flight their bottom is y - 5.
+                    const lowestSole = Math.max(near.ankle[1], far.ankle[1]) + 2;
+                    const adjust = airborne ? -5 - lowestSole : Math.min(0, -1 - lowestSole);
+                    hip[1] += adjust;
+                    near = leg(hip, nearAngles); far = leg(hip, farAngles);
+                    limb(hip, far.knee, far.ankle, 8, 4.5, .55); foot(far.ankle, .55);
+                    limb(hip, near.knee, near.ankle, 9, 5); foot(near.ankle);
+
+                    const shoulder = [moving ? 2 : -2, hip[1] - 17];
                     function arm(offset, alpha) {
-                        const angle = airborne ? (offset ? -.8 : .8) : inStride ? -.75 * Math.cos(phase + offset) : -.12;
-                        const shoulder = [lean, -53 + bob];
-                        const elbow = [shoulder[0] + Math.sin(angle) * 13, shoulder[1] + Math.cos(angle) * 13];
-                        const bend = inStride || airborne ? 1.65 : .2;
-                        const hand = [elbow[0] + Math.sin(angle + bend) * 12, elbow[1] + Math.cos(angle + bend) * 12];
-                        limb(shoulder, elbow, hand, 6.5, 4, alpha);
+                        const angle = airborne ? (offset ? .55 : -.55) : inStride ? -.65 * Math.cos(phase + offset) : -.1;
+                        const bend = moving ? 1.9 : .25;
+                        const elbow = [shoulder[0] + Math.sin(angle) * 12, shoulder[1] + Math.cos(angle) * 12];
+                        const hand = [elbow[0] + Math.sin(angle + bend) * 11, elbow[1] + Math.cos(angle + bend) * 11];
+                        limb(shoulder, elbow, hand, 6, 3.5, alpha);
                     }
-                    arm(Math.PI, .62);
+                    arm(Math.PI, .55);
                     ctx.fillStyle = blue;
                     ctx.beginPath();
-                    ctx.moveTo(lean - 7, -54 + bob);
-                    ctx.quadraticCurveTo(lean, -58 + bob, lean + 7, -52 + bob);
-                    ctx.lineTo(5, -35 + bob);
-                    ctx.quadraticCurveTo(4, -29 + bob, -7, -32 + bob);
-                    ctx.lineTo(-8, -40 + bob);
-                    ctx.closePath();
-                    ctx.fill();
+                    ctx.moveTo(shoulder[0] - 5.5, shoulder[1] - 1);
+                    ctx.quadraticCurveTo(shoulder[0] + 1, shoulder[1] - 4, shoulder[0] + 6, shoulder[1] + 1);
+                    ctx.lineTo(hip[0] + 6, hip[1] + 1);
+                    ctx.quadraticCurveTo(hip[0], hip[1] + 5, hip[0] - 6, hip[1] + 1);
+                    ctx.closePath(); ctx.fill();
                     arm(0, 1);
+                    bone([shoulder[0], shoulder[1] - 1], [shoulder[0] + 2, shoulder[1] - 6], 6, 5);
                     ctx.beginPath();
-                    ctx.moveTo(lean - 3, -59 + bob);
-                    ctx.lineTo(lean + 4, -59 + bob);
-                    ctx.lineTo(lean + 5, -52 + bob);
-                    ctx.lineTo(lean - 4, -52 + bob);
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.ellipse(lean + 1, -65 + bob, 7.5, 8.5, .08, 0, Math.PI * 2);
+                    ctx.ellipse(shoulder[0] + 2.5, shoulder[1] - 12.5, 6.5, 7.5, .08, 0, Math.PI * 2);
                     ctx.fill();
                 }
                 ctx.restore();

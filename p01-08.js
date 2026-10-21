@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <span class="p08-icon">${getIconSvg(item.icon)}</span>
       <span class="p08-hangul">${escapeHtml(item.hangul)}</span>
       <span class="p08-roman">${escapeHtml(item.roman)}</span>
-      <span class="p08-hint">Click to reveal the meaning</span>
+      <span class="p08-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 0 1 13-5M20 14a8 8 0 0 1-13 5M4 4v6h6m10 10v-6h-6"/></svg>Click to reveal the meaning</span>
     `;
 
     r1Back.innerHTML = `
@@ -260,6 +260,9 @@ document.addEventListener("DOMContentLoaded", () => {
     nextBtn.disabled = false;
 
     r1Card.classList.remove("is-flipped");
+    r1Card.setAttribute("aria-pressed", "false");
+    r1Front.setAttribute("aria-hidden", "false");
+    r1Back.setAttribute("aria-hidden", "true");
     setHeaderRound1();
   }
 
@@ -478,7 +481,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function toggleFlip() {
-    r1Card.classList.toggle("is-flipped");
+    const flipped = r1Card.classList.toggle("is-flipped");
+    r1Card.setAttribute("aria-pressed", String(flipped));
+    r1Front.setAttribute("aria-hidden", String(flipped));
+    r1Back.setAttribute("aria-hidden", String(!flipped));
   }
 
   r1Card.addEventListener("click", toggleFlip);
